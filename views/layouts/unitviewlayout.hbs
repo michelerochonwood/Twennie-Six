@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title -->
+  <title>{{title}}</title>
+
+  <!-- Global Navigation Styles -->
+  <link rel="stylesheet" href="https://www.twennie.com/css/navigation.css">
+
+  <!-- Unit View Styles -->
+  <link rel="stylesheet" href="https://www.twennie.com/css/unitviewstyles.css">
+
+  <!-- Mobile Navigation Script -->
+  <script src="https://www.twennie.com/javascript/mobile-nav.js" defer></script>
+
+  <!-- Ionicons CDN -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body class="main-body">
+
+  {{> mainpartials/header}}
+
+  <!-- Main content area -->
+  {{{body}}}
+
+  <!-- Unit View Scripts -->
+  <script src="https://www.twennie.com/javascript/tagging/tagging.js"></script>
+  <script src="https://www.twennie.com/javascript/prompts/registerform.js"></script>
+  <script src="https://www.twennie.com/javascript/prompts/assignform.js"></script>
+  <script src="https://www.twennie.com/javascript/prompts/assignformerror.js"></script>
+  <script src="https://www.twennie.com/javascript/animation/completion.js"></script>
+
+  <meta name="csrf-token" content="{{csrfToken}}">
+
+  <!-- External library (no cache-busting needed) -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <footer>
+    {{> mainpartials/footer}}
+  </footer>
+
+</body>
+</html>

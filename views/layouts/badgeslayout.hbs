@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+
+  <!-- Navigation Styles -->
+  <link rel="stylesheet" href="https://www.twennie.com/css/navigation.css">
+  
+  <!-- Badge Styles -->
+  <link rel="stylesheet" href="https://www.twennie.com/css/badgestyles.css">
+
+  <!-- JavaScript for Mobile Navigation -->
+  <script src="/javascript/mobile-nav.js" defer></script>
+
+
+
+  <!-- Ionicons CDN -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body class="main-body">
+
+  {{> mainpartials/header}}
+
+  <main class="main-content">
+    {{{body}}}
+  </main>
+
+  <!-- NO BADGES.JS here anymore -->
+  <!-- NO BADGETABS.JS here anymore -->
+
+  <footer>
+    {{> mainpartials/footer}}
+  </footer>
+
+</body>
+</html>
+
+

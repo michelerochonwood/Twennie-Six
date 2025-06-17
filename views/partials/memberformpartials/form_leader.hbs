@@ -1,0 +1,169 @@
+{{#*inline "title"}}Leader Membership Form | Twennie{{/inline}}
+
+<form id="leader-form" action="/leader/form" method="POST" class="membership-form">
+  {{#if csrfToken}}
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+  {{/if}}
+
+  <div class="leader-form-container">
+    <h1 class="form-title">group leader membership form</h1>
+
+    <!-- Group Information -->
+    <div class="form-field">
+      <label for="group-name">Group Name</label>
+      <input type="text" id="group-name" name="groupName" placeholder="Hint: you'll want a fun name, like the Marshmallow Spartans or the Zen Mechanics." required>
+    </div>
+
+    <div class="form-field">
+      <label for="group-leader-name">Group Leader Name</label>
+      <input type="text" id="group-leader-name" name="groupLeaderName" placeholder="This should be the name by which your team knows you." required>
+    </div>
+
+    <div class="form-field">
+      <label for="professionalTitle">Professional Title</label>
+      <input type="text" id="professional-title" name="professionalTitle" placeholder="This should be the title by which your organization knows you." required>
+    </div>
+
+    <div class="form-field">
+      <label for="organization">Organization</label>
+      <input type="text" id="organization" name="organization" placeholder="This should be the name of your organization." required>
+    </div>
+
+    <!-- Billing Address Fields (required by Stripe for tax calculation) -->
+<div class="form-field">
+  <label for="line1">Billing Address Line 1</label>
+  <input type="text" id="line1" name="line1" placeholder="123 Main St" required>
+</div>
+
+<div class="form-field">
+  <label for="line2">Billing Address Line 2 (optional)</label>
+  <input type="text" id="line2" name="line2" placeholder="Unit, Suite, etc.">
+</div>
+
+<div class="form-field">
+  <label for="city">City</label>
+  <input type="text" id="city" name="city" required>
+</div>
+
+<div class="form-field">
+  <label for="province">Province</label>
+  <input type="text" id="province" name="province" required>
+</div>
+
+<div class="form-field">
+  <label for="postalCode">Postal Code</label>
+  <input type="text" id="postalCode" name="postalCode" required>
+</div>
+
+<div class="form-field">
+  <label for="country">Country</label>
+  <input type="text" id="country" name="country" value="CA" required>
+</div>
+
+
+    <!-- NEW: Industry field -->
+    <div class="form-field">
+      <label for="industry">Industry</label>
+      <select id="industry" name="industry" required>
+        <option value="">Please select your industry</option>
+        <option value="Engineering">Engineering</option>
+        <option value="Architecture">Architecture</option>
+        <option value="Project Management">Project Management</option>
+        <option value="Information Technology(IT)">Information Technology(IT)</option>
+        <option value="Web Design">Web Design</option>
+        <option value="Construction">Construction</option>
+        <option value="Technology">Technology</option>
+        <option value="AI and Robotics">AI and Robotics</option>
+        <option value="Social Media/Digital Advertising">Social Media/Digital Advertising</option>
+        <option value="Community Planning/Landscape Architecture">Community Planning/Landscape Architecture</option>
+        <option value="Land Development">Land Development</option>
+        <option value="Telecommunications">Telecommunications</option>
+        <option value="E-Commerce">E-Commerce</option>
+        <option value="Cybersecurity">Cybersecurity</option>
+        <option value="Fintech">Fintech</option>
+        <option value="Edtech">Edtech</option>
+        <option value="Energy and Utilities">Energy and Utilities</option>
+        <option value="Manufacturing">Manufacturing</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="Choose a username for login" required>
+    </div>
+
+    <div class="form-field">
+      <label for="group-leader-email">Group Leader Email Address</label>
+      <input type="text" id="group-leader-email" name="groupLeaderEmail" required>
+    </div>
+
+    <div class="form-field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+
+    <div class="leader-form-field">
+      <label for="group-size">Number of Members</label>
+      <select id="group-size" name="groupSize" required>
+        <option value="">Select group size</option>
+        <option value="2">2 members</option>
+        <option value="3">3 members</option>
+        <option value="4">4 members</option>
+        <option value="5">5 members</option>
+        <option value="6">6 members</option>
+        <option value="7">7 members</option>
+        <option value="8">8 members</option>
+        <option value="9">9 members</option>
+        <option value="10">10 members</option>
+      </select>
+    </div>
+
+    <!-- Individual Member Details -->
+    <div class="individual-members-container">
+      <h3>Individual Group Members</h3>
+      <div id="members-grid" class="members-grid">
+        <!-- Member fields will be dynamically added here -->
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="registration-code">Create a Registration Code</label>
+      <input type="text" id="registration-code" name="registration_code" placeholder="Create a unique code for your team" required>
+      <small class="form-instructions">
+        <strong>How to Create a Registration Code:</strong><br>
+        - Must be <strong>at least 8 characters</strong> long.<br>
+        - Use <strong>letters (A-Z, a-z) and numbers (0-9)</strong> only.<br>
+        - <strong>No special characters</strong> (e.g., @, $, %, !).<br>
+        - Your team will use this code to register.<br>
+        - <strong>Keep it secure</strong>—only share it with trusted team members.<br><br>
+        <strong>Examples:</strong> "TechTeam2024", "ZenGrowth45", "BuildStronger87".
+      </small>
+    </div>
+
+
+    <!-- Agreement Toggle -->
+    <div class="form-toggle">
+      <label for="group-agreement-toggle" class="form-toggle-label">
+        <input type="checkbox" id="group-agreement-toggle" name="group_agreement" value="true" required>
+        I agree to fulfill the responsibilities of a group leader according to the Twennie guidelines and our group agreement.
+      </label>
+    </div>
+
+    <!-- NEW: Payment placeholder -->
+    <div class="form-field" id="group-payment-placeholder">
+      <p><strong>Payment Reminder:</strong> Once you submit this form, you’ll be redirected to a placeholder page for payment. Your payment will cover <strong>all registered group members</strong>.</p>
+      <p>If your organization will pay by invoice or alternate method, please <a href="mailto:info@twennie.com">contact Twennie</a> to arrange billing before registering.</p>
+    </div>
+
+    <input type="hidden" name="accessLevel" value="paid_leader">
+  <input type="hidden" name="redirectTarget" value="payment">
+
+    <!-- Submit Button -->
+    <button type="submit" class="make-member-button">
+      make me a Twennie group leader
+    </button>
+
+    <script src="https://www.twennie.com/javascript/leaderform/leaderform.js"></script>
+  </div>
+</form>

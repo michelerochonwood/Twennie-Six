@@ -1,0 +1,19 @@
+<section class="tagged-units-section">
+    <h2 class="tagged-units-title">tagged library units</h2>
+    <div class="tagged-units-grid">
+        {{#each leaderTaggedUnits}}
+            <div class="tagged-unit-card">
+                <div class="tagged-unit-icon">
+                    <img src="/icons/{{unitType}}.svg" alt="{{unitType}} icon">
+                </div>
+                <div class="tagged-unit-info">
+                    <h3 class="tagged-unit-title">{{title}}</h3>
+                    <p class="tagged-unit-topic">{{mainTopic}}</p>
+                </div>
+                <a href="/unitviews/{{unitType}}s/view/{{_id}}" class="tagged-unit-link">view unit</a>
+            </div>
+        {{else}}
+            <p class="tagged-no-units">You have no tagged units.</p>
+        {{/each}}
+    </div>
+</section>

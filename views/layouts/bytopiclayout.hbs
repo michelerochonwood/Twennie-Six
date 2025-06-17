@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Dynamic Page title -->
+  <title>{{#if title}}{{title}} - Twennie By Topic{{else}}Twennie By Topic{{/if}}</title>
+
+  <!-- Global Navigation Styles -->
+  <link rel="stylesheet" href="https://www.twennie.com/css/navigation.css?v={{timestamp}}">
+
+  <!-- Main Topic Styles -->
+  <link rel="stylesheet" href="https://www.twennie.com/css/bytopicstyles.css?v={{timestamp}}">
+
+  <!-- Mobile Navigation Script -->
+  <script src="https://www.twennie.com/javascript/mobile-nav.js?v={{timestamp}}" defer></script>
+
+  <!-- Ionicons Library -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body class="dashboard-body">
+  {{> mainpartials/header}}
+  
+  <main class="main-content">
+    {{#if error}}
+      <div class="dashboard-alert error">{{error}}</div>
+    {{/if}}
+
+    {{#if message}}
+      <div class="dashboard-alert success">{{message}}</div>
+    {{/if}}
+
+    {{{body}}}
+  </main>
+
+  <!-- Tagging Script -->
+  <script src="https://www.twennie.com/javascript/tagging/tagging.js?v={{timestamp}}"></script>
+
+  {{> mainpartials/footer}}
+</body>
+</html>

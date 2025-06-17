@@ -1,0 +1,57 @@
+{{!-- DASHBOARD VERSION: Topics shown in the member dashboard --}}
+<div class="member-topics-container">
+    <h3 class="member-dashboard-subtitles">my topics</h3>
+        <p>These are your three topics of interest. This makes it so you can get to those topics without having to navigate the whole topic tree. These also determine the email notifications you receive about new units added to the library. If you want to opt out of emails or change these topics, go to your profile and click the "edit profile" button.</p>
+
+    <div class="member-topics-grid">
+        {{#if member.selectedTopics.topic1.title}}
+            <div class="member-topic-card" data-topic-id="{{member.selectedTopics.topic1.slug}}">
+                <div class="member-topic-title">{{member.selectedTopics.topic1.title}}</div>
+                <ul class="member-topic-subtopics">
+                    {{#each member.selectedTopics.topic1.subtopics}}
+                        <li>{{this}}</li>
+                    {{else}}
+                        <li>No subtopics available</li>
+                    {{/each}}
+                </ul>
+                <a href="/topics/{{member.selectedTopics.topic1.viewName}}" class="member-topic-review">review this topic</a>
+            </div>
+        {{/if}}
+
+        {{#if member.selectedTopics.topic2.title}}
+            <div class="member-topic-card" data-topic-id="{{member.selectedTopics.topic2.slug}}">
+                <div class="member-topic-title">{{member.selectedTopics.topic2.title}}</div>
+                <ul class="member-topic-subtopics">
+                    {{#each member.selectedTopics.topic2.subtopics}}
+                        <li>{{this}}</li>
+                    {{else}}
+                        <li>No subtopics available</li>
+                    {{/each}}
+                </ul>
+                <a href="/topics/{{member.selectedTopics.topic2.viewName}}" class="member-topic-review">review this topic</a>
+            </div>
+        {{/if}}
+
+        {{#if member.selectedTopics.topic3.title}}
+            <div class="member-topic-card" data-topic-id="{{member.selectedTopics.topic3.slug}}">
+                <div class="member-topic-title">{{member.selectedTopics.topic3.title}}</div>
+                <ul class="member-topic-subtopics">
+                    {{#each member.selectedTopics.topic3.subtopics}}
+                        <li>{{this}}</li>
+                    {{else}}
+                        <li>No subtopics available</li>
+                    {{/each}}
+                </ul>
+                <a href="/topics/{{member.selectedTopics.topic3.viewName}}" class="member-topic-review">review this topic</a>
+            </div>
+        {{/if}}
+    </div>
+</div>
+
+
+
+
+
+
+
+

@@ -1,0 +1,140 @@
+<div class="single_interview-container">
+  <!-- Main Section -->
+  <div class="single_interview-main">
+    <h1 class="single_interview-main-title">{{interview_title}}</h1>
+    <p class="single_interview-short-summary" style="color:#4a4ab2"><strong>{{short_summary}}</strong></p>
+    <p class="single_interview-long-summary">{{full_summary}}</p>
+
+    <!-- Toggle -->
+    <div class="single_interview-toggle" onclick="toggleInterviewContent(this)" data-authorized="{{isAuthorizedToViewFullContent}}">
+      <svg class="single_interview-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+      </svg>
+    </div>
+
+    <!-- Interview Content -->
+    <div class="single_interview-content hidden">
+      {{#if isAuthorizedToViewFullContent}}
+        <div class="single_interview-window">
+          {{#if interview_link}}
+            <iframe 
+              width="100%" 
+              height="315" 
+              src="{{interview_link}}" 
+              frameborder="0" 
+              allowfullscreen 
+              class="single_interview-frame">
+            </iframe>
+          {{else}}
+            <p style="text-align: center;">This is where the interview video will appear once uploaded.</p>
+          {{/if}}
+        </div>
+
+        <div class="single_interview-transcript">
+          <h2 class="single_interview-transcript-title">Interview Transcript</h2>
+          <div class="single_interview-transcript-content">
+            {{{interview_content}}}
+          </div>
+        </div>
+      {{else}}
+        <div class="unauthorized-message">
+          <p style="text-align: center; font-weight: 600; color: #4e50a2;">
+            You don’t have access to view this interview. Please check your membership type.
+          </p>
+          <a href="/auth/login" class="login-link">Log in to access</a>
+        </div>
+      {{/if}}
+
+      <!-- Tag This Unit -->
+      <div class="single_unit-tag-container">
+        <form id="tagForm" onsubmit="tagUnit(event)">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}">
+          <input type="hidden" id="unitId" value="{{_id}}">
+          <input type="hidden" id="unitType" value="interview">
+          <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
+            tag this unit
+            <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
+              <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
+            </svg>
+          </a>
+        </form>
+      </div>
+
+      <!-- Notes Form -->
+      {{#if isGroupMemberOrLeader}}
+        <div class="single_interview-notes-container">
+          <h3 class="single_interview-notes-title">record notes</h3>
+          <p class="single_interview-notes-instructions">
+            Record notes on this interview. Consider how it relates to your work and how it might change your approach. These notes will be part of your Twennie learning record.
+          </p>
+          <form action="/notes/submit" method="POST" class="single_interview-notes-form">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" name="unitId" value="{{_id}}">
+            <input type="hidden" name="unitType" value="{{unitType}}">
+            <input type="hidden" name="main_topic" value="{{main_topic}}">
+            <input type="hidden" name="secondary_topic" value="{{sub_topic}}">
+            <textarea name="note_content" class="single_interview-notes-textarea" rows="5" maxlength="1000" placeholder="Write your notes here..."></textarea>
+            <button type="submit" class="single_interview-notes-submit">submit notes</button>
+          </form>
+        </div>
+      {{/if}}
+    </div>
+  </div> <!-- .single_interview-main -->
+
+  <!-- Sidebar -->
+  <aside class="single_interview-sidebar">
+    <!-- Toggle -->
+    <div class="single_interview-sidebar-toggle" onclick="toggleSidebarContent(this)">
+      <svg class="single_interview-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+      </svg>
+    </div>
+
+    <!-- Hidden Sidebar Content -->
+    <div class="single_interview-sidebar-content hidden">
+      <p class="single_interview-title-sidebar">{{interview_title}}</p>
+      <div class="single_interview-author">
+        <img src="{{author.image}}" alt="Author Image" class="single_interview-author-image">
+        <p class="single_interview-author-name">Author: {{author.name}}</p>
+      </div>
+      <div class="single_interview-details">
+        <p class="single_interview-unit-type">Interview</p>
+        <p class="single_interview-main-topic">Main Topic: {{main_topic}}</p>
+        <p class="single_interview-subtitle">Sub Topic(s): {{sub_topic}}</p>
+        <p class="single_interview-secondary-topics">
+          {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+        </p>
+        {{#if isOwner}}
+          <a href="/unitform/edit_interview/{{_id}}" class="single_interview-edit-btn">edit this unit</a>
+        {{/if}}
+      </div>
+    </div>
+  </aside>
+</div> <!-- .single_interview-container -->
+
+<!-- JS Toggles -->
+<script>
+function toggleInterviewContent(element) {
+  const isAuthorized = element.dataset.authorized === "true";
+  const content = element.nextElementSibling;
+
+  if (isAuthorized) {
+    content.classList.toggle('hidden');
+    element.classList.toggle('open');
+  } else {
+    alert("You don’t have access to view this interview.");
+  }
+}
+
+function toggleSidebarContent(element) {
+  let sidebarContent = element.nextElementSibling;
+  sidebarContent.classList.toggle('hidden');
+  element.classList.toggle('open');
+}
+</script>
+
+
+
+

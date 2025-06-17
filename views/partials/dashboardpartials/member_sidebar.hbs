@@ -1,0 +1,49 @@
+<aside class="dashboard-sidebar member-sidebar">
+  <div class="member-profile-section">
+
+    <!-- Profile Image -->
+    <div class="member-profile-image-container">
+      <img 
+        src="{{#if member.profileImage}}{{member.profileImage}}{{else}}/images/default-avatar.png{{/if}}" 
+        alt="{{member.name}}'s Profile Photo" 
+        class="member-profile-image"
+      >
+    </div>
+
+    <!-- Profile Info -->
+    <div class="member-profile-info">
+      <h2 class="member-profile-name">{{member.name}}</h2>
+      <p class="member-profile-title">
+        {{#if member.professionalTitle}}
+          {{member.professionalTitle}}
+        {{else}}
+          No title available
+        {{/if}}
+      </p>
+<p style="width: 50%; margin: 0 auto; text-align: center">If you haven't done so, tell us about yourself in your profile:</p>
+      <!-- Profile Button -->
+      <a 
+        href="/profile/member/{{member._id}}" 
+        class="member-profile-btn"
+      >
+        my profile
+      </a>
+
+      <!-- Teach Me Button -->
+      <a 
+        href="/teach_me" 
+        class="member-profile-btn"
+        style="margin-top: 0.75rem;"
+      >
+        teach me how to use Twennie
+      </a>
+
+    </div>
+  </div>
+</aside>
+
+
+
+
+
+

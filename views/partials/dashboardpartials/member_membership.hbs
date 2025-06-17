@@ -1,0 +1,46 @@
+<section class="individual-membership-tab">
+  <h2 class="individual-membership-title">membership snapshot</h2>
+  <div class="individual-membership-grid">
+    <!-- Column 1 -->
+    <div class="individual-membership-column">
+<p class="individual-membership-access">
+  You have a <strong class="highlight-access">{{member.accessLevelLabel}}</strong> membership.
+</p>
+
+      {{#if (eq member.accessLevel "free_individual")}}
+        <p class="individual-membership-section-title">You can access:</p>
+        <ul class="individual-membership-access-list">
+          <li>all Twennie-generated articles and videos</li>
+          <li>your submitted library units</li>
+          <li>your tagged units</li>
+        </ul>
+      {{else}}
+        <p class="individual-membership-section-title">You can access:</p>
+        <ul class="individual-membership-access-list">
+          <li>all Twennie-generated library units</li>
+          <li>your chosen topics</li>
+          <li>your registered prompt sets and notes forms</li>
+          <li>your progress in prompt set completions</li>
+          <li>library contribution forms</li>
+          <li>your submitted library units</li>
+          <li>your tagged units</li>
+        </ul>
+        {{#if (eq member.accessLevel "contributor_individual")}}
+          <p class="individual-membership-contributor-note">
+            As a contributing member, you must submit units to the library once a month.<br>
+            If you have any questions, reach out to Twennie at <a href="mailto:info@twennie.com">info@twennie.com</a>.
+          </p>
+        {{/if}}
+      {{/if}}
+
+<div class="group-membership-button-container">
+  <a href="/change_membership">
+    <button class="group-membership-btn">change my membership</button>
+  </a>
+</div>
+
+
+
+    </div>
+  </div>
+</section>

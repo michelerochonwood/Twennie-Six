@@ -1,0 +1,66 @@
+<section class="old-dashboard-library-units">
+  <!-- My Library Contributions -->
+  <h2 class="old-dashboard-section-title">my library contributions</h2>
+  <table class="old-dashboard-library-table">
+    <thead>
+      <tr>
+        <th class="old-dashboard-library-header">unit type</th>
+        <th class="old-dashboard-library-header">title</th>
+        <th class="old-dashboard-library-header">status</th>
+        <th class="old-dashboard-library-header">main topic</th>
+        <th class="old-dashboard-library-header">view unit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each leaderUnits}}
+        <tr class="old-dashboard-library-row">
+          <td class="old-dashboard-library-cell">{{this.unitType}}</td>
+          <td class="old-dashboard-library-cell">{{this.title}}</td>
+          <td class="old-dashboard-library-cell">{{this.status}}</td>
+          <td class="old-dashboard-library-cell">{{this.mainTopic}}</td>
+          <td class="old-dashboard-library-cell">
+            <a href="/unitviews/{{this.unitType}}s/view/{{this._id}}" class="old-dashboard-view-link">view and/or edit</a>
+          </td>
+        </tr>
+      {{else}}
+        <tr>
+          <td colspan="5" class="old-dashboard-no-units">No contributions submitted yet.</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <!-- Group Members' Library Contributions -->
+  <h2 class="old-dashboard-section-title">group members' library contributions</h2>
+  <table class="old-dashboard-library-table">
+    <thead>
+      <tr>
+        <th class="old-dashboard-library-header">author</th>
+        <th class="old-dashboard-library-header">unit type</th>
+        <th class="old-dashboard-library-header">title</th>
+        <th class="old-dashboard-library-header">status</th>
+        <th class="old-dashboard-library-header">main topic</th>
+        <th class="old-dashboard-library-header">view unit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each groupMemberUnits}}
+        <tr class="old-dashboard-library-row">
+          <td class="old-dashboard-library-cell">{{this.author}}</td> <!-- Reference the resolved author name -->
+          <td class="old-dashboard-library-cell">{{this.unitType}}</td>
+          <td class="old-dashboard-library-cell">{{this.title}}</td>
+          <td class="old-dashboard-library-cell">{{this.status}}</td>
+          <td class="old-dashboard-library-cell">{{this.mainTopic}}</td>
+          <td class="old-dashboard-library-cell">
+            <a href="/unitviews/{{this.unitType}}s/view/{{this._id}}" class="old-dashboard-view-link">view only</a>
+          </td>
+        </tr>
+      {{else}}
+        <tr>
+          <td colspan="6" class="old-dashboard-no-units">No group contributions submitted yet.</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</section>
+

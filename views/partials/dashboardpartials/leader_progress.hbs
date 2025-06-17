@@ -1,0 +1,48 @@
+<div class="leader-progress-container">
+
+  {{#if currentPromptSets.length}}
+    <h2 class="leader-progress-current-title">current prompt sets</h2>
+    <div class="leader-progress-current">
+      {{#each currentPromptSets}}
+        <div class="leader-progress-grid">
+          <h2 class="leader-progress-title">{{this.promptSetTitle}}</h2>
+          <img 
+            src="/promptprogress/promptprogress{{increment @index}}-{{this.promptIndex}}.svg"
+            alt="Progress Pie Chart" 
+            class="leader-progress-svg"
+            data-progress="{{this.promptIndex}}"
+          >
+          <p class="leader-progress-target">you have completed {{this.promptIndex}} prompts in this set</p>
+        </div>
+      {{/each}}
+    </div>
+  {{/if}}
+
+  {{#if completedPromptSets.length}}
+    <div class="leader-progress-completed">
+      <h2 class="leader-progress-completed-title">completed prompt sets</h2>
+      <div class="leader-progress-completed-grid">
+        {{#each completedPromptSets}}
+        <div class="leader-progress-completed-card">
+          <h3 class="leader-progress-completed-title">{{this.promptSetTitle}}</h3>
+          <p class="leader-progress-completed-main-topic">{{this.mainTopic}}</p>
+          <p class="leader-progress-completed-date">
+            completed: {{this.completedAt}}
+          </p>
+          <div class="leader-progress-badge">
+            {{#if this.badge}}
+              <img src="{{this.badge.image}}" alt="{{this.badge.name}}" class="leader-progress-badge-img">
+              <p class="leader-progress-badge-name">{{this.badge.name}}</p>
+            {{else}}
+              <p class="leader-progress-badge-name">No badge earned</p>
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+
+</div>
+
+

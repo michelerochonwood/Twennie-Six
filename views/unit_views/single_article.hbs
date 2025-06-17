@@ -1,0 +1,226 @@
+<div class="single_article-container">
+  <!-- Main Section -->
+  <div class="single_article-main">
+    <h1 class="single_article-main-title">{{article_title}}</h1>
+    <p class="single_article-short-summary"><strong>{{short_summary}}</strong></p>
+    <p class="single_article-long-summary">{{full_summary}}</p>
+
+    <!-- Toggle + Content -->
+    {{#if isAuthenticated}}
+<div class="single_article-toggle" 
+     onclick="toggleArticleContent(this)" 
+     data-authorized="{{isAuthorizedToViewFullContent}}">
+        <svg class="single_article-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+          <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+          <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+        </svg>
+      </div>
+
+      <div class="single_article-content hidden">
+        {{{formatContent article_content}}}
+
+
+        {{#if isLeader}}
+<div class="assign-tag-form">
+  <h4>Assign a tag to group members:</h4>
+  <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
+    <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+    <input type="hidden" id="unitId" value="{{_id}}">
+    <input type="hidden" id="unitType" value="article">
+
+    <label for="tagName">Tag name:</label>
+    <input type="text" id="tagName" name="tagName" required>
+
+    <label for="instructions">Instructions for tagged group members:</label>
+    <textarea id="instructions" name="instructions" rows="3"></textarea>
+
+    <fieldset>
+      <legend>Select group members:</legend>
+      {{#each groupMembers}} <!-- You need to pass groupMembers to the view -->
+        <label>
+          <input type="checkbox" name="assignedTo" value="{{_id}}"> {{name}}
+        </label><br>
+      {{/each}}
+    </fieldset>
+
+    <button type="submit">assign tag</button>
+  </form>
+</div>
+{{/if}}
+        <!-- Tag This Unit -->
+        <div class="single_unit-tag-container" style="margin-bottom: 200px;">
+          <form id="tagForm" onsubmit="tagUnit(event)">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" id="unitId" value="{{_id}}">
+            <input type="hidden" id="unitType" value="article">
+            <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
+              tag this unit
+              <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
+                <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
+              </svg>
+            </a>
+          </form>
+        </div>
+
+
+
+        <!-- Notes Form (If User is a Group Member or Leader) -->
+        {{#if isGroupMemberOrLeader}}
+          <div class="single_article-notes-container">
+            <h3 class="single_article-notes-title">record notes</h3>
+            <p class="single_article-notes-instructions">
+              Record notes on this article. Consider how it relates to your work and how it might change your approach. These notes will be part of your Twennie learning record.
+            </p>
+
+            <form action="/notes/submit" method="POST" class="single_article-notes-form">
+              <input type="hidden" name="_csrf" value="{{csrfToken}}">
+              <input type="hidden" name="unitId" value="{{_id}}">
+              <input type="hidden" name="unitType" value="{{unitType}}">
+              <input type="hidden" name="main_topic" value="{{main_topic}}">
+              <input type="hidden" name="secondary_topic" value="{{sub_topic}}">
+
+              <textarea name="note_content" class="single_article-notes-textarea" rows="5" maxlength="1000" 
+                        placeholder="Write your notes here..."></textarea>
+
+              <button type="submit" class="single_article-notes-submit">submit notes</button>
+            </form>
+          </div>
+        {{/if}}
+      </div>
+    {{else}}
+      <div class="single_article-toggle" onclick="toggleArticleContent(this)" data-authorized="false">
+        <svg class="single_article-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+          <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+          <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+        </svg>
+      </div>
+
+      <div class="single_article-content hidden">
+        <div class="unauthorized-message">
+          <p>You must be logged in to view the full content of this article.</p>
+          <a href="/auth/login" class="login-link">Log in to access</a>
+        </div>
+      </div>
+    {{/if}}
+  </div> <!-- Closing .single_article-main -->
+
+  <!-- Sidebar -->
+  <aside class="single_article-sidebar">
+    <!-- Duration Image -->
+    <div class="single_article-duration-image-container" style="text-align: center; margin-bottom: 10px; width: 100px; height: auto; display: inline-block">
+      <img src="https://www.twennie.com/images/5mins.svg" alt="Estimated Time: 5 Minutes" class="single_article-duration-image">
+    </div>
+
+    <!-- Article Image -->
+    <div class="single_article-image-container">
+      <img src="{{article_image}}" alt="Article Image" class="single_article-image">
+    </div>
+    <p class="single_article-title-sidebar">{{article_title}}</p>
+
+
+<!-- Toggle Arrow for Expanding Sidebar Details -->
+<div class="single_article-sidebar-toggle" onclick="toggleSidebarContent(this)">
+  <svg class="single_article-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+    <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+    <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+  </svg>
+</div>
+
+    <!-- Hidden Sidebar Details (Initially Collapsed) -->
+    <div class="single_article-sidebar-content hidden">
+      <div class="single_article-author">
+        <img src="{{author.image}}" alt="Author Image" class="single_article-author-image">
+        <p class="single_article-author-name">Author: {{author.name}}</p>
+      </div>
+      <div class="single_article-details">
+        <p class="single_article-unit-type">Article</p>
+        <p class="single_article-main-topic">Main Topic: {{main_topic}}</p>
+        <p class="single_article-subtitle">Sub Topic(s): {{sub_topic}}</p>
+        <p class="single_article-secondary-topics">
+          {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+        </p>
+        {{#if isOwner}}
+          <a href="/unitform/edit_article/{{_id}}" class="single_article-edit-btn">edit this unit</a>
+        {{/if}}
+      </div>
+    </div>
+  </aside>
+</div> <!-- Closing .single_article-container -->
+
+
+<script>
+  function toggleArticleContent(element) {
+  const isAuthorized = element.dataset.authorized === "true";
+  const content = element.nextElementSibling;
+
+  if (isAuthorized) {
+    content.classList.toggle('hidden');
+    element.classList.toggle('open'); // rotate the arrow if needed
+  } else {
+    alert("You don't have access to view the full content of this unit.");
+  }
+}
+
+function toggleSidebarContent(element) {
+  let sidebarContent = element.nextElementSibling;
+  console.log("Sidebar content element:", sidebarContent);
+
+  if (sidebarContent) {
+    sidebarContent.classList.toggle('hidden');
+    element.classList.toggle('open');
+  } else {
+    console.warn("Sidebar content not found — check HTML structure.");
+  }
+}
+
+async function submitAssignedTag(event) {
+  event.preventDefault();
+
+  const tagName = document.getElementById('tagName').value;
+  const unitId = document.getElementById('unitId').value;
+  const unitType = document.getElementById('unitType').value;
+  const instructions = document.getElementById('instructions').value;
+const csrfToken = getCsrfToken(); // ✅ Replaces the broken direct lookup
+
+  const assignedTo = Array.from(document.querySelectorAll('input[name="assignedTo"]:checked'))
+                          .map(cb => cb.value);
+
+  const response = await fetch('/tags/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': csrfToken
+    },
+    body: JSON.stringify({
+      name: tagName,
+      itemId: unitId,
+      itemType: unitType,
+      assignedTo,
+      instructions,
+      _csrf: csrfToken
+    })
+  });
+
+  const result = await response.json();
+  if (response.ok) {
+    alert('Tag assigned successfully!');
+    location.reload();
+  } else {
+    alert(result.message || 'Error assigning tag.');
+  }
+}
+
+function getCsrfToken() {
+  // First try hidden input
+  const csrfInput = document.querySelector('input[name="_csrf"]');
+  if (csrfInput && csrfInput.value) return csrfInput.value;
+
+  // Try meta tag
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  if (meta) return meta.getAttribute('content');
+
+  // Fallback
+  return '';
+}
+
+</script>

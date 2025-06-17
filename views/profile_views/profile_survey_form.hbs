@@ -1,0 +1,96 @@
+{{#*inline "title"}}Profile Survey Form | Twennie{{/inline}}
+<div class="profile-form-container">
+  <h2 class="profile-form-title">Twennie profile survey</h2>
+
+  <form action="/profile/survey/submit" method="POST">
+    {{#if csrfToken}}
+      <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    {{/if}}
+
+    <!-- Name (pre-filled) -->
+    <div class="form-field">
+      <label for="name">Your Name</label>
+      <input type="text" id="name" name="name" value="{{member.name}}" required readonly>
+    </div>
+
+    <!-- Email (pre-filled) -->
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" value="{{member.email}}" required readonly>
+    </div>
+
+    <!-- Role -->
+    <div class="form-field">
+      <label>I am a:</label>
+      <label><input type="checkbox" name="role" value="member"> Member</label>
+      <label><input type="checkbox" name="role" value="group_member"> Group Member</label>
+      <label><input type="checkbox" name="role" value="leader"> Leader</label>
+    </div>
+
+    <!-- Profile interest -->
+    <div class="form-field">
+      <label>Do you want to have a profile on Twennie?</label>
+      <label><input type="radio" name="wantsProfile" value="yes"> Yes</label>
+      <label><input type="radio" name="wantsProfile" value="no"> No</label>
+    </div>
+
+    <!-- Profile types valued -->
+    <div class="form-field">
+      <label>I see value in:</label>
+      <label><input type="checkbox" name="profileTypes" value="individual"> Individual Profiles</label>
+      <label><input type="checkbox" name="profileTypes" value="group"> Group Profiles</label>
+      <label><input type="checkbox" name="profileTypes" value="organization"> Organizational Profiles</label>
+    </div>
+
+    <!-- Preferred Profile Components -->
+    <div class="form-field">
+      <label>What should a profile include?</label>
+      <label><input type="checkbox" name="profileComponents" value="bio"> Biography</label>
+      <label><input type="checkbox" name="profileComponents" value="image"> Profile Image</label>
+      <label><input type="checkbox" name="profileComponents" value="organization"> Employer Organization</label>
+      <label><input type="checkbox" name="profileComponents" value="title"> Position / Title</label>
+      <label><input type="checkbox" name="profileComponents" value="group_name"> Twennie Group Name</label>
+      <label><input type="checkbox" name="profileComponents" value="group_leader"> Twennie Leader Name</label>
+      <label><input type="checkbox" name="profileComponents" value="website"> Website of Organization</label>
+      <label><input type="checkbox" name="profileComponents" value="expertise"> Area of Expertise</label>
+      <label><input type="checkbox" name="profileComponents" value="interests"> Topics of Interest</label>
+      <label><input type="checkbox" name="profileComponents" value="library"> Contributions to the Library</label>
+      <label><input type="checkbox" name="profileComponents" value="badges"> Badges Earned</label>
+      <label><input type="checkbox" name="profileComponents" value="courses"> Micro Courses Completed</label>
+      <label><input type="checkbox" name="profileComponents" value="coaching"> Peer Coaching Profile</label>
+      <label><input type="checkbox" name="profileComponents" value="contact"> Contact Information</label>
+      <label><input type="checkbox" name="profileComponents" value="skills"> Skills Gained Through Twennie</label>
+      <label><input type="checkbox" name="profileComponents" value="achievements"> Group Achievements</label>
+      <label><input type="checkbox" name="profileComponents" value="events"> Group Events</label>
+    </div>
+
+    <!-- Profile Visibility -->
+    <div class="form-field">
+      <label for="visibility">Who should be able to view your profile?</label>
+      <select name="visibility" id="visibility">
+        <option value="twennie">All Twennie Members</option>
+        <option value="organization">Only My Organization</option>
+        <option value="group">Only My Group</option>
+      </select>
+    </div>
+
+    <!-- New Suggested Question -->
+    <div class="form-field">
+      <label>Would you like to connect directly with other members?</label>
+      <label><input type="radio" name="connect" value="yes"> Yes, I’d like to opt in</label>
+      <label><input type="radio" name="connect" value="maybe"> Maybe, case by case</label>
+      <label><input type="radio" name="connect" value="no"> No, I prefer privacy</label>
+    </div>
+
+    <!-- Additional Suggestions -->
+    <div class="form-field">
+      <label for="notes">Any additional suggestions?</label>
+      <textarea id="notes" name="notes"></textarea>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-buttons">
+      <button type="submit" class="form-button submit-button">submit survey</button>
+    </div>
+  </form>
+</div>

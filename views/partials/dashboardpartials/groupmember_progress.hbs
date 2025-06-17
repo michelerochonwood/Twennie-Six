@@ -1,0 +1,54 @@
+<div class="groupmember-progress-container">
+
+  {{#if currentPromptSets.length}}
+    <h2 class="groupmember-progress-current-title">current prompt sets</h2>
+    <div class="groupmember-progress-current">
+      {{#each currentPromptSets}}
+        <div class="groupmember-progress-grid">
+          <h2 class="groupmember-progress-title">{{this.promptSetTitle}}</h2>
+
+          <!-- Progress SVG -->
+          <img 
+              src="/promptprogress/promptprogress{{increment @index}}-{{this.promptIndex}}.svg"
+              alt="Progress Pie Chart" 
+              class="groupmember-progress-svg"
+              data-progress="{{this.promptIndex}}"
+          >
+
+          <p class="groupmember-progress-target">
+            you have completed {{this.promptIndex}} prompts in this set
+          </p>
+        </div>
+      {{/each}}
+    </div>
+  {{/if}}
+
+  {{#if completedPromptSets.length}}
+    <div class="groupmember-progress-completed">
+      <h2 class="groupmember-progress-completed-title">completed prompt sets</h2>
+      <div class="groupmember-progress-completed-grid">
+        {{#each completedPromptSets}}
+        <div class="groupmember-progress-completed-card">
+          <h3 class="groupmember-progress-completed-title">{{this.promptSetTitle}}</h3>
+          <p class="groupmember-progress-completed-main-topic">{{this.mainTopic}}</p>
+          <p class="groupmember-progress-completed-date">
+            completed: {{this.completedAt}}
+          </p>
+          <div class="groupmember-progress-badge">
+            {{#if this.badge}}
+              <img src="{{this.badge.image}}" alt="{{this.badge.name}}" class="groupmember-progress-badge-img">
+              <p class="groupmember-progress-badge-name">{{this.badge.name}}</p>
+            {{else}}
+              <p class="groupmember-progress-badge-name">No badge earned</p>
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+
+</div>
+
+
+    

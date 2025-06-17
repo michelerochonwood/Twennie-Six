@@ -1,0 +1,82 @@
+{{#*inline "title"}}Latest Additions | Twennie{{/inline}}
+
+<div class="latest-container">
+
+  <div class="latest-content">
+    <h1 class="latest-title">latest additions to the Twennie library</h1>
+
+    <!-- Section: Today -->
+    <div class="latest-section">
+      <h2 class="latest-section-title">today</h2>
+      <div class="latest-library-units-grid">
+        {{#each todayItems}}
+        {{> latestpartials/latest_card this }}
+        {{else}}
+        <p>No new items added today.</p>
+        {{/each}}
+      </div>
+    </div>
+
+    <hr class="latest-divider">
+
+    <!-- Section: This Week -->
+    <div class="latest-section">
+      <h2 class="latest-section-title">this week</h2>
+      <div class="latest-library-units-grid">
+        {{#each thisWeekItems}}
+        {{> latestpartials/latest_card this }}
+        {{else}}
+        <p>No new items this week.</p>
+        {{/each}}
+      </div>
+    </div>
+
+    <hr class="latest-divider">
+
+    <!-- Section: Last Month -->
+    <div class="latest-section">
+      <h2 class="latest-section-title">last month</h2>
+      <div class="latest-library-units-grid">
+        {{#each lastMonthItems}}
+        {{> latestpartials/latest_card this }}
+        {{else}}
+        <p>No new items last month.</p>
+        {{/each}}
+      </div>
+    </div>
+
+
+
+  </div>
+
+</div>
+
+<script>
+function toggleLatestCard(element) {
+  let card = element.closest('.latest-library-unit-card');
+
+  // Check if the clicked card is already open
+  let isOpen = card.classList.contains('active');
+
+  // Close all other cards before opening the clicked one
+  document.querySelectorAll('.latest-library-unit-card').forEach(c => {
+    if (c !== card) {
+      c.classList.remove('active');
+      c.querySelector('.latest-hidden-content').style.maxHeight = "0px";
+      c.querySelector('.latest-hidden-content').style.opacity = "0";
+    }
+  });
+
+  // Toggle the clicked card
+  if (!isOpen) {
+    card.classList.add('active');
+    card.querySelector('.latest-hidden-content').style.maxHeight = "300px"; // Adjust height as needed
+    card.querySelector('.latest-hidden-content').style.opacity = "1";
+  } else {
+    card.classList.remove('active');
+    card.querySelector('.latest-hidden-content').style.maxHeight = "0px";
+    card.querySelector('.latest-hidden-content').style.opacity = "0";
+  }
+}
+
+</script>

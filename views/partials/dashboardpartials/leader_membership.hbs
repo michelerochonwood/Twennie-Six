@@ -1,0 +1,49 @@
+<section class="leader-membership-tab">
+  <h2 class="leader-membership-title">membership snapshot</h2>
+  <div class="leader-membership-grid">
+    
+    <!-- Column 1 -->
+    <div class="leader-membership-column">
+      <p class="leader-membership-line">
+        <span class="leader-membership-label">Group Name:</span> {{leader.groupName}}
+      </p>
+
+      <p class="leader-membership-line">
+        <span class="leader-membership-label">Members:</span>
+        {{#each leaderGroupMembers}}
+          <br>{{this.name}}
+        {{/each}}
+      </p>
+
+      <p class="leader-membership-line">
+        <span class="leader-membership-label">Organization:</span> {{leader.organization}}
+      </p>
+    </div>
+
+    <!-- Column 2 -->
+    <div class="leader-membership-column">
+      <p class="leader-membership-access-title">You can access:</p>
+      <ul class="leader-membership-access-list">
+        <li>all Twennie-generated library units</li>
+        <li><em>{{leader.groupName}}</em>-generated library units</li>
+        <li><em>{{leader.organization}}</em>-generated library units</li>
+        <li>profiles and content of your group members</li>
+        <li>your chosen topics</li>
+        <li>your registered prompt sets and notes forms</li>
+        <li>your progress in prompt set completions</li>
+        <li>library contribution forms</li>
+        <li>your submitted library units</li>
+        <li>your tagged units</li>
+        <li>your report center</li>
+      </ul>
+    </div>
+  </div>
+
+<div class="group-membership-button-container">
+  <a href="/change_membership">
+    <button class="group-membership-btn">change my membership</button>
+  </a>
+</div>
+</section>
+
+

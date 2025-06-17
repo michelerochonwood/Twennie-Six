@@ -1,0 +1,137 @@
+<div class="single_video-container">
+  <!-- Main Section -->
+  <div class="single_video-main">
+    <h1 class="single_video-main-title">{{video_title}}</h1>
+    <p class="single_video-short-summary"><strong>{{short_summary}}</strong></p>
+    <p class="single_video-long-summary" style="margin-bottom: 20px;">{{full_summary}}</p>
+
+    <!-- Toggle + Video -->
+    <div class="single_video-toggle" onclick="toggleVideoContent(this)" data-authorized="{{isAuthorizedToViewFullContent}}">
+      <svg class="single_video-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+      </svg>
+    </div>
+
+    <!-- Video Content Section -->
+    <div class="single_video-content hidden">
+      {{#if isAuthorizedToViewFullContent}}
+        <div class="single_video-window">
+          {{#if video_content}}
+            <iframe 
+              width="100%" 
+              height="450" 
+              src="{{getYouTubeEmbedUrl video_content}}" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen 
+              class="single_video-frame">
+            </iframe>
+          {{else}}
+            <p style="text-align: center;">This is where the video will appear once the link is provided in the video form.</p>
+          {{/if}}
+        </div>
+      {{else}}
+        <div class="unauthorized-message">
+          <p>You don’t have access to view this video. Please check with your group leader or organization.</p>
+          <a href="/auth/login" class="login-link">Log in to access</a>
+        </div>
+      {{/if}}
+
+      <!-- Tag This Unit -->
+      <div class="single_unit-tag-container">
+        <form id="tagForm" onsubmit="tagUnit(event)">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}">
+          <input type="hidden" id="unitId" value="{{_id}}">
+          <input type="hidden" id="unitType" value="video">
+          <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
+            tag this unit
+            <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
+              <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
+            </svg>
+          </a>
+        </form>
+      </div>
+
+      <!-- Notes Form -->
+      {{#if isGroupMemberOrLeader}}
+        <div class="single_video-notes-container">
+          <h3 class="single_video-notes-title">record notes</h3>
+          <p class="single_video-notes-instructions">
+            Record notes on this video. Consider how it relates to your work and how it might change your approach. These notes will be part of your Twennie learning record.
+          </p>
+          <form action="/notes/submit" method="POST" class="single_video-notes-form">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" name="unitId" value="{{_id}}">
+            <input type="hidden" name="unitType" value="{{unitType}}">
+            <input type="hidden" name="main_topic" value="{{main_topic}}">
+            <input type="hidden" name="secondary_topic" value="{{sub_topic}}">
+            <textarea name="note_content" class="single_video-notes-textarea" rows="5" maxlength="1000" placeholder="Write your notes here..."></textarea>
+            <button type="submit" class="single_video-notes-submit">submit notes</button>
+          </form>
+        </div>
+      {{/if}}
+    </div>
+  </div> <!-- .single_video-main -->
+
+  <!-- Sidebar -->
+  <aside class="single_video-sidebar">
+    <!-- Duration -->
+    <div class="single_video-duration-image-container" style="text-align: center; margin-bottom: 10px; width: 100px;">
+      <img src="https://www.twennie.com/images/10mins.svg" alt="Estimated Time: 10 Minutes" class="single_video-duration-image">
+    </div>
+
+    <!-- Toggle -->
+    <div class="single_video-sidebar-toggle" onclick="toggleSidebarContent(this)">
+      <svg class="single_video-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+      </svg>
+    </div>
+
+    <!-- Hidden Sidebar Content -->
+    <div class="single_video-sidebar-content hidden">
+      <p class="single_video-title-sidebar">{{video_title}}</p>
+      <div class="single_video-author">
+        <img src="{{author.image}}" alt="Author Image" class="single_video-author-image">
+        <p class="single_video-author-name">Videographer: {{author.name}}</p>
+      </div>
+      <div class="single_video-details">
+        <p class="single_video-unit-type">Video</p>
+        <p class="single_video-main-topic">Main Topic: {{main_topic}}</p>
+        <p class="single_video-subtitle">Sub Topic(s): {{sub_topic}}</p>
+        <p class="single_video-secondary-topics">
+          {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+        </p>
+        {{#if isOwner}}
+          <a href="/unitform/edit_video/{{_id}}" class="single_video-edit-btn">edit this unit</a>
+        {{/if}}
+      </div>
+    </div>
+  </aside>
+</div> <!-- .single_video-container -->
+
+<!-- JS Toggles -->
+<script>
+function toggleVideoContent(element) {
+  const isAuthorized = element.dataset.authorized === "true";
+  const content = element.nextElementSibling;
+
+  if (isAuthorized) {
+    content.classList.toggle('hidden');
+    element.classList.toggle('open');
+  } else {
+    alert("You don't have access to view this video.");
+  }
+}
+
+function toggleSidebarContent(element) {
+  let sidebarContent = element.nextElementSibling;
+  sidebarContent.classList.toggle('hidden');
+  element.classList.toggle('open');
+}
+</script>
+
+
+
+

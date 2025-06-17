@@ -1,0 +1,39 @@
+<section class="group-membership-tab">
+  <h2 class="group-membership-title">membership snapshot</h2>
+  <p class="group-membership-welcome">Welcome to the Twennie dashboard, {{groupMember.name}}!</p>
+
+<div class="group-membership-grid">
+  <div class="group-membership-column">
+    <p class="group-membership-line">
+      <span class="group-membership-label">Group Name:</span> {{groupMember.groupId.groupName}}
+    </p>
+    <p class="group-membership-line">
+      <span class="group-membership-label">Leader:</span> {{leaderName}}
+    </p>
+  </div>
+
+    <div class="group-membership-column">
+      <p class="group-membership-access-title">You can access:</p>
+      <ul class="group-membership-access-list">
+        <li>Twennie-generated library units</li>
+        <li><em>{{groupMember.groupId.groupName}}</em>-generated library units</li>
+        <li><em>{{organization}}</em>-generated library units</li>
+        <li>profiles and content of your group members and leader</li>
+        <li>your chosen topics</li>
+        <li>your registered prompt sets and notes forms</li>
+        <li>your progress in prompt set completions</li>
+        <li>library contribution forms</li>
+        <li>your submitted library units</li>
+        <li>your tagged units</li>
+      </ul>
+    </div>
+  </div>
+
+<div class="group-membership-button-container">
+  <a href="/change_membership">
+    <button class="group-membership-btn">change my membership</button>
+  </a>
+</div>
+</section>
+
+

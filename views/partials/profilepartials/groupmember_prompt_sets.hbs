@@ -1,0 +1,17 @@
+{{#if completedPromptSets.length}}
+<section class="groupmember-completed-prompts-section">
+    <h2 class="groupmember-completed-prompts-title">completed prompt sets</h2>
+    
+    <div class="groupmember-completed-prompts-grid">
+        {{#each completedPromptSets}}
+        <div class="groupmember-completed-prompts-card">
+            <h3 class="groupmember-completed-prompts-title">{{this.promptSetTitle}}</h3>
+            <p class="groupmember-completed-prompts-main-topic">main topic: {{this.mainTopic}}</p>
+            <div class="groupmember-completed-prompts-badge"></div>
+        </div>
+        {{else}}
+        <p class="groupmember-no-completed-prompts">No completed prompt sets yet.</p>
+        {{/each}}
+    </div>
+</section>
+{{/if}}
