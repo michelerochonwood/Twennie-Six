@@ -2109,10 +2109,12 @@ img[alt="Free"] {
   grid-area: altplan;
   min-height: 100px;
   display: flex;
-  align-items: center;
+  flex-direction: column; /* stack heading and paragraph */
   justify-content: center;
+  align-items: center;
   text-align: center;
   padding: 0 10px;
+  gap: 0.5rem; /* add spacing between heading and text */
 }
 .membership-price-area     {
   grid-area: price;
