@@ -2062,6 +2062,15 @@ img[alt="Free"] {
   margin-top: auto; /* Pushes price to bottom if other content is shorter */
 }
 
+.membership-price-area {
+  min-height: 80px; /* adjust as needed */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  text-align: center;
+}
+
 .membership-price-small {
   font-family: 'Figtree', sans-serif;
   font-weight: 100;
