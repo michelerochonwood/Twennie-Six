@@ -31,6 +31,7 @@ const createGetFormHandler = (unitType, viewPath) => (req, res) => {
             'Soft Skills in Technical Environments',
             'Project Management',
             'Business Development in Technical Services',
+            'Finding Projects Before they Become RFPs',
             'Proposal Management',
             'Proposal Strategy',
             'Storytelling in Technical Marketing',
