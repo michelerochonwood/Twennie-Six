@@ -23,32 +23,29 @@
     </div>
   {{/if}}
 
+<div class="groupmember-progress-completed">
+  <h2 class="groupmember-progress-completed-title">completed prompt sets</h2>
+
   {{#if completedPromptSets.length}}
-    <div class="groupmember-progress-completed">
-      <h2 class="groupmember-progress-completed-title">completed prompt sets</h2>
-      <div class="groupmember-progress-completed-grid">
-        {{#each completedPromptSets}}
-        <div class="groupmember-progress-completed-card">
-          <h3 class="groupmember-progress-completed-title">{{this.promptSetTitle}}</h3>
-          <p class="groupmember-progress-completed-main-topic">{{this.mainTopic}}</p>
-          <p class="groupmember-progress-completed-date">
-            completed: {{this.completedAt}}
-          </p>
-          <div class="groupmember-progress-badge">
-            {{#if this.badge}}
-              <img src="{{this.badge.image}}" alt="{{this.badge.name}}" class="groupmember-progress-badge-img">
-              <p class="groupmember-progress-badge-name">{{this.badge.name}}</p>
-            {{else}}
-              <p class="groupmember-progress-badge-name">No badge earned</p>
-            {{/if}}
-          </div>
-        </div>
-        {{/each}}
-      </div>
+    <div class="groupmember-progress-completed-grid">
+      {{#each completedPromptSets}}
+        <!-- card content -->
+      {{/each}}
     </div>
+  {{else}}
+    <p class="no-data" style="text-align: center; margin-top: 1rem;">
+      You haven’t completed any prompt sets yet.
+    </p>
   {{/if}}
 
+  <!-- Button always shown -->
+  <div class="member-progress-report-button-container">
+    <a href="/reports/groupmypromptsets" class="member-progress-report-button">
+      view my completed prompts
+    </a>
+  </div>
 </div>
+
 
 
 
