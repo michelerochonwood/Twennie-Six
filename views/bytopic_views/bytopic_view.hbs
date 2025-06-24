@@ -117,8 +117,15 @@
   function toggleCard(element) {
     const card = element.closest('.bytopic-library-unit-card');
     const arrow = element.querySelector('.bytopic-arrow-icon');
-    card.classList.toggle('active');
-    if (arrow) arrow.classList.toggle('open');
+    const isActive = card.classList.contains('active');
+
+    if (isActive) {
+      card.classList.remove('active');
+      arrow.classList.remove('open');
+    } else {
+      card.classList.add('active');
+      arrow.classList.add('open');
+    }
   }
 </script>
 

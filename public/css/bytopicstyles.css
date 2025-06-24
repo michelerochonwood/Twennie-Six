@@ -164,6 +164,7 @@ html, body {
 
 .bytopic-arrow-icon.open {
   transform: rotate(180deg);
+  transform-origin: center;
 }
 
 /* === HIDDEN CONTENT AREA === */
