@@ -7,13 +7,9 @@ const professions = [
     "technologists",
     "web designers",
     "app developers",
-    "software engineers",
-    "eco scientists",
-    "geologists",
     "proposal managers",
     "CAD professionals",
     "urban planners",
-    "HR professionals",
   ];
   
   let currentProfessionIndex = 0;
