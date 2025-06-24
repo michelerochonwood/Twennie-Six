@@ -1675,12 +1675,15 @@ html, body {
 
 /* Completed Prompt Set Card */
 .groupmember-progress-completed-card {
-  background: rgb(245, 245, 245);
-  padding: 1.125rem; /* Reduced from 15px */
-  border-radius: 0.75rem; /* Reduced from 10px */
+  background-color: rgb(230, 230, 230);
+  padding: 11.25px;
+  border-radius: 7.5px;
   text-align: center;
-  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.2); /* Adjusted shadow */
-
+  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.2);
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* Completed Prompt Set Details */
@@ -1692,15 +1695,19 @@ html, body {
 }
 
 .groupmember-progress-badge {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .groupmember-progress-badge-img {
-  width: 50px;
-  height: 50px;
+  width: 100px;
+  height: auto;
   display: block;
-  margin: 0 auto 5px;
+  margin: 0 auto;
 }
 
 .groupmember-progress-badge-name {
@@ -1835,7 +1842,11 @@ html, body {
   background-color: #4e50a2; /* Slightly lighter blue on hover */
 }
 
-
+@media screen and (max-width: 768px) {
+  .groupmember-progress-completed-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 
 /*------------------------------------------------------------------------------*/
