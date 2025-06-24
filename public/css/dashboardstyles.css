@@ -3032,7 +3032,7 @@ box-shadow: none !important;
   border-spacing: 3.75px 0;
   font-family: "Figtree";
   margin: 0 auto;
-  margin-bottom: 50px;
+  margin-bottom: 350px;
 }
 
 /* Sticky Table Headers */
@@ -3204,7 +3204,7 @@ box-shadow: none !important;
   max-width: 80%; /* Ensures table fills viewport */
   overflow-x: auto; /* Enables horizontal scrolling */
   margin-left: 10%;
-
+  margin-bottom: 200px;
 }
 
 .wide-table {

@@ -9,6 +9,8 @@ router.get("/promptsetscompleted", ensureAuthenticated, reportingController.getP
 router.get("/teamengagement", ensureAuthenticated, reportingController.getTeamEngagementReport);
 router.get("/unitscompleted", ensureAuthenticated, reportingController.getUnitsCompletedReport);
 router.get('/mypromptsets', ensureAuthenticated, reportingController.getIndividualPromptSetCompletionReport);
+router.get('/groupmypromptsets', ensureAuthenticated, reportingController.getGroupMemberPromptSetCompletionReport);
+
 
 
 
