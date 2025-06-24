@@ -354,6 +354,17 @@
     "building a lead-generating engine",
     "exposing the cultural barriers to early BD"
   ]
+},
+{
+  "id": 130,
+  "title": "Client Feedback Software",
+  "shortSummary": "Client feedback software helps you gather, analyze, and act on feedback throughout the project lifecycle. This topic explores tools like Delighted, AskNicely, and Simplesat, and shows how to use them to improve service delivery and client retention.",
+  "longSummary": "Capturing feedback at key moments—after kickoff, mid-project, and post-delivery—can help technical teams understand client needs, uncover silent frustrations, and fine-tune their services. This topic introduces client feedback software platforms such as Delighted, AskNicely, Simplesat, and others, highlighting how they support structured, consistent, and scalable feedback processes. Rather than relying on anecdotal praise or complaints, firms can use these tools to create a real-time understanding of how clients experience their services. The topic also explores implementation strategies, common missteps, and how feedback data can be used to improve client satisfaction, refine internal processes, and guide future work.",
+  "subtopics": [
+    "choosing a feedback platform",
+    "feedback timing: when to ask and why it matters",
+    "turning feedback into operational change"
+  ]
 }
 
     ]
