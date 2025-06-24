@@ -20,11 +20,12 @@
     </div>
   {{/if}}
 
-  {{#if completedPromptSets.length}}
-    <div class="member-progress-completed">
-      <h2 class="member-progress-completed-title">completed prompt sets</h2>
-      <div class="member-progress-completed-grid">
-        {{#each completedPromptSets}}
+{{#if completedPromptSets.length}}
+  <div class="member-progress-completed">
+    <h2 class="member-progress-completed-title">completed prompt sets</h2>
+
+    <div class="member-progress-completed-grid">
+      {{#each completedPromptSets}}
         <div class="member-progress-completed-card">
           <h3 class="member-progress-completed-title">{{this.promptSetTitle}}</h3>
           <p class="member-progress-completed-main-topic">{{this.mainTopic}}</p>
@@ -40,25 +41,16 @@
             {{/if}}
           </div>
         </div>
-        {{/each}}
-      </div>
-
-      <div class="member-progress-completed-grid">
-  {{#each completedPromptSets}}
-    <div class="member-progress-completed-card">
-      <!-- card content -->
+      {{/each}}
     </div>
-  {{/each}}
-</div>
 
-<!-- Add the button here -->
-<div class="member-progress-report-button-container">
-  <a href="/reports/mypromptsets" class="member-progress-report-button">
-    view my completed prompts
-  </a>
-</div>
+    <!-- View report button -->
+    <div class="member-progress-report-button-container">
+      <a href="/reports/mypromptsets" class="member-progress-report-button">
+        view my completed prompts
+      </a>
     </div>
-  {{/if}}
+  </div>
+{{/if}}
 
-</div>
 

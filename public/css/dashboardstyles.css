@@ -2718,9 +2718,12 @@ box-shadow: none !important;
   border-radius: 7.5px;
   text-align: center;
   box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.2);
-  height: 600px;
-  width: auto;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
+
 
 .member-progress-completed-main-topic,
 .member-progress-completed-date {
@@ -2731,17 +2734,19 @@ box-shadow: none !important;
 
 /* Badge */
 .member-progress-badge {
-  width: 50px;
-  height: 50px;
-  background: #ccc;
-  border-radius: 50%;
-  margin: 10px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .member-progress-badge-img {
   width: 100px;
   height: auto;
   margin: 0 auto;
+  display: block;
 }
 
 .member-progress-badge-name {
