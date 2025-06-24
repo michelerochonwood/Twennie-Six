@@ -475,9 +475,9 @@ const completedIds = new Set(completedRecords.map(record => record.promptSetId._
 
 // ✅ Fetch progress records
 
-
 let currentPromptSets = [];
 
+let completedPromptSets = [];
 if (progressRecords.length > 0) {
   progressRecords.forEach(record => {
     const promptSetId = record.promptSetId._id.toString();
