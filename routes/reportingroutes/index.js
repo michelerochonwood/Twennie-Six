@@ -8,7 +8,8 @@ router.get("/memberengagement", ensureAuthenticated, reportingController.getMemb
 router.get("/promptsetscompleted", ensureAuthenticated, reportingController.getPromptSetsCompletedReport);
 router.get("/teamengagement", ensureAuthenticated, reportingController.getTeamEngagementReport);
 router.get("/unitscompleted", ensureAuthenticated, reportingController.getUnitsCompletedReport);
-router.get('/mypromptsets', ensureAuthenticated, reportController.getIndividualPromptSetCompletionReport);
+router.get('/mypromptsets', ensureAuthenticated, reportingController.getIndividualPromptSetCompletionReport);
+
 
 
 module.exports = router;
