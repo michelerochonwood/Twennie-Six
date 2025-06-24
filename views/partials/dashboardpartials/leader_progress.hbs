@@ -12,37 +12,60 @@
             class="leader-progress-svg"
             data-progress="{{this.promptIndex}}"
           >
-          <p class="leader-progress-target">you have completed {{this.promptIndex}} prompts in this set</p>
+          <p class="leader-progress-target">
+            you have completed {{this.promptIndex}} prompts in this set
+          </p>
         </div>
       {{/each}}
     </div>
   {{/if}}
 
-  {{#if completedPromptSets.length}}
-    <div class="leader-progress-completed">
-      <h2 class="leader-progress-completed-title">completed prompt sets</h2>
+  <div class="leader-progress-completed">
+    <h2 class="leader-progress-completed-title">completed prompt sets</h2>
+
+    {{#if completedPromptSets.length}}
       <div class="leader-progress-completed-grid">
         {{#each completedPromptSets}}
-        <div class="leader-progress-completed-card">
-          <h3 class="leader-progress-completed-title">{{this.promptSetTitle}}</h3>
-          <p class="leader-progress-completed-main-topic">{{this.mainTopic}}</p>
-          <p class="leader-progress-completed-date">
-            completed: {{this.completedAt}}
-          </p>
-          <div class="leader-progress-badge">
-            {{#if this.badge}}
-              <img src="{{this.badge.image}}" alt="{{this.badge.name}}" class="leader-progress-badge-img">
-              <p class="leader-progress-badge-name">{{this.badge.name}}</p>
-            {{else}}
-              <p class="leader-progress-badge-name">No badge earned</p>
-            {{/if}}
+          <div class="leader-progress-completed-card">
+            <h3 class="leader-progress-completed-title">{{this.promptSetTitle}}</h3>
+            <p class="leader-progress-completed-main-topic">{{this.mainTopic}}</p>
+            <p class="leader-progress-completed-date">
+              completed: {{this.completedAt}}
+            </p>
+            <div class="leader-progress-badge">
+              {{#if this.badge}}
+                <img src="{{this.badge.image}}" alt="{{this.badge.name}}" class="leader-progress-badge-img">
+                <p class="leader-progress-badge-name">{{this.badge.name}}</p>
+              {{else}}
+                <p class="leader-progress-badge-name">No badge earned</p>
+              {{/if}}
+            </div>
           </div>
-        </div>
         {{/each}}
       </div>
+    {{else}}
+      <p class="no-data" style="text-align: center; margin-top: 1rem;">
+        You haven’t completed any prompt sets yet.
+      </p>
+    {{/if}}
+
+    <!-- Explanation and report center link -->
+    <div class="leader-progress-report-access">
+      <p style="text-align: center; margin-top: 2rem;">
+        All completed prompt sets can be reviewed in the report center.
+      </p>
+      <div style="text-align: center; margin-top: 10px;">
+        <a href="/reports/promptsetscompleted" class="report-link">
+          <img 
+            src="https://www.twennie.com/icons/promptsets.svg" 
+            alt="Prompt Sets Report"
+          >
+        </a>
+      </div>
     </div>
-  {{/if}}
+  </div>
 
 </div>
+
 
 
