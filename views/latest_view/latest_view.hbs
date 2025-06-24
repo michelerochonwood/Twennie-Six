@@ -4,15 +4,21 @@
   <div class="latest-content">
     <h1 class="latest-title">latest additions to the Twennie library</h1>
 
+    <!-- View-Level Debug Output -->
+    <div style="margin-bottom: 1rem;">
+      <p><strong>loggedIn:</strong> {{loggedIn}}</p>
+      <p><strong>membershipType:</strong> {{membershipType}}</p>
+      <p><strong>accessLevel:</strong> {{accessLevel}}</p>
+    </div>
+
     <!-- Section: This Week -->
     <div class="latest-section">
       <h2 class="latest-section-title">this week</h2>
-      <p>loggedIn: {{loggedIn}}</p>
-<p>membershipType: {{membershipType}}</p>
-<p>accessLevel: {{accessLevel}}</p>
+
       <div class="latest-library-units-grid">
         {{#each thisWeekItems}}
           <div class="latest-library-unit-card">
+
             <!-- SVG Header -->
             <div class="latest-card-svg-header">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 198.89 17.83">
@@ -23,15 +29,19 @@
 
             <!-- Card Content -->
             <div class="latest-card-content">
-              <!-- Always-visible content -->
               <div class="latest-unit-type-icon-container">
                 <img src="{{getUnitTypeIcon this.type}}" alt="Unit Type Icon" class="latest-unit-type-icon">
               </div>
               <div class="latest-unit-title-container">
                 <h2 class="latest-unit-title">{{this.title}}</h2>
               </div>
-              <p>Test login inside card: {{../loggedIn}}</p>
-<p>Test membership: {{../membershipType}}</p>
+
+              <!-- Debug Inside Card -->
+              <div style="font-size: 0.75rem; color: #666;">
+                <p>loggedIn: {{../loggedIn}}</p>
+                <p>membershipType: {{../membershipType}}</p>
+                <p>accessLevel: {{../accessLevel}}</p>
+              </div>
 
               <!-- Expand Toggle -->
               <div class="latest-expand-toggle" onclick="toggleLatestCard(this)">
@@ -41,7 +51,7 @@
                 </svg>
               </div>
 
-              <!-- Expandable content -->
+              <!-- Hidden Expanded Content -->
               <div class="latest-hidden-content">
                 <div class="latest-author-label">AUTHOR</div>
                 <div class="latest-author-image-container">
@@ -63,19 +73,19 @@
 
                 <!-- Access Control Button -->
                 <div class="latest-unit-review-container">
-                  {{#if ../../loggedIn}}
-                    {{#if (or (eq ../../membershipType "leader") (eq ../../membershipType "group_member"))}}
+                  {{#if ../loggedIn}}
+                    {{#if (or (eq ../membershipType "leader") (eq ../membershipType "group_member"))}}
                       <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="latest-unit-review-btn">
                         review this unit
                       </a>
-                    {{else if (and (eq ../../membershipType "member")
-                                   (or (eq ../../accessLevel "paid_individual")
-                                       (eq ../../accessLevel "contributor_individual")))}}
+                    {{else if (and (eq ../membershipType "member")
+                                   (or (eq ../accessLevel "paid_individual")
+                                       (eq ../accessLevel "contributor_individual")))}}
                       <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="latest-unit-review-btn">
                         review this unit
                       </a>
-                    {{else if (and (eq ../../membershipType "member")
-                                   (eq ../../accessLevel "free_individual")
+                    {{else if (and (eq ../membershipType "member")
+                                   (eq ../accessLevel "free_individual")
                                    (or (eq type "article") (eq type "video")))}}
                       <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="latest-unit-review-btn">
                         review this unit
@@ -107,8 +117,6 @@
       <h2 class="latest-section-title">last month</h2>
       <div class="latest-library-units-grid">
         {{#each lastMonthItems}}
-          <!-- Reuse exact same card layout as above -->
-          {{!-- You can extract this to a partial if desired --}}
           {{> latestpartials/latest_card this }}
         {{else}}
           <p>No new items last month.</p>
@@ -118,6 +126,7 @@
   </div>
 </div>
 
+<!-- Expand Toggle Script -->
 <script>
   function toggleLatestCard(element) {
     const card = element.closest('.latest-library-unit-card');
@@ -133,4 +142,5 @@
     }
   }
 </script>
+
 
