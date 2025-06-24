@@ -20,10 +20,10 @@
     </div>
   {{/if}}
 
-{{#if completedPromptSets.length}}
-  <div class="member-progress-completed">
-    <h2 class="member-progress-completed-title">completed prompt sets</h2>
+<div class="member-progress-completed">
+  <h2 class="member-progress-completed-title">completed prompt sets</h2>
 
+  {{#if completedPromptSets.length}}
     <div class="member-progress-completed-grid">
       {{#each completedPromptSets}}
         <div class="member-progress-completed-card">
@@ -43,14 +43,18 @@
         </div>
       {{/each}}
     </div>
+  {{else}}
+    <p class="no-data" style="text-align: center; margin-top: 1rem;">
+      You haven’t completed any prompt sets yet.
+    </p>
+  {{/if}}
 
-    <!-- View report button -->
-    <div class="member-progress-report-button-container">
-      <a href="/reports/mypromptsets" class="member-progress-report-button">
-        view my completed prompts
-      </a>
-    </div>
+  <!-- View report button always shown -->
+  <div class="member-progress-report-button-container">
+    <a href="/reports/mypromptsets" class="member-progress-report-button">
+      view my completed prompts
+    </a>
   </div>
-{{/if}}
+</div>
 
 
