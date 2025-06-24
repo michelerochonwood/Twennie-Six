@@ -119,16 +119,16 @@ exports.getLatestLibraryItems = async (req, res) => {
             })
         );
 
-        const user = req.session.user;
+const user = req.user;
 
-        res.render('latest_view/latest_view', {
-            layout: 'bytopiclayout',
-            thisWeekItems,
-            lastMonthItems,
-            loggedIn: !!user,
-            membershipType: user?.membershipType || null,
-            accessLevel: user?.accessLevel || null
-        });
+res.render('latest_view/latest_view', {
+  layout: 'bytopiclayout',
+  thisWeekItems,
+  lastMonthItems,
+  loggedIn: !!user,
+  membershipType: user?.membershipType || null,
+  accessLevel: user?.accessLevel || null
+});
 
     } catch (error) {
         console.error('Error fetching latest library items:', error);
