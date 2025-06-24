@@ -43,6 +43,7 @@ async function resolveAuthorById(authorId) {
 
 // Controller: Get all Twennie-visible units for the "latest" view
 exports.getLatestLibraryItems = async (req, res) => {
+    console.log("👤 req.user in latestController:", req.user);
   try {
     const [articles, videos, interviews, promptsets, exercises, templates] = await Promise.all([
       Article.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
