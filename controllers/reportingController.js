@@ -402,11 +402,69 @@ const getUnitsCompletedReport = async (req, res) => {
         console.error("❌ Error loading Units Completed Report:", err);
         res.status(500).send("Server error");
     }
+
+    
 };
 
+const getIndividualPromptSetCompletionReport = async (req, res) => {
+  try {
+    console.log("✅ Fetching Individual Prompt Set Completion Report...");
+
+    const memberId = req.user._id;
+
+    // ✅ Find all prompt set completions for the logged-in member
+    const completions = await PromptSetCompletion.find({ memberId })
+      .populate("promptSetId")
+      .lean();
+
+    const reportData = await Promise.all(completions.map(async (completion) => {
+      const promptSet = completion.promptSetId;
+      if (!promptSet) return null;
+
+      const prompts = Array.from({ length: 20 }, (_, index) => ({
+        promptNumber: `Prompt ${index + 1}`,
+        promptHeadline: promptSet[`prompt_headline${index + 1}`] || "No headline",
+        promptText: promptSet[`Prompt${index + 1}`] || "No prompt text available"
+      }));
+
+      return {
+        promptSetTitle: promptSet.promptset_title,
+        main_topic: promptSet.main_topic,
+        secondary_topics: promptSet.secondary_topics || [],
+        purpose: promptSet.purpose || "No purpose provided",
+        characteristics: promptSet.characteristics || [],
+        targetAudience: promptSet.target_audience || "No audience specified",
+        dateCompleted: completion.completedAt,
+        prompts,
+        promptNotes: await Promise.all(completion.notes.map(async (note, index) => ({
+          promptNumber: `Prompt ${index + 1}`,
+          notes: [{
+            content: note
+          }]
+        })))
+      };
+    }));
+
+    res.render("report_views/individual_promptsets_completed", {
+      layout: "dashboardlayout",
+      promptSetsCompletedReports: reportData.filter(Boolean)
+    });
+
+  } catch (err) {
+    console.error("❌ Error loading individual prompt set completion report:", err);
+    res.status(500).render("member_form_views/error", {
+      layout: "memberformlayout",
+      title: "Report Error",
+      errorMessage: "We couldn't load your prompt set completion report. Please try again later."
+    });
+  }
+};
+
+
 module.exports = {
-    getMemberEngagementReport,
-    getPromptSetsCompletedReport,
-    getTeamEngagementReport,
-    getUnitsCompletedReport
+  getMemberEngagementReport,
+  getPromptSetsCompletedReport,
+  getTeamEngagementReport,
+  getUnitsCompletedReport,
+  getIndividualPromptSetCompletionReport
 };

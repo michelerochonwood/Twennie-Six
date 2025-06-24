@@ -42,6 +42,21 @@
         </div>
         {{/each}}
       </div>
+
+      <div class="member-progress-completed-grid">
+  {{#each completedPromptSets}}
+    <div class="member-progress-completed-card">
+      <!-- card content -->
+    </div>
+  {{/each}}
+</div>
+
+<!-- Add the button here -->
+<div class="member-progress-report-button-container">
+  <a href="/reports/mypromptsets" class="member-progress-report-button">
+    view my completed prompts
+  </a>
+</div>
     </div>
   {{/if}}
 

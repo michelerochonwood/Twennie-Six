@@ -3258,6 +3258,34 @@ box-shadow: none !important;
   height: auto;
 }
 
+/*REPORT FOR INDIVIDUALS*/
+
+.member-progress-report-button-container {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.member-progress-report-button {
+  width: 80%;
+  padding: 10px 20px;
+  border-radius: 99px;
+  background-color: #262262;
+  color: white;
+  font-family: "Figtree";
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none; /* ensures it behaves like a button */
+  display: inline-block;
+}
+
+.member-progress-report-button:hover {
+  background-color: #4a4ab2;
+}
+
+
 /* Return to Dashboard Link */
 .dashboard-link {
   background: #262262;
