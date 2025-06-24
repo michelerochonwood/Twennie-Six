@@ -406,7 +406,7 @@ html, body {
 }
 
 .latest-library-unit-card.active {
-  height: auto;
+  height: 300px;
 }
 
 /* SVG Header */
