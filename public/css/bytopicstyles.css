@@ -357,59 +357,27 @@ html, body {
 
 
 
-/* LATEST VIEW – Latest Library Page */
-
-.latest-container {
-  padding: 0 8%;
-  box-sizing: border-box;
-  margin: 7rem auto 3rem auto;
-  min-height: 100vh;
-}
-
-.latest-title {
-  color: #262262;
-  font-size: clamp(1.5rem, 5vw, 2.3rem);
-}
-
-.latest-section-title {
-  color: #4a4ab2;
-  font-size: 1.2rem;
-}
-
-.latest-library-units-grid {
-  margin-top: 2.5rem;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0 1.5rem;
-  transition: all 0.3s ease-in-out;
-}
-
-.latest-divider {
-  border: none;
-  border-top: 2px solid #d0cfcf;
-  margin: 40px 0;
-}
-
-/* CARD LAYOUT */
+/* === LATEST VIEW – CARD STYLING === */
 
 .latest-library-unit-card {
-  background-color: #d0cfcf;
+  background-color: #d0cfcf; /* light grey background for card */
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease-in-out;
+  transition: height 0.3s ease;
   margin-bottom: 1.5rem;
-  height: 120px;
+  height: 350px; /* default collapsed height */
 }
 
 .latest-library-unit-card.active {
-  height: 300px;
+  height: auto; /* expands naturally to fit content */
+  overflow: visible;
 }
 
-/* SVG Header */
+/* === SVG Header === */
 .latest-card-svg-header {
   width: 100%;
   height: auto;
@@ -419,31 +387,34 @@ html, body {
   right: 0;
 }
 
-/* Content inside the card */
+/* === CARD CONTENT === */
 .latest-card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   padding: 5px;
-  margin: 1.5rem 0 auto 0;
+  margin-top: 4rem; /* room for SVG */
+  width: 100%;
 }
 
-/* Icon and Title */
+/* === ICON AND TITLE === */
 .latest-unit-type-icon {
   width: 65px;
   height: 65px;
   display: block;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .latest-unit-title {
   font-size: 1rem;
   color: #4a4ab2;
   padding: 0 5px;
+  margin: 10px 0;
+  text-align: center;
 }
 
-/* Toggle Arrow */
+/* === TOGGLE ARROW === */
 .latest-expand-toggle {
   cursor: pointer;
   display: flex;
@@ -459,17 +430,18 @@ html, body {
   transition: transform 0.3s ease-in-out;
 }
 
+/* Arrow flips on open */
 .latest-expand-toggle.open .latest-arrow-icon {
   transform: rotate(180deg);
 }
 
+/* Arrow turns pink on hover */
 .latest-expand-toggle:hover .cls-1 {
-  fill: #dc176a;
+  fill: #dc176a; /* only the arrow changes color */
   transition: fill 0.3s ease;
 }
 
-/* EXPANDED CONTENT */
-
+/* === HIDDEN CONTENT === */
 .latest-hidden-content {
   display: none;
   flex-direction: column;
@@ -486,8 +458,7 @@ html, body {
   opacity: 1;
 }
 
-/* AUTHOR SECTION */
-
+/* === AUTHOR === */
 .latest-author-label {
   color: #5a5552;
   font-weight: 800;
@@ -507,8 +478,7 @@ html, body {
   margin-bottom: 20px;
 }
 
-/* SUMMARY + PURPOSE */
-
+/* === SUMMARY + PURPOSE === */
 .latest-unit-long-summary {
   line-height: 1.2;
   font-size: 0.7rem;
@@ -527,8 +497,7 @@ html, body {
   font-weight: 800;
 }
 
-/* BUTTON */
-
+/* === REVIEW BUTTON === */
 .latest-unit-review-btn {
   padding: 10px 18px;
   font-size: 0.7rem;
@@ -549,6 +518,7 @@ html, body {
   cursor: not-allowed;
   pointer-events: none;
 }
+
 
 /* ERROR */
 
