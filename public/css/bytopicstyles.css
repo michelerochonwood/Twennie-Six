@@ -357,10 +357,7 @@ html, body {
 
 
 
-/*LATEST VIEW*/
-
-/* Latest Library Page */
-
+/* LATEST VIEW – Latest Library Page */
 
 .latest-container {
   padding: 0 8%;
@@ -371,15 +368,13 @@ html, body {
 
 .latest-title {
   color: #262262;
-  /* font-size: 1.3rem; */
   font-size: clamp(1.5rem, 5vw, 2.3rem);
 }
 
 .latest-section-title {
-  color:#4a4ab2;
+  color: #4a4ab2;
   font-size: 1.2rem;
 }
-
 
 .latest-library-units-grid {
   margin-top: 2.5rem;
@@ -389,32 +384,29 @@ html, body {
   transition: all 0.3s ease-in-out;
 }
 
-/* Grey divider line */
 .latest-divider {
   border: none;
   border-top: 2px solid #d0cfcf;
   margin: 40px 0;
 }
 
-/* Library Unit Cards */
+/* CARD LAYOUT */
+
 .latest-library-unit-card {
   background-color: #d0cfcf;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: all 0.3s ease-in-out;
   position: relative;
-  min-height: 230px; /* Ensures row doesn't expand */  
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
   margin-bottom: 1.5rem;
+  height: 120px;
 }
 
 .latest-library-unit-card.active {
-  height: fit-content;
-}
-
-.latest-library-units-grid > .latest-library-unit-card:not(.active) {
-  height: 120px;
+  height: auto;
 }
 
 /* SVG Header */
@@ -427,7 +419,7 @@ html, body {
   right: 0;
 }
 
-/* Card Content */
+/* Content inside the card */
 .latest-card-content {
   display: flex;
   flex-direction: column;
@@ -437,16 +429,37 @@ html, body {
   margin: 1.5rem 0 auto 0;
 }
 
-/* Expandable Section */
+/* Icon and Title */
+.latest-unit-type-icon {
+  width: 65px;
+  height: 65px;
+  display: block;
+  margin-top: 20px;
+}
+
+.latest-unit-title {
+  font-size: 1rem;
+  color: #4a4ab2;
+  padding: 0 5px;
+}
+
+/* Toggle Arrow */
 .latest-expand-toggle {
   cursor: pointer;
-  text-align: center;
-  width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   margin-top: 10px;
   transition: transform 0.3s ease;
 }
 
-.latest-expand-toggle.open {
+.latest-arrow-icon {
+  width: 30px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.latest-expand-toggle.open .latest-arrow-icon {
   transform: rotate(180deg);
 }
 
@@ -455,97 +468,29 @@ html, body {
   transition: fill 0.3s ease;
 }
 
-.latest-unit-type-icon {
-  width: 65px;
-  height: 65px;
-  /* height: auto; */
-  display: block;
-  margin-top: 20px;
-}
+/* EXPANDED CONTENT */
 
-/* Initially Hidden Content */
 .latest-hidden-content {
   display: none;
   flex-direction: column;
   align-items: center;
   width: 100%;
   padding-bottom: 20px;
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  opacity: 0;
-  max-height: 0;
   margin-top: 1.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .latest-library-unit-card.active .latest-hidden-content {
   display: flex;
-  max-height: 300px; /* Adjust height as needed */
   opacity: 1;
 }
 
-/* Expandable Section */
-.latest-expand-toggle {
-  cursor: pointer;
-  text-align: center;
-  transition: transform 0.3s ease;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
-}
-
-/* Default arrow rotation */
-.latest-arrow-icon {
-  width: 30px;
-  transition: transform 0.3s ease-in-out;
-}
-
-/* Rotates arrow when active */
-/* .latest-library-unit-card.active .latest-arrow-icon {
-  transform: rotate(180deg);
-} */
-
-/* Transforming the element rather than the SVG icon. */
-.latest-library-unit-card.active .latest-expand-toggle {
-  transform: rotate(180deg);
-}
+/* AUTHOR SECTION */
 
 .latest-author-label {
-  color:#5a5552;
+  color: #5a5552;
   font-weight: 800;
-}
-
-.latest-unit-title {
-  font-size: 1rem;
-  color:#4a4ab2;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.latest-detail-value-purpose {
-  color:#5a5552;
-  font-weight: 800;
-}
-
-/* Hidden Content (Initially Collapsed) */
-.latest-hidden-content {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  transition: all 0.3s ease-in-out;
-  padding-bottom: 20px;
-}
-
-/* Show hidden content when active */
-.latest-library-unit-card.active .latest-hidden-content {
-  display: flex;
-}
-
-.latest-author-name {
-  color:#4a4ab2;
-  font-weight: 800;
-  margin-bottom: 20px;
 }
 
 .latest-author-image {
@@ -554,49 +499,67 @@ html, body {
   border-radius: 50%;
   border: 2px solid #4e50a2;
   margin-bottom: 5px;
-  
 }
 
+.latest-author-name {
+  color: #4a4ab2;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+/* SUMMARY + PURPOSE */
+
 .latest-unit-long-summary {
-    line-height: 1.2;
-    font-size: 0.7rem;
-    width: 80%;
-    margin: 15px auto;
-    background-color: rgb(217, 217, 219);
-    padding: 10px;
-    border-radius: 10px;
-  }
+  line-height: 1.2;
+  font-size: 0.7rem;
+  width: 80%;
+  margin: 15px auto;
+  background-color: rgb(217, 217, 219);
+  padding: 10px;
+  border-radius: 10px;
+}
 
-  .latest-unit-review-btn {
-    padding: 10px 18px; /* Restored styling */
-    font-size: 0.7rem;
-    background-color: #262262;
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 99px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .latest-unit-review-btn:hover {
-    background-color: #4a4ab2;
-  }
+.latest-detail-value-purpose {
+  margin-bottom: 20px;
+  padding: 0 2rem;
+  font-size: 0.8rem;
+  color: #5a5552;
+  font-weight: 800;
+}
 
-  .latest-detail-value-purpose {
-    margin-bottom: 20px;
-    padding: 0 2rem;
-    font-size: 0.8rem;
-  }
+/* BUTTON */
 
+.latest-unit-review-btn {
+  padding: 10px 18px;
+  font-size: 0.7rem;
+  background-color: #262262;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 99px;
+  transition: background-color 0.3s ease;
+}
 
+.latest-unit-review-btn:hover {
+  background-color: #4a4ab2;
+}
 
-  .error-message {
+.latest-unit-review-btn.disabled {
+  background-color: #999;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ERROR */
+
+.error-message {
   margin-top: 1rem;
   padding: 1rem;
   background-color: #fff3cd;
   border: 1px solid #ffeeba;
   border-radius: 4px;
 }
+
 
 /* ERROR PAGE FOR UNIT FORMS */
 .error-container {

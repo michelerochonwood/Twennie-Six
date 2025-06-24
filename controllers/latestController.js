@@ -10,10 +10,6 @@ const MemberProfile = require('../models/profile_models/member_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const LeaderProfile = require('../models/profile_models/leader_profile');
 
-
-
-
-// Function to get the correct icon for unit type
 function getUnitTypeIcon(type) {
     const icons = {
         article: '/icons/article.svg',
@@ -28,7 +24,6 @@ function getUnitTypeIcon(type) {
 
 async function resolveAuthorById(authorId) {
     try {
-        // Leader profile
         let profile = await LeaderProfile.findOne({ leaderId: authorId }).select('profileImage name');
         if (profile) {
             return {
@@ -37,7 +32,6 @@ async function resolveAuthorById(authorId) {
             };
         }
 
-        // Group Member profile
         profile = await GroupMemberProfile.findOne({ memberId: authorId }).select('profileImage name');
         if (profile) {
             return {
@@ -46,7 +40,6 @@ async function resolveAuthorById(authorId) {
             };
         }
 
-        // Individual Member profile
         profile = await MemberProfile.findOne({ memberId: authorId }).select('profileImage name');
         if (profile) {
             return {
@@ -64,26 +57,22 @@ async function resolveAuthorById(authorId) {
     };
 }
 
-
-
-
 exports.getLatestLibraryItems = async (req, res) => {
-
     try {
-        // Fetch all six library unit types, sorted by updated_at (most recent first)
-        const articles = await Article.find().sort({ updated_at: -1 }).lean();
-        const interviews = await Interview.find().sort({ updated_at: -1 }).lean();
-        const videos = await Video.find().sort({ updated_at: -1 }).lean();
-        const exercises = await Exercise.find().sort({ updated_at: -1 }).lean();
-        const promptSets = await PromptSet.find().sort({ updated_at: -1 }).lean();
-        const templates = await Template.find().sort({ updated_at: -1 }).lean();
+        const [articles, videos, interviews, promptsets, exercises, templates] = await Promise.all([
+            Article.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
+            Video.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
+            Interview.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
+            PromptSet.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
+            Exercise.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
+            Template.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
+        ]);
 
-        // Merge all results into one array
         let allLibraryUnits = [
             ...articles.map((unit) => ({ title: unit.article_title, ...unit, type: 'article' })),
             ...videos.map((unit) => ({ title: unit.video_title, ...unit, type: 'video' })),
             ...interviews.map((unit) => ({ title: unit.interview_title, ...unit, type: 'interview' })),
-            ...promptSets.map((unit) => ({
+            ...promptsets.map((unit) => ({
                 title: unit.promptset_title,
                 ...unit,
                 type: 'promptset',
@@ -96,57 +85,49 @@ exports.getLatestLibraryItems = async (req, res) => {
             ...templates.map((unit) => ({ title: unit.template_title, ...unit, type: 'template' })),
         ];
 
-        // Sort all units by `updated_at` (most recent first)
         allLibraryUnits.sort((a, b) => b.updated_at - a.updated_at);
 
-        // Categorize items into time-based sections
-        const todayItems = [];
         const thisWeekItems = [];
         const lastMonthItems = [];
-        const olderItems = [];
 
         const today = moment().startOf('day');
         const oneWeekAgo = moment().subtract(7, 'days').startOf('day');
         const oneMonthAgo = moment().subtract(1, 'month').startOf('day');
 
-        // Process each unit and categorize based on updated_at
-        const libraryUnits = await Promise.all(
+        const enrichedUnits = await Promise.all(
             allLibraryUnits.map(async (unit) => {
                 const updatedDate = moment(unit.updated_at);
-                const author = unit.author?.id
-                    ? await resolveAuthorById(unit.author.id)
+                const authorId = unit.author?.id || unit.author;
+                const author = authorId
+                    ? await resolveAuthorById(authorId)
                     : { name: 'Unknown Author', image: '/images/default-avatar.png' };
 
-                // Enrich the unit with author data and icon path
                 const enrichedUnit = {
                     ...unit,
                     authorName: author.name,
-                    authorImage: author.image || '/images/default-avatar.png',
-                    unitTypeIcon: getUnitTypeIcon(unit.type) // Corrected function call
+                    authorImage: author.image,
+                    unitTypeIcon: getUnitTypeIcon(unit.type)
                 };
 
-                // Categorize by date range
-                if (updatedDate.isSameOrAfter(today)) {
-                    todayItems.push(enrichedUnit);
-                } else if (updatedDate.isSameOrAfter(oneWeekAgo)) {
+                if (updatedDate.isSameOrAfter(oneWeekAgo)) {
                     thisWeekItems.push(enrichedUnit);
                 } else if (updatedDate.isSameOrAfter(oneMonthAgo)) {
                     lastMonthItems.push(enrichedUnit);
-                } else {
-                    olderItems.push(enrichedUnit);
                 }
 
                 return enrichedUnit;
             })
         );
 
-        // Render the latest view with categorized data
+        const user = req.session.user;
+
         res.render('latest_view/latest_view', {
             layout: 'bytopiclayout',
-            todayItems,
             thisWeekItems,
             lastMonthItems,
-            olderItems,
+            loggedIn: !!user,
+            membershipType: user?.membershipType || null,
+            accessLevel: user?.accessLevel || null
         });
 
     } catch (error) {
@@ -154,6 +135,7 @@ exports.getLatestLibraryItems = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
 
 
 
