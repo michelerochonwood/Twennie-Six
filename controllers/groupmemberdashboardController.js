@@ -262,6 +262,14 @@ module.exports = {
 
         try {
             const { id } = req.session.user;
+
+
+let currentPromptSets = [];
+
+let completedPromptSets = [];
+
+
+
             console.log("Fetching dashboard for user:", id);
 
             //members of a group are meant to show in the group member dashboard as cards - it is important that none of this changed because the group members are located based on the leader of the group - if you are rewriting anything in this renderdashboard, make sure to rewrite it exactly as you see it here. 
@@ -475,9 +483,7 @@ const completedIds = new Set(completedRecords.map(record => record.promptSetId._
 
 // ✅ Fetch progress records
 
-let currentPromptSets = [];
 
-let completedPromptSets = [];
 if (progressRecords.length > 0) {
   progressRecords.forEach(record => {
     const promptSetId = record.promptSetId._id.toString();
