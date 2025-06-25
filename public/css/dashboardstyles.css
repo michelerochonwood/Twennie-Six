@@ -288,19 +288,10 @@ html, body {
 }
 
 .dashboard-tab-content {
-  display: none;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  padding-top: 2rem;
-  clear: both;
-  text-align: left;
+  width: 100%; /* ✅ Matches the width of tabs */
+  max-width: 800px; /* ✅ Optional: Set a max width for consistency */
+  margin: 0 auto; /* ✅ Ensures content is centered */
 }
-
-.dashboard-tab-content.active {
-  display: block;
-}
-
 .dashboard-tab {
   width: 100px; 
   height: 100px; 
@@ -349,7 +340,14 @@ html, body {
   text-align: right;
 }
 
+.dashboard-tab-content {
+  display: none;
+}
 
+.dashboard-tab-content.active {
+  display: block;
+  text-align: right;
+}
 
 
 
@@ -1677,15 +1675,12 @@ html, body {
 
 /* Completed Prompt Set Card */
 .groupmember-progress-completed-card {
-  background-color: rgb(230, 230, 230);
-  padding: 11.25px;
-  border-radius: 7.5px;
+  background: rgb(245, 245, 245);
+  padding: 1.125rem; /* Reduced from 15px */
+  border-radius: 0.75rem; /* Reduced from 10px */
   text-align: center;
-  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.2);
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.2); /* Adjusted shadow */
+
 }
 
 /* Completed Prompt Set Details */
@@ -1697,19 +1692,15 @@ html, body {
 }
 
 .groupmember-progress-badge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
   margin-top: 10px;
-  margin-bottom: 10px;
 }
 
 .groupmember-progress-badge-img {
-  width: 100px;
-  height: auto;
+  width: 50px;
+  height: 50px;
   display: block;
-  margin: 0 auto;
+  margin: 0 auto 5px;
 }
 
 .groupmember-progress-badge-name {
@@ -1844,11 +1835,7 @@ html, body {
   background-color: #4e50a2; /* Slightly lighter blue on hover */
 }
 
-@media screen and (max-width: 768px) {
-  .groupmember-progress-completed-grid {
-    grid-template-columns: 1fr;
-  }
-}
+
 
 
 /*------------------------------------------------------------------------------*/
@@ -2731,12 +2718,9 @@ box-shadow: none !important;
   border-radius: 7.5px;
   text-align: center;
   box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.2);
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  height: 600px;
+  width: auto;
 }
-
 
 .member-progress-completed-main-topic,
 .member-progress-completed-date {
@@ -2747,19 +2731,17 @@ box-shadow: none !important;
 
 /* Badge */
 .member-progress-badge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  width: 50px;
+  height: 50px;
+  background: #ccc;
+  border-radius: 50%;
+  margin: 10px auto;
 }
 
 .member-progress-badge-img {
   width: 100px;
   height: auto;
   margin: 0 auto;
-  display: block;
 }
 
 .member-progress-badge-name {
@@ -3045,7 +3027,7 @@ box-shadow: none !important;
   border-spacing: 3.75px 0;
   font-family: "Figtree";
   margin: 0 auto;
-  margin-bottom: 350px;
+  margin-bottom: 50px;
 }
 
 /* Sticky Table Headers */
@@ -3217,7 +3199,7 @@ box-shadow: none !important;
   max-width: 80%; /* Ensures table fills viewport */
   overflow-x: auto; /* Enables horizontal scrolling */
   margin-left: 10%;
-  margin-bottom: 200px;
+
 }
 
 .wide-table {
