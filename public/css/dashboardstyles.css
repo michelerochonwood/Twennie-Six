@@ -288,10 +288,19 @@ html, body {
 }
 
 .dashboard-tab-content {
-  width: 100%; /* ✅ Matches the width of tabs */
-  max-width: 800px; /* ✅ Optional: Set a max width for consistency */
-  margin: 0 auto; /* ✅ Ensures content is centered */
+  display: none;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-top: 2rem;
+  clear: both;
+  text-align: left;
 }
+
+.dashboard-tab-content.active {
+  display: block;
+}
+
 .dashboard-tab {
   width: 100px; 
   height: 100px; 
@@ -340,14 +349,7 @@ html, body {
   text-align: right;
 }
 
-.dashboard-tab-content {
-  display: none;
-}
 
-.dashboard-tab-content.active {
-  display: block;
-  text-align: right;
-}
 
 
 
