@@ -1,76 +1,81 @@
 {{#*inline "title"}}Member Dashboard | Twennie{{/inline}}
+
 <div class="dashboard-grid">
-    <!-- Sidebar (Left) -->
-    <div class="dashboard-sidebar">
-        {{> dashboardpartials/member_sidebar }}
+  <!-- Sidebar (Left) -->
+  <div class="dashboard-sidebar">
+    {{> dashboardpartials/member_sidebar }}
+  </div>
+
+  <!-- Main Content (Right) -->
+  <div class="dashboard-main">
+    
+    <!-- Tab Navigation -->
+    <div class="dashboard-tabs-container">
+      <button class="dashboard-tab active" data-tab="membership">
+        <span class="tab-title">membership overview</span>
+        <div class="tab-arrow"></div>
+      </button>
+      <button class="dashboard-tab" data-tab="topics">
+        <span class="tab-title">topics</span>
+        <div class="tab-arrow"></div>
+      </button>
+      <button class="dashboard-tab" data-tab="prompts">
+        <span class="tab-title">registered prompt sets</span>
+        <div class="tab-arrow"></div>
+      </button>
+      <button class="dashboard-tab" data-tab="progress">
+        <span class="tab-title">prompt set progress</span>
+        <div class="tab-arrow"></div>
+      </button>
+      <button class="dashboard-tab" data-tab="contribute">
+        <span class="tab-title">contribute to the library</span>
+        <div class="tab-arrow"></div>
+      </button>
+      <button class="dashboard-tab" data-tab="library">
+        <span class="tab-title">my library units</span>
+        <div class="tab-arrow"></div>
+      </button>
+      <button class="dashboard-tab" data-tab="tagged">
+        <span class="tab-title">tagged units</span>
+        <div class="tab-arrow"></div>
+      </button>
     </div>
 
-    <!-- Main Content (Right) -->
-    <div class="dashboard-main">
+    <!-- Tab Content -->
+    <div class="dashboard-tab-content active" id="membership">
+      {{> dashboardpartials/member_membership }}
+    </div>
 
-        <!-- Tab Navigation -->
-        <div class="dashboard-tabs-container">
-            <button class="dashboard-tab active" data-tab="membership">
-                <span class="tab-title">membership overview</span>
-                <div class="tab-arrow"></div>
-            </button>
-            <button class="dashboard-tab" data-tab="topics">
-                <span class="tab-title">topics</span>
-            <div class="tab-arrow"></div>
-            </button>
-            <button class="dashboard-tab" data-tab="prompts">
-                <span class="tab-title">registered prompt sets</span>
-                <div class="tab-arrow"></div>
-            </button>
-            <button class="dashboard-tab" data-tab="progress">
-                <span class="tab-title">prompt set progress</span>
-                <div class="tab-arrow"></div>
-            </button>
-            <button class="dashboard-tab" data-tab="contribute">
-                <span class="tab-title">contribute to the library</span>
-                <div class="tab-arrow"></div>
-            </button>
-            <button class="dashboard-tab" data-tab="library">
-                <span class="tab-title">my library units</span>
-                <div class="tab-arrow"></div>
-            </button>
-            <button class="dashboard-tab" data-tab="tagged">
-                <span class="tab-title">tagged units</span>
-                <div class="tab-arrow"></div>
-            </button>
-        </div>
+    <div class="dashboard-tab-content" id="topics">
+      {{> dashboardpartials/member_topics }}
+    </div>
 
-        <!-- Tab Content -->
-<div class="dashboard-tab-content" id="membership" style="display: block;">
-  {{> dashboardpartials/member_membership }}
+    <div class="dashboard-tab-content" id="prompts">
+      {{#each registeredPromptSets}}
+        <section class="member-prompt-section">
+          {{> dashboardpartials/member_prompt promptSet=this }}
+        </section>
+      {{/each}}
+    </div>
+
+    <div class="dashboard-tab-content" id="progress">
+      {{> dashboardpartials/member_progress }}
+    </div>
+
+    <div class="dashboard-tab-content" id="contribute">
+      {{> dashboardpartials/member_contribution }}
+    </div>
+
+    <div class="dashboard-tab-content" id="library">
+      {{> dashboardpartials/member_mylibraryunits }}
+    </div>
+
+    <div class="dashboard-tab-content" id="tagged">
+      {{> dashboardpartials/member_tagged_units }}
+    </div>
+
+  </div>
 </div>
 
-<div class="dashboard-tab-content" id="topics" style="display: none;">
-  {{> dashboardpartials/member_topics }}
-</div>
-
-<div class="dashboard-tab-content" id="prompts" style="display: none;">
-  {{#each registeredPromptSets}}
-    <section class="member-prompt-section">
-      {{> dashboardpartials/member_prompt promptSet=this}}
-    </section>
-  {{/each}}
-</div>
-
-<div class="dashboard-tab-content" id="progress" style="display: none;">
-  {{> dashboardpartials/member_progress }}
-</div>
-
-<div class="dashboard-tab-content" id="contribute" style="display: none;">
-  {{> dashboardpartials/member_contribution }}
-</div>
-
-<div class="dashboard-tab-content" id="library" style="display: none;">
-  {{> dashboardpartials/member_mylibraryunits }}
-</div>
-
-<div class="dashboard-tab-content" id="tagged" style="display: none;">
-  {{> dashboardpartials/member_tagged_units }}
-</div>
 
 
