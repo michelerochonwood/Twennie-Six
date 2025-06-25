@@ -279,19 +279,18 @@ html, body {
   /* margin-top: 180px; */
 }
 
-.dashboard-tab-content {
-  display: none;
+.dashboard-tabs-container {
   width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  clear: both;
-  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 20px;
 }
 
-.dashboard-tab-content.active {
-  display: block;
+.dashboard-tab-content {
+  width: 100%; /* ✅ Matches the width of tabs */
+  max-width: 800px; /* ✅ Optional: Set a max width for consistency */
+  margin: 0 auto; /* ✅ Ensures content is centered */
 }
 .dashboard-tab {
   width: 100px; 
