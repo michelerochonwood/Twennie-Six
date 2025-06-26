@@ -1,20 +1,50 @@
 <section class="tagged-units-section">
-    <h2 class="tagged-units-title">tagged library units</h2>
+  <h2 class="tagged-units-title">tagged library units</h2>
+
+  <!-- 🔖 Section 1: Units I Tagged Myself -->
+  <div class="tagged-units-subsection">
+    <h3 class="tagged-units-subtitle">my tagged units</h3>
     <div class="tagged-units-grid">
-        {{#each groupMemberTaggedUnits}}
-            <div class="tagged-unit-card">
-                <div class="tagged-unit-icon">
-                    <img src="/icons/{{unitType}}.svg" alt="{{unitType}} icon">
-                </div>
-                <div class="tagged-unit-info">
-                    <h3 class="tagged-unit-title">{{title}}</h3>
-                    <p class="tagged-unit-topic">{{mainTopic}}</p>
-                </div>
-                <a href="/unitviews/{{unitType}}s/view/{{_id}}" class="tagged-unit-link">view unit</a>
-            </div>
-        {{else}}
-            <p class="tagged-no-units">You have not tagged any units.</p>
-        {{/each}}
+      {{#each groupMemberTaggedUnits}}
+        <div class="tagged-unit-card">
+          <div class="tagged-unit-icon">
+            <img src="/icons/{{unitType}}.svg" alt="{{unitType}} icon">
+          </div>
+          <div class="tagged-unit-info">
+            <h3 class="tagged-unit-title">{{title}}</h3>
+            <p class="tagged-unit-topic">{{mainTopic}}</p>
+          </div>
+          <a href="/unitviews/{{unitType}}s/view/{{_id}}" class="tagged-unit-link">view unit</a>
+        </div>
+      {{else}}
+        <p class="tagged-no-units">You have not tagged any units.</p>
+      {{/each}}
     </div>
+  </div>
+
+  <!-- 👥 Section 2: Units Tagged by My Leader -->
+  <div class="tagged-units-subsection">
+    <h3 class="tagged-units-subtitle">units tagged by my leader</h3>
+    <div class="tagged-units-grid">
+      {{#each leaderAssignedTags}}
+        <div class="tagged-unit-card">
+          <div class="tagged-unit-icon">
+            <img src="/icons/{{unitType}}.svg" alt="{{unitType}} icon">
+          </div>
+          <div class="tagged-unit-info">
+            <h3 class="tagged-unit-title">{{title}}</h3>
+            <p class="tagged-unit-topic">{{mainTopic}}</p>
+            {{#if instructions}}
+              <p class="tagged-unit-instructions"><em>Instructions:</em> {{instructions}}</p>
+            {{/if}}
+          </div>
+          <a href="/unitviews/{{unitType}}s/view/{{_id}}" class="tagged-unit-link">view unit</a>
+        </div>
+      {{else}}
+        <p class="tagged-no-units">You have no units assigned by your leader.</p>
+      {{/each}}
+    </div>
+  </div>
 </section>
+
 

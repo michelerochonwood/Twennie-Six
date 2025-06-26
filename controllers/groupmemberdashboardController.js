@@ -391,6 +391,50 @@ let completedPromptSets = [];
             
     
             const groupMemberTaggedUnits = await fetchTaggedUnits(id);
+
+            const leaderAssignedTags = await Tag.find({ 'assignedTo.member': id }).lean();
+let leaderAssignedUnits = [];
+
+if (leaderAssignedTags.length > 0) {
+  const unitIds = leaderAssignedTags.flatMap(tag => tag.associatedUnits);
+
+  const [
+    taggedArticles,
+    taggedVideos,
+    taggedPromptSets,
+    taggedInterviews,
+    taggedExercises,
+    taggedTemplates
+  ] = await Promise.all([
+    Article.find({ _id: { $in: unitIds } }),
+    Video.find({ _id: { $in: unitIds } }),
+    PromptSet.find({ _id: { $in: unitIds } }),
+    Interview.find({ _id: { $in: unitIds } }),
+    Exercise.find({ _id: { $in: unitIds } }),
+    Template.find({ _id: { $in: unitIds } }),
+  ]);
+
+  // Flatten and enrich units with instructions
+  const allUnits = [
+    ...taggedArticles.map(u => ({ unitType: 'article', _id: u._id, title: u.article_title, mainTopic: u.main_topic })),
+    ...taggedVideos.map(u => ({ unitType: 'video', _id: u._id, title: u.video_title, mainTopic: u.main_topic })),
+    ...taggedPromptSets.map(u => ({ unitType: 'promptset', _id: u._id, title: u.promptset_title, mainTopic: u.main_topic })),
+    ...taggedInterviews.map(u => ({ unitType: 'interview', _id: u._id, title: u.interview_title, mainTopic: u.main_topic })),
+    ...taggedExercises.map(u => ({ unitType: 'exercise', _id: u._id, title: u.exercise_title, mainTopic: u.main_topic })),
+    ...taggedTemplates.map(u => ({ unitType: 'template', _id: u._id, title: u.template_title, mainTopic: u.main_topic })),
+  ];
+
+  // For each unit, attach the specific instruction if tagged
+  leaderAssignedUnits = allUnits.map(unit => {
+    const matchingTag = leaderAssignedTags.find(tag => tag.associatedUnits.some(uid => uid.toString() === unit._id.toString()));
+    const assignment = matchingTag?.assignedTo.find(entry => entry.member.toString() === id);
+    return {
+      ...unit,
+      instructions: assignment?.instructions || ''
+    };
+  });
+}
+
     
             const [memberArticles, memberVideos, memberPromptSets, memberInterviews, memberExercises, memberTemplates] = await Promise.all([
                 Article.find({ 'author.id': id }),//don't delete any of these - we need author ids for the library table
@@ -534,7 +578,8 @@ return res.render('groupmember_dashboard', {
   completedPromptSets: formattedCompletedSets,
   selectedTopics,
   leaderName: leader ? leader.groupLeaderName : "Group Leader",
-  organization: leader?.organization || 'Unknown'
+  organization: leader?.organization || 'Unknown',
+  leaderAssignedTags: leaderAssignedUnits
 });
 
         
