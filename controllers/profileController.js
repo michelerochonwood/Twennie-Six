@@ -130,23 +130,18 @@ async function resolveAuthorById(authorId) {
 // ✅ Show Survey Form (shared route for all users)
 const showProfileSurveyForm = async (req, res) => {
   try {
-    const { id } = req.session.user;
-    let user = await Member.findById(id).lean();
-
-    // fallback for group members or leaders if needed
-    if (!user) user = await GroupMember.findById(id).lean();
-    if (!user) user = await Leader.findById(id).lean();
+    const user = req.user;
 
     if (!user) {
-      return res.status(404).send("User not found.");
+      return res.status(401).send("Not authenticated.");
     }
 
     res.render("profile_views/profile_survey_form", {
       layout: "profilelayout",
       csrfToken: req.csrfToken ? req.csrfToken() : null,
       member: {
-        name: user.username || user.name || "",
-        email: user.email || ""
+        name: user.name || user.username || '',
+        email: user.email || user.groupLeaderEmail || ''
       }
     });
   } catch (error) {
