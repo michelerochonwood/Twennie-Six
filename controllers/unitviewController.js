@@ -207,7 +207,7 @@ viewVideo: async (req, res) => {
     console.log("✅ Video found:", video);
 
     // 2. Resolve the author
-    const authorId = video.author.id || video.author;
+    const authorId = video.author?.id || video.author;
     const author = await resolveAuthorById(authorId);
     if (!author) {
       console.error(`❌ Author with ID ${authorId} not found.`);
@@ -224,53 +224,70 @@ viewVideo: async (req, res) => {
 
     // 4. Determine access based on visibility
     let isAuthorizedToViewFullContent = false;
+    let isOrgMatch = false;
+    let isTeamMatch = false;
 
     if (video.visibility === 'all_members') {
       isAuthorizedToViewFullContent = true;
     } else {
-      const isOrgMatch =
+      isOrgMatch =
         video.visibility === 'organization_only' &&
-        req.user.organization &&
+        req.user?.organization &&
         author.organization &&
         req.user.organization === author.organization;
 
-      const isTeamMatch =
+      isTeamMatch =
         video.visibility === 'team_only' &&
-        req.user.groupId &&
+        req.user?.groupId &&
         author.groupId &&
         req.user.groupId.toString() === author.groupId.toString();
 
       isAuthorizedToViewFullContent = isOwner || isOrgMatch || isTeamMatch;
-
-      console.log("🔒 Access breakdown:");
-      console.log("• isOrgMatch:", isOrgMatch);
-      console.log("• isTeamMatch:", isTeamMatch);
     }
 
-    console.log("📌 Visibility:", video.visibility);
+    console.log("🔒 Access breakdown:");
+    console.log("• isOrgMatch:", isOrgMatch);
+    console.log("• isTeamMatch:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // 5. Render the view
-res.render('unit_views/single_video', {
-  layout: 'unitviewlayout',
-  _id: video._id.toString(),
-  video_title: video.video_title,
-  short_summary: video.short_summary,
-  full_summary: video.full_summary,
-  video_content: video.video_content || '', // for iframe embedding
-  video_url: video.video_url || '/images/valuegroupcont.png', // fallback preview image
-  author: {
-    name: author.name || 'Unknown Author',
-    image: author.image || '/images/default-avatar.png',
-  },
-  main_topic: video.main_topic,
-  secondary_topics: video.secondary_topics,
-  sub_topic: video.sub_topic,
-  isOwner,
-  isAuthorizedToViewFullContent,
-  isAuthenticated: req.isAuthenticated() // ✅ ensures toggle works
-});
+    // 5. Get group members if leader
+    let groupMembers = [];
+    if (req.user?.membershipType === 'leader') {
+      const leader = await Leader.findById(req.user.id);
+      if (leader) {
+        groupMembers = await GroupMember.find({ groupId: leader._id })
+          .select('_id name')
+          .lean();
+        console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
+      }
+    }
 
+    // 6. Render the view
+    res.render('unit_views/single_video', {
+      layout: 'unitviewlayout',
+      _id: video._id.toString(),
+      video_title: video.video_title,
+      short_summary: video.short_summary,
+      full_summary: video.full_summary,
+      video_content: video.video_content || '',
+      video_url: video.video_url || '/images/valuegroupcont.png',
+      author: {
+        name: author.name || 'Unknown Author',
+        image: author.image || '/images/default-avatar.png',
+      },
+      main_topic: video.main_topic,
+      secondary_topics: video.secondary_topics,
+      sub_topic: video.sub_topic,
+      isOwner,
+      isAuthorizedToViewFullContent,
+      isAuthenticated: req.isAuthenticated(),
+      isLeader: req.user?.membershipType === 'leader',
+      isGroupMemberOrLeader:
+        req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
+      isGroupMemberOrMember:
+        req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
+      groupMembers
+    });
 
   } catch (err) {
     console.error('💥 Error fetching video:', err.stack || err.message);
@@ -281,6 +298,7 @@ res.render('unit_views/single_video', {
     });
   }
 },
+
 
       
     
@@ -305,7 +323,7 @@ viewInterview: async (req, res) => {
     console.log("✅ Interview found:", interview);
 
     // 2. Resolve the author
-    const authorId = interview.author.id || interview.author;
+    const authorId = interview.author?.id || interview.author;
     const author = await resolveAuthorById(authorId);
     if (!author) {
       console.error(`❌ Author with ID ${authorId} not found.`);
@@ -348,7 +366,19 @@ viewInterview: async (req, res) => {
     console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // 5. Render the view
+    // 5. Get group members if user is a leader
+    let groupMembers = [];
+    if (req.user?.membershipType === 'leader') {
+      const leader = await Leader.findById(req.user.id);
+      if (leader) {
+        groupMembers = await GroupMember.find({ groupId: leader._id })
+          .select('_id name')
+          .lean();
+        console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
+      }
+    }
+
+    // 6. Render the view
     res.render('unit_views/single_interview', {
       layout: 'unitviewlayout',
       _id: interview._id.toString(),
@@ -366,7 +396,13 @@ viewInterview: async (req, res) => {
       sub_topic: interview.sub_topic,
       isOwner,
       isAuthorizedToViewFullContent,
-      isAuthenticated: req.isAuthenticated()
+      isAuthenticated: req.isAuthenticated(),
+      isLeader: req.user?.membershipType === 'leader',
+      isGroupMemberOrLeader:
+        req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
+      isGroupMemberOrMember:
+        req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
+      groupMembers
     });
 
   } catch (err) {
@@ -378,6 +414,7 @@ viewInterview: async (req, res) => {
     });
   }
 },
+
 
 
 
@@ -534,7 +571,7 @@ viewExercise: async (req, res) => {
     console.log("✅ Fetched Exercise:", exercise);
 
     // 2. Get the author's ID
-    const authorId = exercise.author.id || exercise.author;
+    const authorId = exercise.author?.id || exercise.author;
     if (!authorId) {
       return res.status(500).render('unit_views/error', {
         layout: 'unitviewlayout',
@@ -543,7 +580,7 @@ viewExercise: async (req, res) => {
       });
     }
 
-    // 3. Resolve author profile (image, name, org, group)
+    // 3. Resolve author profile
     const creator = await resolveAuthorById(authorId);
     console.log("👤 Resolved creator:", creator);
 
@@ -579,7 +616,19 @@ viewExercise: async (req, res) => {
     console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // 6. Render the view
+    // 6. If leader, fetch group members
+    let groupMembers = [];
+    if (req.user?.membershipType === 'leader') {
+      const leader = await Leader.findById(req.user._id);
+      if (leader) {
+        groupMembers = await GroupMember.find({ groupId: leader._id })
+          .select('_id name')
+          .lean();
+        console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
+      }
+    }
+
+    // 7. Render the view
     res.render('unit_views/single_exercise', {
       layout: 'unitviewlayout',
       _id: exercise._id.toString(),
@@ -600,8 +649,13 @@ viewExercise: async (req, res) => {
       sub_topic: exercise.sub_topic,
       isOwner,
       isAuthorizedToViewFullContent,
+      isAuthenticated: req.isAuthenticated(),
+      isLeader: req.user?.membershipType === 'leader',
       isGroupMemberOrLeader:
         req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
+      isGroupMemberOrMember:
+        req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
+      groupMembers,
       csrfToken: req.csrfToken()
     });
 
@@ -614,6 +668,7 @@ viewExercise: async (req, res) => {
     });
   }
 },
+
 
 
     
@@ -635,7 +690,7 @@ viewTemplate: async (req, res) => {
       });
     }
 
-    const authorId = template.author.id || template.author;
+    const authorId = template.author?.id || template.author;
     const author = await resolveAuthorById(authorId);
     if (!author) {
       return res.status(404).render('unit_views/error', {
@@ -675,6 +730,18 @@ viewTemplate: async (req, res) => {
     console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
+    // ✅ Get group members if the user is a leader
+    let groupMembers = [];
+    if (req.user?.membershipType === 'leader') {
+      const leader = await Leader.findById(req.user._id);
+      if (leader) {
+        groupMembers = await GroupMember.find({ groupId: leader._id })
+          .select('_id name')
+          .lean();
+        console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
+      }
+    }
+
     res.render('unit_views/single_template', {
       layout: 'unitviewlayout',
       _id: template._id.toString(),
@@ -692,8 +759,13 @@ viewTemplate: async (req, res) => {
       sub_topic: template.sub_topic,
       isOwner,
       isAuthorizedToViewFullContent,
+      isAuthenticated: req.isAuthenticated(),
+      isLeader: req.user?.membershipType === 'leader',
       isGroupMemberOrLeader:
         req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
+      isGroupMemberOrMember:
+        req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
+      groupMembers,
       csrfToken: req.csrfToken()
     });
 

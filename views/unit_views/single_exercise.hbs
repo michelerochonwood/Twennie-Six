@@ -72,18 +72,62 @@
     <div class="single_exercise-documents">
 
 
-      {{#each document_uploads}}
-        <a href="{{this}}" target="_blank" rel="noopener" class="single_exercise-download-btn" download>
-          Download {{increment @index}}
-        </a>
-      {{/each}}
+{{#each document_uploads}}
+  {{!-- Extract just the file name from the full URL --}}
+  {{#with (split this "/") as |parts|}}
+    <a href="{{../this}}" target="_blank" rel="noopener" class="single_exercise-download-btn" download>
+      Download {{last parts}}
+    </a>
+  {{/with}}
+{{/each}}
     </div>
   {{/if}}
 {{/if}}
 
     </div>
 
-  <!-- Tag This Unit -->
+
+{{#if isLeader}}
+<div class="assign-tag-form white-container">
+  <h4 class="assign-tag-title">Assign this exercise to group members</h4>
+  <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <input type="hidden" id="unitId" value="{{_id}}">
+    <input type="hidden" id="unitType" value="exercise">
+
+    <div class="form-field">
+      <label for="tagName">Tag name</label>
+      <input type="text" id="tagName" name="tagName" required>
+    </div>
+
+    <fieldset class="assign-tag-members">
+      <legend class="assign-tag-legend">Select group members and enter instructions:</legend>
+      {{#each groupMembers}}
+        <div class="assign-tag-member-block">
+          <label class="assign-tag-member-label">
+            <input 
+              type="checkbox" 
+              name="assignedTo" 
+              value="{{_id}}" 
+              data-name="{{name}}" 
+              onchange="toggleInstructionField(this)">
+            {{name}}
+          </label>
+          <textarea 
+            class="assign-tag-instructions" 
+            name="instructions-{{_id}}" 
+            placeholder="Instructions for {{name}}" 
+            style="display: none;"></textarea>
+        </div>
+      {{/each}}
+    </fieldset>
+
+    <button type="submit" class="form-button submit-button">assign tag</button>
+  </form>
+</div>
+{{/if}}
+
+{{#if isGroupMemberOrMember}}
   <div class="single_unit-tag-container">
     <form id="tagForm" onsubmit="tagUnit(event)">
       <input type="hidden" name="_csrf" value="{{csrfToken}}">
@@ -97,6 +141,7 @@
       </a>
     </form>
   </div>
+  {{/if}}
 
   <!-- Notes Form -->
   {{#if isGroupMemberOrLeader}}

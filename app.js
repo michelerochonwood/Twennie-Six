@@ -75,7 +75,7 @@ helpers: {
 
   lt: (a, b) => a < b,
 
-  equal: (a, b) => a === b, // ✅ Add this safely
+  equal: (a, b) => a === b, // ✅ safe redundant alias
 
   getUnitTypeIcon: (unitType) => {
     const icons = {
@@ -89,22 +89,21 @@ helpers: {
     return icons[unitType] || '/icons/default.svg';
   },
 
-getDurationImage: (unitType) => {
-  const baseURL = 'https://www.twennie.com/images/';
-  const map = {
-    article: '5mins.svg',
-    video: '10mins.svg',
-    interview: '10mins.svg',
-    promptset: '20mins.svg',
-    exercise: '30mins.svg',
-    template: '30mins.svg',
-  };
-  if (!map[unitType]) {
-    console.warn(`⚠️ Unrecognized unitType for duration image: ${unitType}`);
-  }
-  return baseURL + (map[unitType] || '5mins.svg');
-},
-
+  getDurationImage: (unitType) => {
+    const baseURL = 'https://www.twennie.com/images/';
+    const map = {
+      article: '5mins.svg',
+      video: '10mins.svg',
+      interview: '10mins.svg',
+      promptset: '20mins.svg',
+      exercise: '30mins.svg',
+      template: '30mins.svg',
+    };
+    if (!map[unitType]) {
+      console.warn(`⚠️ Unrecognized unitType for duration image: ${unitType}`);
+    }
+    return baseURL + (map[unitType] || '5mins.svg');
+  },
 
   capitalize: (str) =>
     typeof str === 'string' ? str.charAt(0).toUpperCase() + str.slice(1) : '',
@@ -128,8 +127,17 @@ getDurationImage: (unitType) => {
       return `https://www.youtube.com/embed/${videoId}`;
     }
     return url;
-  }
+  },
+
+  // ✅ NEW: Split a string by delimiter
+  split: (str, delimiter) =>
+    typeof str === 'string' ? str.split(delimiter) : [],
+
+  // ✅ NEW: Get last item in array
+  last: (array) =>
+    Array.isArray(array) ? array[array.length - 1] : ''
 }
+
 
   
 });
