@@ -22,7 +22,7 @@
 
         {{#if isLeader}}
 <div class="assign-tag-form white-container">
-  <h4 class="assign-tag-title">Assign a tag to group members</h4>
+  <h4 class="assign-tag-title">Assign this unit to group members</h4>
   <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
     <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
     <input type="hidden" id="unitId" value="{{_id}}">
@@ -35,16 +35,25 @@
 
     <fieldset class="assign-tag-members">
       <legend class="assign-tag-legend">Select group members and enter instructions:</legend>
-      {{#each groupMembers}}
-        <label>
-          <input 
-            type="checkbox" 
-            name="assignedTo" 
-            value="{{_id}}" 
-            data-name="{{name}}">
-          {{name}}
-        </label>
-      {{/each}}
+{{#each groupMembers}}
+  <div class="assign-tag-member-block">
+    <label class="assign-tag-member-label">
+      <input 
+        type="checkbox" 
+        name="assignedTo" 
+        value="{{_id}}" 
+        data-name="{{name}}" 
+        onchange="toggleInstructionField(this)">
+      {{name}}
+    </label>
+    <textarea 
+      class="assign-tag-instructions" 
+      name="instructions-{{_id}}" 
+      placeholder="Instructions for {{name}}" 
+      style="display: none;"></textarea>
+  </div>
+{{/each}}
+
     </fieldset>
 
     <button type="submit" class="form-button submit-button">assign tag</button>
@@ -179,25 +188,22 @@ async function submitAssignedTag(event) {
     return;
   }
 
-  // Get all selected checkboxes
   const selectedCheckboxes = Array.from(document.querySelectorAll('input[name="assignedTo"]:checked'));
-
   if (selectedCheckboxes.length === 0) {
     alert('Please select at least one group member.');
     return;
   }
 
-  // Build assignedTo array with per-member prompts
   const assignedTo = [];
 
   for (const checkbox of selectedCheckboxes) {
     const memberId = checkbox.value;
-    const memberName = checkbox.dataset.name || 'this member';
-    const instructions = prompt(`Enter instructions for ${memberName}:`, '') || '';
+    const textarea = document.querySelector(`textarea[name="instructions-${memberId}"]`);
+    const instructions = textarea ? textarea.value.trim() : '';
 
     assignedTo.push({
       member: memberId,
-      instructions: instructions.trim()
+      instructions
     });
   }
 
@@ -225,6 +231,7 @@ async function submitAssignedTag(event) {
 }
 
 
+
 function getCsrfToken() {
   // First try hidden input
   const csrfInput = document.querySelector('input[name="_csrf"]');
@@ -237,5 +244,14 @@ function getCsrfToken() {
   // Fallback
   return '';
 }
+
+function toggleInstructionField(checkbox) {
+  const memberId = checkbox.value;
+  const textarea = document.querySelector(`textarea[name="instructions-${memberId}"]`);
+  if (textarea) {
+    textarea.style.display = checkbox.checked ? 'block' : 'none';
+  }
+}
+
 
 </script>

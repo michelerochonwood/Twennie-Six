@@ -2413,17 +2413,39 @@ label {
 
 .assign-tag-form .form-button.submit-button {
   margin-top: 20px;
+  font-family: "Figtree";
   padding: 10px 20px;
-  background-color: #4a4ab2;
+  background-color: #262262;
   color: white;
   font-weight: 600;
   font-size: 14px;
   border: none;
-  border-radius: 8px;
+  border-radius: 88px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
 }
 
 .assign-tag-form .form-button.submit-button:hover {
-  background-color: #3c3c8f;
+  background-color: #4a4ab2;
+}
+
+
+.assign-tag-member-block {
+  margin-bottom: 15px;
+}
+
+.assign-tag-member-label {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.assign-tag-instructions {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
 }
