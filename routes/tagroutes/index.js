@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const tagController = require('../../controllers/tagController');
+const ensureAuthenticated = require('../../middleware/ensureAuthenticated');
 
 // Create a new tag
 router.post('/create', tagController.createTag);
