@@ -50,15 +50,31 @@ exports.createNote = async (req, res) => {
             note_content
         });
 
-        await newNote.save();
+await newNote.save();
 
-        // ✅ Pass the correct dashboard link to the success page
-        const dashboardLink = isGroupMember ? "/dashboard/groupmember" : "/dashboard/leader";
+// ✅ Also mark the corresponding leader-assigned tag as completed
+await Tag.updateMany(
+  {
+    associatedUnits: unitId,
+    'assignedTo.member': userId
+  },
+  {
+    $set: {
+      'assignedTo.$[elem].completedAt': new Date()
+    }
+  },
+  {
+    arrayFilters: [{ 'elem.member': userId }]
+  }
+);
 
-        res.render('unit_views/unitnotessuccess', { 
-            layout: 'unitviewlayout', 
-            dashboard: dashboardLink // Ensure dashboard variable is available
-        });
+// ✅ Pass the correct dashboard link to the success page
+const dashboardLink = isGroupMember ? "/dashboard/groupmember" : "/dashboard/leader";
+
+res.render('unit_views/unitnotessuccess', { 
+  layout: 'unitviewlayout', 
+  dashboard: dashboardLink
+});
 
     } catch (error) {
         console.error("Error submitting note:", error);

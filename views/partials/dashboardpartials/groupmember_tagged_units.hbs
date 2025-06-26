@@ -45,6 +45,29 @@
       {{/each}}
     </div>
   </div>
+
+  <!-- ✅ Completed Units Section -->
+<div class="tagged-units-subsection">
+  <h3 class="tagged-units-subtitle">completed leader-assigned units</h3>
+  <div class="tagged-units-grid">
+    {{#each completedLeaderAssignedTags}}
+      <div class="tagged-unit-card">
+        <div class="tagged-unit-icon">
+          <img src="/icons/{{unitType}}.svg" alt="{{unitType}} icon">
+        </div>
+        <div class="tagged-unit-info">
+          <h3 class="tagged-unit-title">{{title}}</h3>
+          <p class="tagged-unit-topic">{{mainTopic}}</p>
+          <p class="tagged-unit-completed"><strong>Completed:</strong> {{completedAt}}</p>
+        </div>
+        <a href="/unitviews/{{unitType}}s/view/{{_id}}" class="tagged-unit-link">review unit</a>
+      </div>
+    {{else}}
+      <p class="tagged-no-units">No completed units yet.</p>
+    {{/each}}
+  </div>
+</div>
+
 </section>
 
 

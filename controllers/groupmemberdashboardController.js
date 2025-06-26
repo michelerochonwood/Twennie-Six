@@ -392,8 +392,10 @@ let completedPromptSets = [];
     
             const groupMemberTaggedUnits = await fetchTaggedUnits(id);
 
-            const leaderAssignedTags = await Tag.find({ 'assignedTo.member': id }).lean();
-let leaderAssignedUnits = [];
+
+let leaderAssignedTags = await Tag.find({ 'assignedTo.member': id }).lean();
+let inProgressAssignedUnits = [];
+let completedAssignedUnits = [];
 
 if (leaderAssignedTags.length > 0) {
   const unitIds = leaderAssignedTags.flatMap(tag => tag.associatedUnits);
@@ -414,7 +416,6 @@ if (leaderAssignedTags.length > 0) {
     Template.find({ _id: { $in: unitIds } }),
   ]);
 
-  // Flatten and enrich units with instructions
   const allUnits = [
     ...taggedArticles.map(u => ({ unitType: 'article', _id: u._id, title: u.article_title, mainTopic: u.main_topic })),
     ...taggedVideos.map(u => ({ unitType: 'video', _id: u._id, title: u.video_title, mainTopic: u.main_topic })),
@@ -424,16 +425,29 @@ if (leaderAssignedTags.length > 0) {
     ...taggedTemplates.map(u => ({ unitType: 'template', _id: u._id, title: u.template_title, mainTopic: u.main_topic })),
   ];
 
-  // For each unit, attach the specific instruction if tagged
-  leaderAssignedUnits = allUnits.map(unit => {
-    const matchingTag = leaderAssignedTags.find(tag => tag.associatedUnits.some(uid => uid.toString() === unit._id.toString()));
+  for (const unit of allUnits) {
+    const matchingTag = leaderAssignedTags.find(tag => 
+      tag.associatedUnits.some(uid => uid.toString() === unit._id.toString())
+    );
+    
     const assignment = matchingTag?.assignedTo.find(entry => entry.member.toString() === id);
-    return {
-      ...unit,
-      instructions: assignment?.instructions || ''
-    };
-  });
+
+    if (assignment) {
+      const enrichedUnit = {
+        ...unit,
+        instructions: assignment.instructions || '',
+        completedAt: assignment.completedAt || null
+      };
+
+      if (assignment.completedAt) {
+        completedAssignedUnits.push(enrichedUnit);
+      } else {
+        inProgressAssignedUnits.push(enrichedUnit);
+      }
+    }
+  }
 }
+
 
     
             const [memberArticles, memberVideos, memberPromptSets, memberInterviews, memberExercises, memberTemplates] = await Promise.all([
@@ -579,7 +593,8 @@ return res.render('groupmember_dashboard', {
   selectedTopics,
   leaderName: leader ? leader.groupLeaderName : "Group Leader",
   organization: leader?.organization || 'Unknown',
-  leaderAssignedTags: leaderAssignedUnits
+leaderAssignedTags: inProgressAssignedUnits,
+completedLeaderAssignedTags: completedAssignedUnits
 });
 
         

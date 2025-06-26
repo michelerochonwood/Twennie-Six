@@ -35,7 +35,8 @@ const tagSchema = new mongoose.Schema({
       type: String,
       trim: true,
       default: ''
-    }
+    },
+    completedAt: { type: Date, default: null } // ✅ NEW
   }],
   associatedTopics: [{
     type: mongoose.Schema.Types.ObjectId,
