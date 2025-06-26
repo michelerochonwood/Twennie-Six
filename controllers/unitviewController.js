@@ -135,9 +135,9 @@ viewArticle: async (req, res) => {
     if (req.user?.membershipType === 'leader') {
       const leader = await Leader.findById(req.user.id);
       if (leader) {
-        groupMembers = await GroupMember.find({ leader: leader._id })
-          .select('_id name') // ✅ Make sure name is selected
-          .lean(); // Always lean for rendering
+        groupMembers = await GroupMember.find({ groupId: leader._id })
+          .select('_id name') // ✅ Correct field: groupId
+          .lean();
         console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
@@ -163,8 +163,8 @@ viewArticle: async (req, res) => {
       isAuthenticated: !!req.user,
       isGroupMemberOrLeader:
         req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
-      groupMembers, // ✅ Fully populated with _id and name
-      isLeader: req.user?.membershipType === 'leader', // add this to simplify Handlebars checks
+      groupMembers, // ✅ Now correctly loaded
+      isLeader: req.user?.membershipType === 'leader',
       csrfToken: req.csrfToken(),
     });
 
@@ -177,6 +177,7 @@ viewArticle: async (req, res) => {
     });
   }
 },
+
 
 
 
