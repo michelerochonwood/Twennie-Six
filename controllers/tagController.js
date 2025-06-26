@@ -9,13 +9,13 @@ const GroupMember = require('../models/member_models/group_member');
 
 exports.createTag = async (req, res) => {
   try {
-    const { name, itemId, itemType, assignedTo, instructions } = req.body;
+    const { name, itemId, itemType, assignedTo } = req.body;
 
     if (!req.user) {
       return res.status(401).json({ message: 'User must be logged in to create tags.' });
     }
 
-    const userId = req.user.id;
+    const userId = req.user._id;
     let userModel;
 
     const isMember = await Member.exists({ _id: userId });
@@ -36,49 +36,65 @@ exports.createTag = async (req, res) => {
       return res.status(400).json({ message: 'Tag name, item ID, and item type are required.' });
     }
 
-    // Check if tag already exists
     let tag = await Tag.findOne({ name });
 
     if (!tag) {
       tag = new Tag({
-        name,
+        name: name.trim(),
         createdBy: userId,
         createdByModel: userModel,
         associatedUnits: itemType !== 'topic' ? [itemId] : [],
         associatedTopics: itemType === 'topic' ? [itemId] : [],
         unitType: itemType !== 'topic' ? itemType : undefined,
+        assignedTo: []
       });
     } else {
       const isAlreadyTagged = itemType === 'topic'
         ? tag.associatedTopics.includes(itemId)
         : tag.associatedUnits.includes(itemId);
 
-      if (isAlreadyTagged) {
-        return res.status(400).json({ message: 'You have already tagged this item.' });
-      }
-
-      if (itemType === 'topic') {
-        tag.associatedTopics.push(itemId);
-      } else {
-        tag.associatedUnits.push(itemId);
-        tag.unitType = itemType;
+      if (!isAlreadyTagged) {
+        if (itemType === 'topic') {
+          tag.associatedTopics.push(itemId);
+        } else {
+          tag.associatedUnits.push(itemId);
+          tag.unitType = itemType;
+        }
       }
     }
 
-    // ✅ Only leaders can assign tags to group members
-    if (isLeader && assignedTo?.length > 0) {
-      tag.assignedTo = Array.isArray(assignedTo) ? assignedTo : [assignedTo];
-      tag.instructions = instructions || '';
+    if (isLeader && Array.isArray(assignedTo)) {
+      const newAssignments = [];
+
+      for (const entry of assignedTo) {
+        if (entry.member) {
+          const alreadyAssigned = tag.assignedTo?.some(existing =>
+            existing.member.toString() === entry.member
+          );
+
+          if (!alreadyAssigned) {
+            newAssignments.push({
+              member: entry.member,
+              instructions: entry.instructions || ''
+            });
+          }
+        }
+      }
+
+      tag.assignedTo = [...(tag.assignedTo || []), ...newAssignments];
     }
 
     await tag.save();
-    res.status(200).json({ message: 'Tag added successfully.', tag });
+    return res.status(200).json({ message: 'Tag saved successfully.', tag });
 
   } catch (error) {
-    console.error('Error creating tag:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('❌ Error creating tag:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
+
 
 
 exports.getTagsForItem = async (req, res) => {

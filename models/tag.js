@@ -9,36 +9,39 @@ const tagSchema = new mongoose.Schema({
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    refPath: 'createdByModel', // Dynamic reference to the model
+    refPath: 'createdByModel',
+    required: true
   },
   createdByModel: {
     type: String,
     required: true,
-    enum: ['member', 'group_member', 'leader'], // Allowed models
+    enum: ['member', 'group_member', 'leader'],
   },
   associatedUnits: [{
     type: mongoose.Schema.Types.ObjectId,
-    refPath: 'unitType', // Dynamic reference to unit type
+    refPath: 'unitType',
   }],
   unitType: {
     type: String,
-    enum: ['article', 'video', 'interview', 'promptset', 'exercise', 'template'], // Unit types
+    enum: ['article', 'video', 'interview', 'promptset', 'exercise', 'template'],
   },
-  assignedTo: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: 'GroupMember'
-},
-notes: {
-  type: String,
-  trim: true,
-  default: ''
-},
+  assignedTo: [{
+    member: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'GroupMember',
+      required: true
+    },
+    instructions: {
+      type: String,
+      trim: true,
+      default: ''
+    }
+  }],
   associatedTopics: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Topic',
-  }],
-
-
-}, { timestamps: true }); // Automatically add createdAt and updatedAt fields
+  }]
+}, { timestamps: true });
 
 module.exports = mongoose.model('Tag', tagSchema);
+
