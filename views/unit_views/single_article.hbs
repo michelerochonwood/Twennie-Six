@@ -31,14 +31,16 @@
     <label for="tagName">Tag name:</label>
     <input type="text" id="tagName" name="tagName" required>
 
-    <label for="instructions">Instructions for tagged group members:</label>
-    <textarea id="instructions" name="instructions" rows="3"></textarea>
-
     <fieldset>
-      <legend>Select group members:</legend>
-      {{#each groupMembers}} <!-- You need to pass groupMembers to the view -->
+      <legend>Select group members and enter instructions:</legend>
+      {{#each groupMembers}} <!-- groupMembers must be passed to the view -->
         <label>
-          <input type="checkbox" name="assignedTo" value="{{_id}}"> {{name}}
+          <input 
+            type="checkbox" 
+            name="assignedTo" 
+            value="{{_id}}" 
+            data-name="{{name}}"> 
+          {{name}}
         </label><br>
       {{/each}}
     </fieldset>
@@ -46,6 +48,7 @@
     <button type="submit">assign tag</button>
   </form>
 </div>
+
 {{/if}}
         <!-- Tag This Unit -->
         <div class="single_unit-tag-container" style="margin-bottom: 200px;">
@@ -176,14 +179,37 @@ function toggleSidebarContent(element) {
 async function submitAssignedTag(event) {
   event.preventDefault();
 
-  const tagName = document.getElementById('tagName').value;
+  const tagName = document.getElementById('tagName').value.trim();
   const unitId = document.getElementById('unitId').value;
   const unitType = document.getElementById('unitType').value;
-  const instructions = document.getElementById('instructions').value;
-const csrfToken = getCsrfToken(); // ✅ Replaces the broken direct lookup
+  const csrfToken = getCsrfToken();
 
-  const assignedTo = Array.from(document.querySelectorAll('input[name="assignedTo"]:checked'))
-                          .map(cb => cb.value);
+  if (!tagName) {
+    alert('Please enter a tag name.');
+    return;
+  }
+
+  // Get all selected checkboxes
+  const selectedCheckboxes = Array.from(document.querySelectorAll('input[name="assignedTo"]:checked'));
+
+  if (selectedCheckboxes.length === 0) {
+    alert('Please select at least one group member.');
+    return;
+  }
+
+  // Build assignedTo array with per-member prompts
+  const assignedTo = [];
+
+  for (const checkbox of selectedCheckboxes) {
+    const memberId = checkbox.value;
+    const memberName = checkbox.dataset.name || 'this member';
+    const instructions = prompt(`Enter instructions for ${memberName}:`, '') || '';
+
+    assignedTo.push({
+      member: memberId,
+      instructions: instructions.trim()
+    });
+  }
 
   const response = await fetch('/tags/create', {
     method: 'POST',
@@ -195,9 +221,7 @@ const csrfToken = getCsrfToken(); // ✅ Replaces the broken direct lookup
       name: tagName,
       itemId: unitId,
       itemType: unitType,
-      assignedTo,
-      instructions,
-      _csrf: csrfToken
+      assignedTo
     })
   });
 
@@ -209,6 +233,7 @@ const csrfToken = getCsrfToken(); // ✅ Replaces the broken direct lookup
     alert(result.message || 'Error assigning tag.');
   }
 }
+
 
 function getCsrfToken() {
   // First try hidden input

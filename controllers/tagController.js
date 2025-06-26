@@ -9,6 +9,8 @@ const GroupMember = require('../models/member_models/group_member');
 
 exports.createTag = async (req, res) => {
   try {
+    console.log('📦 Incoming assignedTo:', req.body.assignedTo);
+
     const { name, itemId, itemType, assignedTo } = req.body;
 
     if (!req.user) {

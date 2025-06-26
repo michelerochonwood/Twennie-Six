@@ -130,16 +130,19 @@ viewArticle: async (req, res) => {
     console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // 5. If the user is a leader, get their group members
+    // 5. Get group members if leader
     let groupMembers = [];
     if (req.user?.membershipType === 'leader') {
       const leader = await Leader.findById(req.user.id);
       if (leader) {
-        groupMembers = await GroupMember.find({ leader: leader._id }).select('name _id');
+        groupMembers = await GroupMember.find({ leader: leader._id })
+          .select('_id name') // ✅ Make sure name is selected
+          .lean(); // Always lean for rendering
+        console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
 
-    // 6. Render the article view
+    // 6. Render view
     return res.render('unit_views/single_article', {
       layout: 'unitviewlayout',
       _id: article._id.toString(),
@@ -160,7 +163,8 @@ viewArticle: async (req, res) => {
       isAuthenticated: !!req.user,
       isGroupMemberOrLeader:
         req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
-      groupMembers, // for tag assignment if user is a leader
+      groupMembers, // ✅ Fully populated with _id and name
+      isLeader: req.user?.membershipType === 'leader', // add this to simplify Handlebars checks
       csrfToken: req.csrfToken(),
     });
 
@@ -173,6 +177,7 @@ viewArticle: async (req, res) => {
     });
   }
 },
+
 
 
       
