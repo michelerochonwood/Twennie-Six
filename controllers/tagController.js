@@ -129,7 +129,6 @@ exports.getTagsForUser = async (req, res) => {
 exports.removeTag = async (req, res) => {
   try {
     const { tagId, itemId, itemType } = req.params;
-    const assignedUserId = req.query.assignedTo; // Optional: remove just one assigned user
 
     if (!req.user) {
       return res.status(401).json({ message: 'User must be logged in to remove tags.' });
@@ -147,19 +146,14 @@ exports.removeTag = async (req, res) => {
       return res.status(403).json({ message: 'You can only remove tags you created.' });
     }
 
-    // ✅ Remove association with a topic or unit
+    // ✅ Remove the associated unit
     if (itemType === 'topic') {
       tag.associatedTopics = tag.associatedTopics.filter(id => id.toString() !== itemId);
     } else {
       tag.associatedUnits = tag.associatedUnits.filter(id => id.toString() !== itemId);
     }
 
-    // ✅ Optional: remove a specific user from assignedTo
-    if (assignedUserId) {
-      tag.assignedTo = tag.assignedTo?.filter(id => id.toString() !== assignedUserId);
-    }
-
-    // ✅ Delete tag if now empty
+    // ✅ Clean up: if the tag is now empty, delete it
     const isNowEmpty =
       tag.associatedUnits.length === 0 &&
       tag.associatedTopics.length === 0 &&
@@ -175,9 +169,10 @@ exports.removeTag = async (req, res) => {
 
   } catch (error) {
     console.error('Error removing tag:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 

@@ -24,33 +24,51 @@ async function resolveAuthorById(authorId) {
 }
 
 async function fetchTaggedUnits(userId) {
-    try {
-        const tags = await Tag.find({ createdBy: userId }).lean();
-        if (!tags.length) return [];
-        const unitIds = tags.flatMap(tag => tag.associatedUnits);
+  try {
+    const tags = await Tag.find({ createdBy: userId }).lean();
+    if (!tags.length) return [];
 
-        const [taggedArticles, taggedVideos, taggedPromptSets, taggedInterviews, taggedExercises, taggedTemplates] = await Promise.all([
-            Article.find({ _id: { $in: unitIds } }).lean(),
-            Video.find({ _id: { $in: unitIds } }).lean(),
-            PromptSet.find({ _id: { $in: unitIds } }).lean(),
-            Interview.find({ _id: { $in: unitIds } }).lean(),
-            Exercise.find({ _id: { $in: unitIds } }).lean(),
-            Template.find({ _id: { $in: unitIds } }).lean(),
-        ]);
+    const unitIds = tags.flatMap(tag => tag.associatedUnits.map(unitId => ({
+      unitId: unitId.toString(),
+      tagId: tag._id.toString(),
+      unitType: tag.unitType
+    })));
 
-        return [
-            ...taggedArticles.map(unit => ({ unitType: 'article', title: unit.article_title || "Untitled Article", mainTopic: unit.main_topic || "No topic", _id: unit._id })),
-            ...taggedVideos.map(unit => ({ unitType: 'video', title: unit.video_title || "Untitled Video", mainTopic: unit.main_topic || "No topic", _id: unit._id })),
-            ...taggedPromptSets.map(unit => ({ unitType: 'promptset', title: unit.promptset_title || "Untitled Prompt Set", mainTopic: unit.main_topic || "No topic", _id: unit._id })),
-            ...taggedInterviews.map(unit => ({ unitType: 'interview', title: unit.interview_title || "Untitled Interview", mainTopic: unit.main_topic || "No topic", _id: unit._id })),
-            ...taggedExercises.map(unit => ({ unitType: 'exercise', title: unit.exercise_title || "Untitled Exercise", mainTopic: unit.main_topic || "No topic", _id: unit._id })),
-            ...taggedTemplates.map(unit => ({ unitType: 'template', title: unit.template_title || "Untitled Template", mainTopic: unit.main_topic || "No topic", _id: unit._id }))
-        ];
-    } catch (error) {
-        console.error("Error fetching tagged units:", error);
-        return [];
-    }
+    const [articles, videos, promptSets, interviews, exercises, templates] = await Promise.all([
+      Article.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean(),
+      Video.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean(),
+      PromptSet.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean(),
+      Interview.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean(),
+      Exercise.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean(),
+      Template.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean()
+    ]);
+
+    // Map units to their tag info
+    const taggedMap = new Map(unitIds.map(({ unitId, tagId, unitType }) => [`${unitId}-${unitType}`, tagId]));
+
+    const tagResult = (units, type, titleField) =>
+      units.map(unit => ({
+        unitType: type,
+        title: unit[titleField] || `Untitled ${type}`,
+        mainTopic: unit.main_topic || "No topic",
+        _id: unit._id,
+        tagId: taggedMap.get(`${unit._id.toString()}-${type}`)
+      }));
+
+    return [
+      ...tagResult(articles, 'article', 'article_title'),
+      ...tagResult(videos, 'video', 'video_title'),
+      ...tagResult(promptSets, 'promptset', 'promptset_title'),
+      ...tagResult(interviews, 'interview', 'interview_title'),
+      ...tagResult(exercises, 'exercise', 'exercise_title'),
+      ...tagResult(templates, 'template', 'template_title')
+    ];
+  } catch (error) {
+    console.error("Error fetching tagged units:", error);
+    return [];
+  }
 }
+
 
 const topicMappings = {
     'AI in Consulting': 'aiinconsulting',
