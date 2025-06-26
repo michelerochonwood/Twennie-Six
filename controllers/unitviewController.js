@@ -143,30 +143,33 @@ viewArticle: async (req, res) => {
     }
 
     // 6. Render view
-    return res.render('unit_views/single_article', {
-      layout: 'unitviewlayout',
-      _id: article._id.toString(),
-      article_title: article.article_title,
-      short_summary: article.short_summary,
-      full_summary: article.full_summary,
-      article_content: article.article_content,
-      article_image: '/images/default-article.png',
-      author: {
-        name: author.name || 'Unknown Author',
-        image: author.image || '/images/default-avatar.png',
-      },
-      main_topic: article.main_topic,
-      secondary_topics: article.secondary_topics,
-      sub_topic: article.sub_topic,
-      isOwner,
-      isAuthorizedToViewFullContent,
-      isAuthenticated: !!req.user,
-      isGroupMemberOrLeader:
-        req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
-      groupMembers, // ✅ Now correctly loaded
-      isLeader: req.user?.membershipType === 'leader',
-      csrfToken: req.csrfToken(),
-    });
+return res.render('unit_views/single_article', {
+  layout: 'unitviewlayout',
+  _id: article._id.toString(),
+  article_title: article.article_title,
+  short_summary: article.short_summary,
+  full_summary: article.full_summary,
+  article_content: article.article_content,
+  article_image: '/images/default-article.png',
+  author: {
+    name: author.name || 'Unknown Author',
+    image: author.image || '/images/default-avatar.png',
+  },
+  main_topic: article.main_topic,
+  secondary_topics: article.secondary_topics,
+  sub_topic: article.sub_topic,
+  isOwner,
+  isAuthorizedToViewFullContent,
+  isAuthenticated: !!req.user,
+  isGroupMemberOrLeader:
+    req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
+  isGroupMemberOrMember: // ✅ <-- THIS LINE
+    req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
+  groupMembers,
+  isLeader: req.user?.membershipType === 'leader',
+  csrfToken: req.csrfToken(),
+});
+
 
   } catch (err) {
     console.error('💥 Error fetching article:', err.stack || err.message);
