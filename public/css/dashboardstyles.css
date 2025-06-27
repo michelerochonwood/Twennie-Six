@@ -1066,7 +1066,7 @@ html, body {
   margin-bottom: 7.5px; /* Reduced from 10px */
 }
 
-.tagged-unit-link {
+.tagged-unit-link, .tag-remove-btn {
   display: inline-block;
   font-family: "Figtree";
   padding: 6px 9px; /* Reduced from 8px 12px */
@@ -1083,6 +1083,10 @@ html, body {
 }
 
 .tagged-unit-link:hover {
+  background-color: #4a4ab2;
+}
+
+.tag-remove-btn:hover {
   background-color: #4a4ab2;
 }
 
