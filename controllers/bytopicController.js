@@ -86,7 +86,7 @@ exports.getTopicView = async (req, res) => {
             'Soft Skills in Technical Environments': 'softskillsintechnicalenvironments',
             'Business Development in Technical Services': 'businessdevelopmentintechnicalservices',
             'Finding Projects Before they Become RFPs': 'findingprojectsbeforetheybecomerfps',
-            'Un-Commoditizing Your Services by Delivering What Clients Truly Value': 'uncommoditizingbydelivering',
+            'Un-Commoditizing Your Services by Delivering What Clients Truly Value': 'uncommoditizingyourservicesbydeliveringwhatclientstrulyvalue',
             'Proposal Management': 'proposalmanagement',
             'Proposal Strategy': 'proposalstrategy',
             'Storytelling in Technical Marketing': 'storytellingintechnicalmarketing',
