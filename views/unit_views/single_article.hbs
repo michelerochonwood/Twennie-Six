@@ -155,3 +155,34 @@
     </div>
   </aside>
 </div>
+
+<script>
+  function toggleArticleContent(element) {
+    const isAuthorized = element.dataset.authorized === "true";
+    const content = element.nextElementSibling;
+
+    if (isAuthorized) {
+      content.classList.toggle('hidden');
+      element.classList.toggle('open');
+    } else {
+      alert("You don't have access to view the full content of this unit.");
+    }
+  }
+
+  function toggleSidebarContent(element) {
+    const sidebarContent = element.nextElementSibling;
+    if (sidebarContent) {
+      sidebarContent.classList.toggle('hidden');
+      element.classList.toggle('open');
+    }
+  }
+
+  function toggleInstructionField(checkbox) {
+    const memberId = checkbox.value;
+    const textarea = document.querySelector(`textarea[name="instructions-${memberId}"]`);
+    if (textarea) {
+      textarea.style.display = checkbox.checked ? 'block' : 'none';
+    }
+  }
+</script>
+
