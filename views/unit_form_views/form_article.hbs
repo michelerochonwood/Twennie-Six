@@ -154,8 +154,19 @@
     document.querySelector('#article-form').addEventListener('submit', function () {
       document.getElementById('articleBody').value = quill.root.innerHTML;
     });
+
+    // Restore toggle functionality
+    window.toggleCard = function (element) {
+      const card = element.closest('.bytopic-library-unit-card');
+      if (card) {
+        card.classList.toggle('active');
+        const arrow = element.querySelector('.bytopic-arrow-icon');
+        if (arrow) arrow.classList.toggle('open');
+      }
+    };
   });
 </script>
+
 
 
 {{> mainpartials/footer}}
