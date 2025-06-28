@@ -12,6 +12,7 @@ const mongoose = require('mongoose');
 const LeaderProfile = require('../models/profile_models/leader_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const MemberProfile = require('../models/profile_models/member_profile');
+const sanitizeHtml = require('sanitize-html');
 
 
 async function resolveAuthorById(authorId) {
