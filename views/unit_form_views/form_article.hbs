@@ -47,44 +47,44 @@
         <input type="text" id="sub-topic" name="sub_topic" value="{{data.sub_topic}}">
       </div>
 
-      <div class="form-field">
-        <label for="article-content">Articles should be a maximum of 1200 words, minimum 800.</label>
-        <textarea id="article-content" name="article_content" rows="25" maxlength="8000" data-minlength="5000" required>{{data.article_content}}</textarea>
+      <!-- Rich Text Editor -->
+<!-- Rich Text Editor -->
+<div class="form-field">
+  <label for="articleBody">Articles should be a maximum of 1200 words, minimum 800.</label>
+
+  {{#if word_count}}
+    <p style="font-size: 0.9rem; color: #777; margin-top: 0.25rem;">
+      Current saved word count: <strong>{{word_count}}</strong>
+    </p>
+  {{/if}}
+
+  <div id="quill-editor" style="height: 300px; background-color: white;"></div>
+
+  <div id="word-count" style="margin-top: 0.5rem; font-size: 0.9rem; color: #555;">
+    Word count: <span id="wordCount">0</span>
+  </div>
+
+  <input type="hidden" name="articleBody" id="articleBody">
+</div>
+
+      <div class="form-toggle">
+        <label><input type="checkbox" name="clarify_topic" {{#if data.clarify_topic}}checked{{/if}}> Does your article further clarify the topic?</label>
       </div>
 
       <div class="form-toggle">
-        <label>
-          <input type="checkbox" name="clarify_topic" {{#if data.clarify_topic}}checked{{/if}}>
-          Does your article further clarify the topic?
-        </label>
+        <label><input type="checkbox" name="produce_deliverables" {{#if data.produce_deliverables}}checked{{/if}}> Does it suggest tasks that produce deliverables?</label>
       </div>
 
       <div class="form-toggle">
-        <label>
-          <input type="checkbox" name="produce_deliverables" {{#if data.produce_deliverables}}checked{{/if}}>
-          Does it suggest tasks that produce deliverables?
-        </label>
+        <label><input type="checkbox" name="new_ideas" {{#if data.new_ideas}}checked{{/if}}> Does it include some new ideas and creative suggestions?</label>
       </div>
 
       <div class="form-toggle">
-        <label>
-          <input type="checkbox" name="new_ideas" {{#if data.new_ideas}}checked{{/if}}>
-          Does it include some new ideas and creative suggestions?
-        </label>
+        <label><input type="checkbox" name="include_results" {{#if data.include_results}}checked{{/if}}> Does it include results and/or testimonials?</label>
       </div>
 
       <div class="form-toggle">
-        <label>
-          <input type="checkbox" name="include_results" {{#if data.include_results}}checked{{/if}}>
-          Does it include results and/or testimonials?
-        </label>
-      </div>
-
-      <div class="form-toggle">
-        <label>
-          <input type="checkbox" name="permission" {{#if data.permission}}checked{{/if}} required>
-          Do you provide consent for this library unit to be used for Twennie promotional purposes?
-        </label>
+        <label><input type="checkbox" name="permission" {{#if data.permission}}checked{{/if}} required> Do you provide consent for this library unit to be used for Twennie promotional purposes?</label>
       </div>
 
       <div class="form-field">
@@ -126,5 +126,33 @@
     </form>
   </div>
 </div>
+
+<script>
+  const quill = new Quill('#quill-editor', {
+    theme: 'snow'
+  });
+
+  const wordCountDisplay = document.getElementById('wordCount');
+
+  function updateWordCount() {
+    const text = quill.getText().trim();
+    const words = text === "" ? 0 : text.split(/\s+/).length;
+    wordCountDisplay.textContent = words;
+  }
+
+  quill.on('text-change', updateWordCount);
+  updateWordCount(); // initialize on page load
+
+  // If editing existing content
+  const existingContent = `{{{data.article_body}}}`;
+  if (existingContent) {
+    quill.root.innerHTML = existingContent;
+    updateWordCount();
+  }
+
+  document.querySelector('#article-form').addEventListener('submit', function () {
+    document.getElementById('articleBody').value = quill.root.innerHTML;
+  });
+</script>
 
 {{> mainpartials/footer}}

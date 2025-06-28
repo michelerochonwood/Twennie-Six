@@ -8,7 +8,7 @@ const MicroStudy = require('../models/unit_models/microstudy');
 const MicroCourse = require('../models/unit_models/microcourse');
 const { uploader } = require('../utils/cloudinary');
 const { Readable } = require('stream');
-
+const sanitizeHtml = require('sanitize-html');
 
 console.log('unitFormController loaded');
 
@@ -180,60 +180,117 @@ const unitFormController = {
 
 
 
-    submitArticle: async (req, res) => {
 
-        try {
-            if (!isDevelopment && !req.body._csrf) {
-                console.warn('CSRF validation failed.');
-                throw new Error('CSRF token is missing or invalid.');
-            }
+submitArticle: async (req, res) => {
+  try {
+    if (!isDevelopment && !req.body._csrf) {
+      console.warn('CSRF validation failed.');
+      throw new Error('CSRF token is missing or invalid.');
+    }
 
-            const { _id, ...articleData } = req.body;
+    const {
+      _id,
+      article_title,
+      main_topic,
+      secondary_topics = [],
+      sub_topic,
+      articleBody,
+      short_summary,
+      full_summary,
+      clarify_topic,
+      produce_deliverables,
+      new_ideas,
+      include_results,
+      permission,
+      visibility,
+    } = req.body;
 
-            if (!req.user || !req.user._id) {
-                throw new Error('User is not authenticated or missing user ID.');
-            }
+    if (!req.user || !req.user._id) {
+      throw new Error('User is not authenticated or missing user ID.');
+    }
 
-            const booleanFields = [
-                'clarify_topic',
-                'produce_deliverables',
-                'new_ideas',
-                'include_results',
-                'permission',
-            ];
-            booleanFields.forEach((field) => {
-                articleData[field] = req.body[field] === 'on';
-            });
+    // Sanitize the submitted HTML
+    const cleanHtml = sanitizeHtml(articleBody, {
+      allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
+      allowedAttributes: {
+        '*': ['style', 'href', 'target', 'src', 'alt'],
+      },
+    });
 
-            articleData.author = {
-                id: req.user._id,
-            };
+    // Calculate word count from stripped HTML
+    const plainText = cleanHtml.replace(/<[^>]*>/g, ' ').trim();
+    const wordCount = plainText.split(/\s+/).filter(Boolean).length;
 
-            let article;
-            if (_id) {
-                article = await Article.findByIdAndUpdate(_id, articleData, { new: true, runValidators: true });
-                console.log(`Article with ID ${_id} updated successfully.`);
-            } else {
-                article = new Article(articleData);
-                await article.save();
-                console.log('New article created successfully.');
-            }
+    if (wordCount < 800 || wordCount > 1200) {
+      return res.status(400).render('unit_form_views/form_article', {
+        layout: 'unitformlayout',
+        data: {
+          ...req.body,
+          article_body: cleanHtml,
+        },
+        csrfToken: isDevelopment ? null : req.csrfToken(),
+        errorMessage: `Your article must be between 800 and 1200 words. Current word count: ${wordCount}.`,
+        mainTopics,
+      });
+    }
 
-            res.render('unit_form_views/unit_success', {
-                layout: 'unitformlayout',
-                unitType: 'article',
-                unit: article,
-                csrfToken: isDevelopment ? null : req.csrfToken(),
-            });
-        } catch (error) {
-            console.error('Error submitting article:', error);
-            res.status(500).render('unit_form_views/error', {
-                layout: 'unitformlayout',
-                title: 'Error',
-                errorMessage: error.message || 'An error occurred while submitting the article.',
-            });
-        }
-    },
+    // Boolean checkboxes
+    const booleanFields = [
+      'clarify_topic',
+      'produce_deliverables',
+      'new_ideas',
+      'include_results',
+      'permission',
+    ];
+    const normalizedBooleans = {};
+    booleanFields.forEach((field) => {
+      normalizedBooleans[field] = req.body[field] === 'on';
+    });
+
+    const articleData = {
+      article_title,
+      main_topic,
+      secondary_topics: Array.isArray(secondary_topics) ? secondary_topics : [secondary_topics],
+      sub_topic,
+      article_body: cleanHtml,
+      short_summary,
+      full_summary,
+      visibility,
+      author: {
+        id: req.user._id,
+      },
+      ...normalizedBooleans,
+    };
+
+    let article;
+    if (_id) {
+      article = await Article.findByIdAndUpdate(_id, articleData, { new: true, runValidators: true });
+      console.log(`Article with ID ${_id} updated successfully.`);
+    } else {
+      article = new Article(articleData);
+      await article.save();
+      console.log('New article created successfully.');
+    }
+
+    res.render('unit_form_views/unit_success', {
+      layout: 'unitformlayout',
+      unitType: 'article',
+      unit: article,
+      word_count: wordCount,
+      csrfToken: isDevelopment ? null : req.csrfToken(),
+    });
+  } catch (error) {
+    console.error('Error submitting article:', error);
+    res.status(500).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Error',
+      errorMessage: error.message || 'An error occurred while submitting the article.',
+    });
+  }
+},
+
+
+
 
 
     

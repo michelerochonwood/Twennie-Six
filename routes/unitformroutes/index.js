@@ -84,19 +84,23 @@ router.get('/edit_article/:id', ensureAuthenticated, async (req, res) => {
             selected: article.secondary_topics?.includes(topic) || false,
         }));
 
-        res.render('unit_form_views/form_article', {
-            layout: 'unitformlayout',
-            data: {
-                ...article.toObject(),
-                author: {
-                    name: article.author?.id?.name || 'Unknown Author',
-                    image: article.author?.id?.profileImage || '/images/default-avatar.png',
-                },
-            },
-            mainTopics,
-            secondaryTopics, // Pass secondary topics for dynamic rendering
-            csrfToken: isDevelopment ? null : req.csrfToken(),
-        });
+const plainText = article.article_body.replace(/<[^>]*>/g, ' ').trim();
+const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+
+res.render('unit_form_views/form_article', {
+  layout: 'unitformlayout',
+  data: {
+    ...article.toObject(),
+    author: {
+      name: article.author?.id?.name || 'Unknown Author',
+      image: article.author?.id?.profileImage || '/images/default-avatar.png',
+    },
+  },
+  word_count: wordCount,
+  mainTopics,
+  secondaryTopics,
+  csrfToken: isDevelopment ? null : req.csrfToken(),
+});
     } catch (error) {
         console.error(`Error loading edit form for article ID ${req.params.id}:`, error);
         res.status(500).render('unit_form_views/error', {

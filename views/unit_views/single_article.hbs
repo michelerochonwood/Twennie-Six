@@ -1,3 +1,5 @@
+{{#*inline "title"}}Read Article | Twennie{{/inline}}
+
 <div class="single_article-container">
   <!-- Main Section -->
   <div class="single_article-main">
@@ -5,11 +7,13 @@
     <p class="single_article-short-summary"><strong>{{short_summary}}</strong></p>
     <p class="single_article-long-summary">{{full_summary}}</p>
 
+    <p class="single_article-wordcount"><em>Word count: {{word_count}}</em></p>
+
     <!-- Toggle + Content -->
     {{#if isAuthenticated}}
-<div class="single_article-toggle" 
-     onclick="toggleArticleContent(this)" 
-     data-authorized="{{isAuthorizedToViewFullContent}}">
+      <div class="single_article-toggle" 
+           onclick="toggleArticleContent(this)" 
+           data-authorized="{{isAuthorizedToViewFullContent}}">
         <svg class="single_article-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
           <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
           <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
@@ -17,72 +21,64 @@
       </div>
 
       <div class="single_article-content hidden">
-        {{{formatContent article_content}}}
-
+        {{{article_body}}}
 
         {{#if isLeader}}
-<div class="assign-tag-form white-container">
-  <h4 class="assign-tag-title">Assign this unit to group members</h4>
-  <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
-    <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-    <input type="hidden" id="unitId" value="{{_id}}">
-    <input type="hidden" id="unitType" value="article">
+          <div class="assign-tag-form white-container">
+            <h4 class="assign-tag-title">Assign this unit to group members</h4>
+            <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
+              <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+              <input type="hidden" id="unitId" value="{{_id}}">
+              <input type="hidden" id="unitType" value="article">
 
-    <div class="form-field">
-      <label for="tagName">Tag name</label>
-      <input type="text" id="tagName" name="tagName" required>
-    </div>
+              <div class="form-field">
+                <label for="tagName">Tag name</label>
+                <input type="text" id="tagName" name="tagName" required>
+              </div>
 
-    <fieldset class="assign-tag-members">
-      <legend class="assign-tag-legend">Select group members and enter instructions:</legend>
-{{#each groupMembers}}
-  <div class="assign-tag-member-block">
-    <label class="assign-tag-member-label">
-      <input 
-        type="checkbox" 
-        name="assignedTo" 
-        value="{{_id}}" 
-        data-name="{{name}}" 
-        onchange="toggleInstructionField(this)">
-      {{name}}
-    </label>
-    <textarea 
-      class="assign-tag-instructions" 
-      name="instructions-{{_id}}" 
-      placeholder="Instructions for {{name}}" 
-      style="display: none;"></textarea>
-  </div>
-{{/each}}
+              <fieldset class="assign-tag-members">
+                <legend class="assign-tag-legend">Select group members and enter instructions:</legend>
+                {{#each groupMembers}}
+                  <div class="assign-tag-member-block">
+                    <label class="assign-tag-member-label">
+                      <input 
+                        type="checkbox" 
+                        name="assignedTo" 
+                        value="{{_id}}" 
+                        data-name="{{name}}" 
+                        onchange="toggleInstructionField(this)">
+                      {{name}}
+                    </label>
+                    <textarea 
+                      class="assign-tag-instructions" 
+                      name="instructions-{{_id}}" 
+                      placeholder="Instructions for {{name}}" 
+                      style="display: none;"></textarea>
+                  </div>
+                {{/each}}
+              </fieldset>
 
-    </fieldset>
+              <button type="submit" class="form-button submit-button">assign tag</button>
+            </form>
+          </div>
+        {{/if}}
 
-    <button type="submit" class="form-button submit-button">assign tag</button>
-  </form>
-</div>
+        {{#if isGroupMemberOrMember}}
+          <div class="single_unit-tag-container" style="margin-bottom: 200px;">
+            <form id="tagForm" onsubmit="tagUnit(event)">
+              <input type="hidden" name="_csrf" value="{{csrfToken}}">
+              <input type="hidden" id="unitId" value="{{_id}}">
+              <input type="hidden" id="unitType" value="article">
+              <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
+                tag this unit
+                <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
+                  <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
+                </svg>
+              </a>
+            </form>
+          </div>
+        {{/if}}
 
-
-{{/if}}
-
-{{#if isGroupMemberOrMember}}
-  <div class="single_unit-tag-container" style="margin-bottom: 200px;">
-    <form id="tagForm" onsubmit="tagUnit(event)">
-      <input type="hidden" name="_csrf" value="{{csrfToken}}">
-      <input type="hidden" id="unitId" value="{{_id}}">
-      <input type="hidden" id="unitType" value="article">
-      <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
-        tag this unit
-        <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
-          <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
-        </svg>
-      </a>
-    </form>
-  </div>
-{{/if}}
-
-
-
-
-        <!-- Notes Form (If User is a Group Member or Leader) -->
         {{#if isGroupMemberOrLeader}}
           <div class="single_article-notes-container">
             <h3 class="single_article-notes-title">record notes</h3>
@@ -124,27 +120,22 @@
 
   <!-- Sidebar -->
   <aside class="single_article-sidebar">
-    <!-- Duration Image -->
     <div class="single_article-duration-image-container" style="text-align: center; margin-bottom: 10px; width: 100px; height: auto; display: inline-block">
       <img src="https://www.twennie.com/images/5mins.svg" alt="Estimated Time: 5 Minutes" class="single_article-duration-image">
     </div>
 
-    <!-- Article Image -->
     <div class="single_article-image-container">
       <img src="{{article_image}}" alt="Article Image" class="single_article-image">
     </div>
     <p class="single_article-title-sidebar">{{article_title}}</p>
 
+    <div class="single_article-sidebar-toggle" onclick="toggleSidebarContent(this)">
+      <svg class="single_article-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+      </svg>
+    </div>
 
-<!-- Toggle Arrow for Expanding Sidebar Details -->
-<div class="single_article-sidebar-toggle" onclick="toggleSidebarContent(this)">
-  <svg class="single_article-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
-    <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
-    <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
-  </svg>
-</div>
-
-    <!-- Hidden Sidebar Details (Initially Collapsed) -->
     <div class="single_article-sidebar-content hidden">
       <div class="single_article-author">
         <img src="{{author.image}}" alt="Author Image" class="single_article-author-image">
@@ -163,111 +154,4 @@
       </div>
     </div>
   </aside>
-</div> <!-- Closing .single_article-container -->
-
-
-<script>
-  function toggleArticleContent(element) {
-  const isAuthorized = element.dataset.authorized === "true";
-  const content = element.nextElementSibling;
-
-  if (isAuthorized) {
-    content.classList.toggle('hidden');
-    element.classList.toggle('open'); // rotate the arrow if needed
-  } else {
-    alert("You don't have access to view the full content of this unit.");
-  }
-}
-
-function toggleSidebarContent(element) {
-  let sidebarContent = element.nextElementSibling;
-  console.log("Sidebar content element:", sidebarContent);
-
-  if (sidebarContent) {
-    sidebarContent.classList.toggle('hidden');
-    element.classList.toggle('open');
-  } else {
-    console.warn("Sidebar content not found — check HTML structure.");
-  }
-}
-
-async function submitAssignedTag(event) {
-  event.preventDefault();
-
-  const tagName = document.getElementById('tagName').value.trim();
-  const unitId = document.getElementById('unitId').value;
-  const unitType = document.getElementById('unitType').value;
-  const csrfToken = getCsrfToken();
-
-  if (!tagName) {
-    alert('Please enter a tag name.');
-    return;
-  }
-
-  const selectedCheckboxes = Array.from(document.querySelectorAll('input[name="assignedTo"]:checked'));
-  if (selectedCheckboxes.length === 0) {
-    alert('Please select at least one group member.');
-    return;
-  }
-
-  const assignedTo = [];
-
-  for (const checkbox of selectedCheckboxes) {
-    const memberId = checkbox.value;
-    const textarea = document.querySelector(`textarea[name="instructions-${memberId}"]`);
-    const instructions = textarea ? textarea.value.trim() : '';
-
-    assignedTo.push({
-      member: memberId,
-      instructions
-    });
-  }
-
-  const response = await fetch('/tags/create', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': csrfToken
-    },
-    body: JSON.stringify({
-      name: tagName,
-      itemId: unitId,
-      itemType: unitType,
-      assignedTo
-    })
-  });
-
-  const result = await response.json();
-  if (response.ok) {
-    alert('Tag assigned successfully!');
-    location.reload();
-  } else {
-    alert(result.message || 'Error assigning tag.');
-  }
-}
-
-
-
-function getCsrfToken() {
-  // First try hidden input
-  const csrfInput = document.querySelector('input[name="_csrf"]');
-  if (csrfInput && csrfInput.value) return csrfInput.value;
-
-  // Try meta tag
-  const meta = document.querySelector('meta[name="csrf-token"]');
-  if (meta) return meta.getAttribute('content');
-
-  // Fallback
-  return '';
-}
-
-function toggleInstructionField(checkbox) {
-  const memberId = checkbox.value;
-  const textarea = document.querySelector(`textarea[name="instructions-${memberId}"]`);
-  if (textarea) {
-    textarea.style.display = checkbox.checked ? 'block' : 'none';
-  }
-}
-
-
-</script>
+</div>

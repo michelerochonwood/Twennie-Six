@@ -141,7 +141,8 @@ viewArticle: async (req, res) => {
         console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
-
+const plainText = article.article_body.replace(/<[^>]*>/g, ' ').trim();
+const wordCount = plainText.split(/\s+/).filter(Boolean).length;
     // 6. Render view
 return res.render('unit_views/single_article', {
   layout: 'unitviewlayout',
@@ -149,7 +150,7 @@ return res.render('unit_views/single_article', {
   article_title: article.article_title,
   short_summary: article.short_summary,
   full_summary: article.full_summary,
-  article_content: article.article_content,
+  article_body: article.article_body,
   article_image: '/images/default-article.png',
   author: {
     name: author.name || 'Unknown Author',
@@ -158,6 +159,7 @@ return res.render('unit_views/single_article', {
   main_topic: article.main_topic,
   secondary_topics: article.secondary_topics,
   sub_topic: article.sub_topic,
+  word_count: wordCount,
   isOwner,
   isAuthorizedToViewFullContent,
   isAuthenticated: !!req.user,

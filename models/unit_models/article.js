@@ -99,12 +99,10 @@ const articleSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
-    article_content: {
-        type: String,
-        required: true,
-        minlength: 5000,
-        maxlength: 8000,
-    },
+article_body: {
+  type: String,
+  required: true,
+},
     clarify_topic: { type: Boolean, default: false },
     produce_deliverables: { type: Boolean, default: false },
     new_ideas: { type: Boolean, default: false },
