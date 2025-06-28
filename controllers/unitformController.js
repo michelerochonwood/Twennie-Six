@@ -183,6 +183,7 @@ const unitFormController = {
 
 submitArticle: async (req, res) => {
   try {
+    console.log('Incoming file:', req.file);
     if (!isDevelopment && !req.body._csrf) {
       console.warn('CSRF validation failed.');
       throw new Error('CSRF token is missing or invalid.');
