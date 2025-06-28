@@ -128,31 +128,34 @@
 </div>
 
 <script>
-  const quill = new Quill('#quill-editor', {
-    theme: 'snow'
-  });
+  document.addEventListener('DOMContentLoaded', function () {
+    const quill = new Quill('#quill-editor', {
+      theme: 'snow'
+    });
 
-  const wordCountDisplay = document.getElementById('wordCount');
+    const wordCountDisplay = document.getElementById('wordCount');
 
-  function updateWordCount() {
-    const text = quill.getText().trim();
-    const words = text === "" ? 0 : text.split(/\s+/).length;
-    wordCountDisplay.textContent = words;
-  }
+    function updateWordCount() {
+      const text = quill.getText().trim();
+      const words = text === "" ? 0 : text.split(/\s+/).length;
+      wordCountDisplay.textContent = words;
+    }
 
-  quill.on('text-change', updateWordCount);
-  updateWordCount(); // initialize on page load
+    quill.on('text-change', updateWordCount);
+    updateWordCount(); // initialize on page load
 
-  // If editing existing content
-  const existingContent = `{{{data.article_body}}}`;
-  if (existingContent) {
-    quill.root.innerHTML = existingContent;
-    updateWordCount();
-  }
+    // If editing existing content
+    const existingContent = `{{{data.article_body}}}`;
+    if (existingContent) {
+      quill.root.innerHTML = existingContent;
+      updateWordCount();
+    }
 
-  document.querySelector('#article-form').addEventListener('submit', function () {
-    document.getElementById('articleBody').value = quill.root.innerHTML;
+    document.querySelector('#article-form').addEventListener('submit', function () {
+      document.getElementById('articleBody').value = quill.root.innerHTML;
+    });
   });
 </script>
+
 
 {{> mainpartials/footer}}
