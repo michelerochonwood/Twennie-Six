@@ -124,9 +124,14 @@
       <img src="https://www.twennie.com/images/5mins.svg" alt="Estimated Time: 5 Minutes" class="single_article-duration-image">
     </div>
 
-    <div class="single_article-image-container">
-      <img src="{{article_image}}" alt="Article Image" class="single_article-image">
-    </div>
+  <div class="single_article-image-container">
+    <img 
+      src="{{article_image}}" 
+      alt="Article Image" 
+      class="single_article-image"
+      style="max-width: 100%; border-radius: 12px;"
+    >
+  </div>
     <p class="single_article-title-sidebar">{{article_title}}</p>
 
     <div class="single_article-sidebar-toggle" onclick="toggleSidebarContent(this)">

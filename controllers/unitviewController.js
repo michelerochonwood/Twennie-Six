@@ -137,43 +137,47 @@ viewArticle: async (req, res) => {
       const leader = await Leader.findById(req.user.id);
       if (leader) {
         groupMembers = await GroupMember.find({ groupId: leader._id })
-          .select('_id name') // ✅ Correct field: groupId
+          .select('_id name')
           .lean();
         console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
-const plainText = article.article_body.replace(/<[^>]*>/g, ' ').trim();
-const wordCount = plainText.split(/\s+/).filter(Boolean).length;
-    // 6. Render view
-return res.render('unit_views/single_article', {
-  layout: 'unitviewlayout',
-  _id: article._id.toString(),
-  article_title: article.article_title,
-  short_summary: article.short_summary,
-  full_summary: article.full_summary,
-  article_body: article.article_body,
-  article_image: '/images/default-article.png',
-  author: {
-    name: author.name || 'Unknown Author',
-    image: author.image || '/images/default-avatar.png',
-  },
-  main_topic: article.main_topic,
-  secondary_topics: article.secondary_topics,
-  sub_topic: article.sub_topic,
-  word_count: wordCount,
-  isOwner,
-  isAuthorizedToViewFullContent,
-  isAuthenticated: !!req.user,
-  isGroupMemberOrLeader:
-    req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
-  isGroupMemberOrMember: // ✅ <-- THIS LINE
-    req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
-  groupMembers,
-  isLeader: req.user?.membershipType === 'leader',
-  csrfToken: req.csrfToken(),
-});
 
+    // 6. Word count
+    const plainText = article.article_body.replace(/<[^>]*>/g, ' ').trim();
+    const wordCount = plainText.split(/\s+/).filter(Boolean).length;
 
+    // 7. Determine article image URL
+    const articleImage = article.image?.url || '/images/default-article.png';
+
+    // 8. Render view
+    return res.render('unit_views/single_article', {
+      layout: 'unitviewlayout',
+      _id: article._id.toString(),
+      article_title: article.article_title,
+      short_summary: article.short_summary,
+      full_summary: article.full_summary,
+      article_body: article.article_body,
+      article_image: articleImage,
+      author: {
+        name: author.name || 'Unknown Author',
+        image: author.image || '/images/default-avatar.png',
+      },
+      main_topic: article.main_topic,
+      secondary_topics: article.secondary_topics,
+      sub_topic: article.sub_topic,
+      word_count: wordCount,
+      isOwner,
+      isAuthorizedToViewFullContent,
+      isAuthenticated: !!req.user,
+      isGroupMemberOrLeader:
+        req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
+      isGroupMemberOrMember:
+        req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
+      groupMembers,
+      isLeader: req.user?.membershipType === 'leader',
+      csrfToken: req.csrfToken(),
+    });
   } catch (err) {
     console.error('💥 Error fetching article:', err.stack || err.message);
     return res.status(500).render('unit_views/error', {
@@ -183,6 +187,7 @@ return res.render('unit_views/single_article', {
     });
   }
 },
+
 
 
 

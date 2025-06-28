@@ -124,6 +124,10 @@ article_body: {
             required: true,
         },
     },
+    image_url: {
+  type: String,
+  default: null,
+},
     tags: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'tag', // Reference the Tag model

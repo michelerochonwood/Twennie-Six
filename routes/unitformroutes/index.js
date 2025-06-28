@@ -24,91 +24,101 @@ console.log('unitFormController:', unitFormController);
 router.get('/form_article', ensureAuthenticated, unitFormController.getArticleForm);
 
 router.get('/edit_article/:id', ensureAuthenticated, async (req, res) => {
-    try {
-        const { id } = req.params;
-        console.log(`Edit form requested for article ID: ${id}`); // Debugging log
+  try {
+    const { id } = req.params;
+    console.log(`Edit form requested for article ID: ${id}`);
 
-        const article = await Article.findById(id).populate({
-            path: 'author.id',
-            model: 'Member',
-            select: 'name profileImage',
-        });
+    const article = await Article.findById(id).populate({
+      path: 'author.id',
+      model: 'Member',
+      select: 'name profileImage',
+    });
 
-        if (!article) {
-            console.warn(`Article with ID ${id} not found.`);
-            return res.status(404).render('unit_form_views/error', {
-                layout: 'unitformlayout',
-                title: 'Article Not Found',
-                errorMessage: `The article with ID ${id} does not exist.`,
-            });
-        }
-
-        const mainTopics = [
-            'Career Development in Technical Services',
-            'Soft Skills in Technical Environments',
-            'Project Management',
-            'Business Development in Technical Services',
-            'Finding Projects Before they Become RFPs',
-            'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
-            'Proposal Management',
-            'Proposal Strategy',
-            'Storytelling in Technical Marketing',
-            'Client Experience',
-            'Social Media, Advertising, and Other Mysteries',
-            'Emotional Intelligence',
-            'The Pareto Principle or 80/20',
-            'Diversity and Inclusion in Consulting',
-            'People Before Profit',
-            'Non-Technical Roles in Technical Environments',
-            'Leadership in Technical Services',
-            'The Advantage of Failure',
-            'Social Entrepreneurship',
-            'Employee Experience',
-            'Project Management Software',
-            'CRM Platforms',
-            'Client Feedback Software',
-            'Workplace Culture',
-            'Mental Health in Consulting Environments',
-            'Remote and Hybrid Work',
-            'Four Day Work Week',
-            'The Power of Play in the Workplace',
-            'Team Building in Consulting',
-            'AI in Consulting',
-            'AI in Project Management',
-            'AI in Learning',
-        ];
-
-        // Ensure all topics (both selected and unselected) are available
-        const secondaryTopics = mainTopics.map((topic) => ({
-            name: topic,
-            selected: article.secondary_topics?.includes(topic) || false,
-        }));
-
-const plainText = article.article_body.replace(/<[^>]*>/g, ' ').trim();
-const wordCount = plainText.split(/\s+/).filter(Boolean).length;
-
-res.render('unit_form_views/form_article', {
-  layout: 'unitformlayout',
-  data: {
-    ...article.toObject(),
-    author: {
-      name: article.author?.id?.name || 'Unknown Author',
-      image: article.author?.id?.profileImage || '/images/default-avatar.png',
-    },
-  },
-  word_count: wordCount,
-  mainTopics,
-  secondaryTopics,
-  csrfToken: isDevelopment ? null : req.csrfToken(),
-});
-    } catch (error) {
-        console.error(`Error loading edit form for article ID ${req.params.id}:`, error);
-        res.status(500).render('unit_form_views/error', {
-            layout: 'unitformlayout',
-            title: 'Error',
-            errorMessage: 'An error occurred while loading the edit form.',
-        });
+    if (!article) {
+      console.warn(`Article with ID ${id} not found.`);
+      return res.status(404).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Article Not Found',
+        errorMessage: `The article with ID ${id} does not exist.`,
+      });
     }
+
+    const mainTopics = [
+      'Career Development in Technical Services',
+      'Soft Skills in Technical Environments',
+      'Project Management',
+      'Business Development in Technical Services',
+      'Finding Projects Before they Become RFPs',
+      'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
+      'Proposal Management',
+      'Proposal Strategy',
+      'Storytelling in Technical Marketing',
+      'Client Experience',
+      'Social Media, Advertising, and Other Mysteries',
+      'Emotional Intelligence',
+      'The Pareto Principle or 80/20',
+      'Diversity and Inclusion in Consulting',
+      'People Before Profit',
+      'Non-Technical Roles in Technical Environments',
+      'Leadership in Technical Services',
+      'The Advantage of Failure',
+      'Social Entrepreneurship',
+      'Employee Experience',
+      'Project Management Software',
+      'CRM Platforms',
+      'Client Feedback Software',
+      'Workplace Culture',
+      'Mental Health in Consulting Environments',
+      'Remote and Hybrid Work',
+      'Four Day Work Week',
+      'The Power of Play in the Workplace',
+      'Team Building in Consulting',
+      'AI in Consulting',
+      'AI in Project Management',
+      'AI in Learning',
+    ];
+
+    // Ensure all topics (both selected and unselected) are available
+    const secondaryTopics = mainTopics.map((topic) => ({
+      name: topic,
+      selected: article.secondary_topics?.includes(topic) || false,
+    }));
+
+    // Word count
+    const plainText = article.article_body.replace(/<[^>]*>/g, ' ').trim();
+    const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+
+    // Set default image fallback
+    const image = article.image?.url
+      ? article.image
+      : {
+          public_id: null,
+          url: '/images/default-article.png',
+        };
+
+    res.render('unit_form_views/form_article', {
+      layout: 'unitformlayout',
+      data: {
+        ...article.toObject(),
+        image, // ensures `data.image.url` always exists in the view
+        author: {
+          name: article.author?.id?.name || 'Unknown Author',
+          image: article.author?.id?.profileImage || '/images/default-avatar.png',
+        },
+      },
+      word_count: wordCount,
+      mainTopics,
+      secondaryTopics,
+      csrfToken: isDevelopment ? null : req.csrfToken(),
+    });
+  } catch (error) {
+    console.error(`Error loading edit form for article ID ${req.params.id}:`, error);
+    res.status(500).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Error',
+      errorMessage: 'An error occurred while loading the edit form.',
+    });
+  }
 });
 
 

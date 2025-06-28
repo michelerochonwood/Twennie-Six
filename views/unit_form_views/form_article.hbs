@@ -15,6 +15,30 @@
       <input type="hidden" name="_csrf" value="{{csrfToken}}">
       <input type="hidden" name="_id" value="{{data._id}}">
 
+      <!-- Current Article Image -->
+<!-- Display Current or Default Header Image -->
+<div class="form-field">
+  <label>Article Image</label>
+  <img 
+    src="{{#if data.image.url}}{{data.image.url}}{{else}}/images/default-article.png{{/if}}" 
+    alt="Article Header Image" 
+    style="width: 240px; height: auto; border-radius: 8px; margin-top: 8px;"
+  >
+</div>
+
+<!-- Upload New Header Image -->
+<div class="form-field">
+  <label for="image">Upload Article Image (optional)</label>
+  <input 
+    type="file" 
+    id="image" 
+    name="image" 
+    accept="image/*"
+  >
+  <p class="form-hint">If no image is uploaded, a default will be used.</p>
+</div>
+
+
       <div class="form-field">
         <label for="article-title">Article Title</label>
         <input type="text" id="article-title" name="article_title" value="{{data.article_title}}" required>

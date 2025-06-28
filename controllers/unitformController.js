@@ -209,7 +209,7 @@ submitArticle: async (req, res) => {
       throw new Error('User is not authenticated or missing user ID.');
     }
 
-    // Sanitize the submitted HTML
+    // Sanitize HTML input
     const cleanHtml = sanitizeHtml(articleBody, {
       allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
       allowedAttributes: {
@@ -217,7 +217,6 @@ submitArticle: async (req, res) => {
       },
     });
 
-    // Calculate word count from stripped HTML
     const plainText = cleanHtml.replace(/<[^>]*>/g, ' ').trim();
     const wordCount = plainText.split(/\s+/).filter(Boolean).length;
 
@@ -234,7 +233,6 @@ submitArticle: async (req, res) => {
       });
     }
 
-    // Boolean checkboxes
     const booleanFields = [
       'clarify_topic',
       'produce_deliverables',
@@ -262,9 +260,40 @@ submitArticle: async (req, res) => {
       ...normalizedBooleans,
     };
 
+    // Handle image upload (if file provided)
+    if (req.file) {
+      const bufferStream = Readable.from(req.file.buffer);
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = uploader.upload_stream(
+          { folder: 'twennie_articles' },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        bufferStream.pipe(stream);
+      });
+
+      articleData.image = {
+        public_id: uploadResult.public_id,
+        url: uploadResult.secure_url,
+      };
+    }
+
+    // Use fallback image if none uploaded
+    if (!articleData.image) {
+      articleData.image = {
+        public_id: null,
+        url: '/images/default-article.png',
+      };
+    }
+
     let article;
     if (_id) {
-      article = await Article.findByIdAndUpdate(_id, articleData, { new: true, runValidators: true });
+      article = await Article.findByIdAndUpdate(_id, articleData, {
+        new: true,
+        runValidators: true,
+      });
       console.log(`Article with ID ${_id} updated successfully.`);
     } else {
       article = new Article(articleData);
@@ -288,6 +317,7 @@ submitArticle: async (req, res) => {
     });
   }
 },
+
 
 
 
