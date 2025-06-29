@@ -184,45 +184,41 @@ const unitFormController = {
 submitArticle: async (req, res) => {
   try {
     const mainTopics = [
-  'Career Development in Technical Services',
-  'Soft Skills in Technical Environments',
-  'Project Management',
-  'Business Development in Technical Services',
-  'Finding Projects Before they Become RFPs',
-  'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
-  'Proposal Management',
-  'Proposal Strategy',
-  'Storytelling in Technical Marketing',
-  'Client Experience',
-  'Social Media, Advertising, and Other Mysteries',
-  'Emotional Intelligence',
-  'The Pareto Principle or 80/20',
-  'Diversity and Inclusion in Consulting',
-  'People Before Profit',
-  'Non-Technical Roles in Technical Environments',
-  'Leadership in Technical Services',
-  'The Advantage of Failure',
-  'Social Entrepreneurship',
-  'Employee Experience',
-  'Project Management Software',
-  'CRM Platforms',
-  'Client Feedback Software',
-  'Workplace Culture',
-  'Mental Health in Consulting Environments',
-  'Remote and Hybrid Work',
-  'Four Day Work Week',
-  'The Power of Play in the Workplace',
-  'Team Building in Consulting',
-  'AI in Consulting',
-  'AI in Project Management',
-  'AI in Learning',
-];
+      'Career Development in Technical Services',
+      'Soft Skills in Technical Environments',
+      'Project Management',
+      'Business Development in Technical Services',
+      'Finding Projects Before they Become RFPs',
+      'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
+      'Proposal Management',
+      'Proposal Strategy',
+      'Storytelling in Technical Marketing',
+      'Client Experience',
+      'Social Media, Advertising, and Other Mysteries',
+      'Emotional Intelligence',
+      'The Pareto Principle or 80/20',
+      'Diversity and Inclusion in Consulting',
+      'People Before Profit',
+      'Non-Technical Roles in Technical Environments',
+      'Leadership in Technical Services',
+      'The Advantage of Failure',
+      'Social Entrepreneurship',
+      'Employee Experience',
+      'Project Management Software',
+      'CRM Platforms',
+      'Client Feedback Software',
+      'Workplace Culture',
+      'Mental Health in Consulting Environments',
+      'Remote and Hybrid Work',
+      'Four Day Work Week',
+      'The Power of Play in the Workplace',
+      'Team Building in Consulting',
+      'AI in Consulting',
+      'AI in Project Management',
+      'AI in Learning',
+    ];
 
     console.log('Incoming file:', req.file);
-    if (!isDevelopment && !req.body._csrf) {
-      console.warn('CSRF validation failed.');
-      throw new Error('CSRF token is missing or invalid.');
-    }
 
     const {
       _id,
@@ -245,7 +241,6 @@ submitArticle: async (req, res) => {
       throw new Error('User is not authenticated or missing user ID.');
     }
 
-    // Sanitize HTML input
     const cleanHtml = sanitizeHtml(articleBody, {
       allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
       allowedAttributes: {
@@ -263,7 +258,7 @@ submitArticle: async (req, res) => {
           ...req.body,
           article_body: cleanHtml,
         },
-        csrfToken: isDevelopment ? null : req.csrfToken(),
+        csrfToken: req.csrfToken(),
         errorMessage: `Your article must be between 800 and 1200 words. Current word count: ${wordCount}.`,
         mainTopics,
       });
@@ -296,7 +291,7 @@ submitArticle: async (req, res) => {
       ...normalizedBooleans,
     };
 
-    // Handle image upload (if file provided)
+    // Image upload via Cloudinary
     if (req.file) {
       const bufferStream = Readable.from(req.file.buffer);
       const uploadResult = await new Promise((resolve, reject) => {
@@ -316,7 +311,7 @@ submitArticle: async (req, res) => {
       };
     }
 
-    // Use fallback image if none uploaded
+    // Fallback if no image
     if (!articleData.image) {
       articleData.image = {
         public_id: null,
@@ -342,17 +337,31 @@ submitArticle: async (req, res) => {
       unitType: 'article',
       unit: article,
       word_count: wordCount,
-      csrfToken: isDevelopment ? null : req.csrfToken(),
+      csrfToken: req.csrfToken(),
     });
   } catch (error) {
+    const isCsrfError = error.code === 'EBADCSRFTOKEN';
+
     console.error('Error submitting article:', error);
+
+    if (isCsrfError) {
+      return res.status(403).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Session Expired',
+        errorMessage: 'Your session has expired or the form took too long to submit. Please refresh and try again.',
+        csrfToken: req.csrfToken(),
+      });
+    }
+
     res.status(500).render('unit_form_views/error', {
       layout: 'unitformlayout',
       title: 'Error',
       errorMessage: error.message || 'An error occurred while submitting the article.',
+      csrfToken: req.csrfToken(),
     });
   }
-},
+}
+
 
 
 
