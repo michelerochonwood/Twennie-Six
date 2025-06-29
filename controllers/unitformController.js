@@ -258,7 +258,6 @@ submitArticle: async (req, res) => {
           ...req.body,
           article_body: cleanHtml,
         },
-        csrfToken: req.csrfToken(),
         errorMessage: `Your article must be between 800 and 1200 words. Current word count: ${wordCount}.`,
         mainTopics,
       });
@@ -291,7 +290,7 @@ submitArticle: async (req, res) => {
       ...normalizedBooleans,
     };
 
-    // Image upload via Cloudinary
+    // Handle image upload via Cloudinary
     if (req.file) {
       const bufferStream = Readable.from(req.file.buffer);
       const uploadResult = await new Promise((resolve, reject) => {
@@ -311,7 +310,7 @@ submitArticle: async (req, res) => {
       };
     }
 
-    // Fallback if no image
+    // Use fallback image if none uploaded
     if (!articleData.image) {
       articleData.image = {
         public_id: null,
@@ -337,7 +336,6 @@ submitArticle: async (req, res) => {
       unitType: 'article',
       unit: article,
       word_count: wordCount,
-      csrfToken: req.csrfToken(),
     });
   } catch (error) {
     const isCsrfError = error.code === 'EBADCSRFTOKEN';
@@ -349,7 +347,6 @@ submitArticle: async (req, res) => {
         layout: 'unitformlayout',
         title: 'Session Expired',
         errorMessage: 'Your session has expired or the form took too long to submit. Please refresh and try again.',
-        csrfToken: req.csrfToken(),
       });
     }
 
@@ -357,7 +354,6 @@ submitArticle: async (req, res) => {
       layout: 'unitformlayout',
       title: 'Error',
       errorMessage: error.message || 'An error occurred while submitting the article.',
-      csrfToken: req.csrfToken(),
     });
   }
 },
