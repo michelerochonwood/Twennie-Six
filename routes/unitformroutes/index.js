@@ -10,6 +10,7 @@ const unitFormController = require('../../controllers/unitformController');
 const ensureAuthenticated = require('../../middleware/ensureAuthenticated');
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const uploadDocs = require('../../middleware/multerDocuments');
+const uploadImg = require('../../middleware/multerImages');
 const csrf = require('csurf');
 const csrfProtection = csrf();
 
@@ -122,7 +123,7 @@ router.get('/edit_article/:id', ensureAuthenticated, async (req, res) => {
 });
 
 
-router.post('/submit_article', ensureAuthenticated, unitFormController.submitArticle);
+router.post('/submit_article', ensureAuthenticated, uploadImg.single('image'), unitFormController.submitArticle);
 
 
 
