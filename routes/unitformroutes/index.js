@@ -123,7 +123,25 @@ router.get('/edit_article/:id', ensureAuthenticated, async (req, res) => {
 });
 
 
-router.post('/submit_article', ensureAuthenticated, uploadImg.single('image'), unitFormController.submitArticle);
+router.post(
+  '/submit_article',
+  ensureAuthenticated,
+  (req, res, next) => {
+    upload.single('image')(req, res, function (err) {
+      if (err && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).render('unit_form_views/form_article', {
+          layout: 'unitformlayout',
+          data: req.body,
+          errorMessage: 'Image exceeds the 5MB file size limit.',
+          mainTopics: [/*...*/], // inject list if needed
+        });
+      }
+      next(err); // forward other errors
+    });
+  },
+  unitFormController.submitArticle
+);
+
 
 
 

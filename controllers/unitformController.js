@@ -290,18 +290,22 @@ submitArticle: async (req, res) => {
       ...normalizedBooleans,
     };
 
-    // Handle image upload via Cloudinary
+    // ✅ Handle image upload via Cloudinary
     if (req.file) {
-      const bufferStream = Readable.from(req.file.buffer);
       const uploadResult = await new Promise((resolve, reject) => {
         const stream = uploader.upload_stream(
-          { folder: 'twennie_articles' },
+          { folder: 'twennie_articles', resource_type: 'image' },
           (error, result) => {
             if (error) return reject(error);
             resolve(result);
           }
         );
-        bufferStream.pipe(stream);
+
+        const readable = new Readable();
+        readable._read = () => {};
+        readable.push(req.file.buffer);
+        readable.push(null);
+        readable.pipe(stream);
       });
 
       articleData.image = {
@@ -310,7 +314,7 @@ submitArticle: async (req, res) => {
       };
     }
 
-    // Use fallback image if none uploaded
+    // ✅ Fallback if no image provided
     if (!articleData.image) {
       articleData.image = {
         public_id: null,
@@ -357,6 +361,7 @@ submitArticle: async (req, res) => {
     });
   }
 },
+
 
 
 
