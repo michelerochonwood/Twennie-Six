@@ -129,18 +129,55 @@ router.post(
   (req, res, next) => {
     uploadImg.single('image')(req, res, function (err) {
       if (err && err.code === 'LIMIT_FILE_SIZE') {
+        const mainTopics = [
+          'Career Development in Technical Services',
+          'Soft Skills in Technical Environments',
+          'Project Management',
+          'Business Development in Technical Services',
+          'Finding Projects Before they Become RFPs',
+          'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
+          'Proposal Management',
+          'Proposal Strategy',
+          'Storytelling in Technical Marketing',
+          'Client Experience',
+          'Social Media, Advertising, and Other Mysteries',
+          'Emotional Intelligence',
+          'The Pareto Principle or 80/20',
+          'Diversity and Inclusion in Consulting',
+          'People Before Profit',
+          'Non-Technical Roles in Technical Environments',
+          'Leadership in Technical Services',
+          'The Advantage of Failure',
+          'Social Entrepreneurship',
+          'Employee Experience',
+          'Project Management Software',
+          'CRM Platforms',
+          'Client Feedback Software',
+          'Workplace Culture',
+          'Mental Health in Consulting Environments',
+          'Remote and Hybrid Work',
+          'Four Day Work Week',
+          'The Power of Play in the Workplace',
+          'Team Building in Consulting',
+          'AI in Consulting',
+          'AI in Project Management',
+          'AI in Learning',
+        ];
+
         return res.status(400).render('unit_form_views/form_article', {
           layout: 'unitformlayout',
           data: req.body,
           errorMessage: 'Image exceeds the 5MB file size limit.',
-          mainTopics: [/*...*/], // inject list if needed
+          mainTopics,
         });
       }
-      next(err); // forward other errors
+
+      next(err); // forward other errors, or null
     });
   },
   unitFormController.submitArticle
 );
+
 
 
 
