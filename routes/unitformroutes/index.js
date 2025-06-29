@@ -127,7 +127,7 @@ router.post(
   '/submit_article',
   ensureAuthenticated,
   (req, res, next) => {
-    upload.single('image')(req, res, function (err) {
+    uploadImg.single('image')(req, res, function (err) {
       if (err && err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).render('unit_form_views/form_article', {
           layout: 'unitformlayout',
