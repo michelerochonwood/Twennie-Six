@@ -124,9 +124,9 @@ article_body: {
             required: true,
         },
     },
-    image_url: {
-  type: String,
-  default: null,
+image: {
+  public_id: { type: String, default: null },
+  url: { type: String, default: '/images/default-article.png' }
 },
     tags: [{
         type: mongoose.Schema.Types.ObjectId,
