@@ -360,7 +360,7 @@ submitArticle: async (req, res) => {
       csrfToken: req.csrfToken(),
     });
   }
-}
+},
 
 
 
