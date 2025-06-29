@@ -179,8 +179,6 @@ const unitFormController = {
 
 
 
-
-
 submitArticle: async (req, res) => {
   try {
     const mainTopics = [
@@ -314,7 +312,7 @@ submitArticle: async (req, res) => {
       };
     }
 
-    // ✅ Fallback if no image provided
+    // ✅ Fallback if no image was uploaded
     if (!articleData.image) {
       articleData.image = {
         public_id: null,
@@ -361,6 +359,7 @@ submitArticle: async (req, res) => {
     });
   }
 },
+
 
 
 
