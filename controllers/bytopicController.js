@@ -221,6 +221,39 @@ const sectionedUnits = [
   }
 ];
 
+const loggedIn = !!user;
+const accessLevel = user?.accessLevel || null;
+const membershipType = user?.membershipType || null;
+
+const injectAccessData = (units) =>
+  units.map(unit => ({
+    ...unit,
+    loggedIn,
+    accessLevel,
+    membershipType
+  }));
+
+const sectionedUnits = [
+  {
+    sectionTitle: "my library units",
+    units: injectAccessData(myLibraryUnits),
+    emptyMessage: "If you'd like to contribute new units to the library, go to your dashboard under the \"contribute to the library\" tab..."
+  },
+  {
+    sectionTitle: "my group's library units",
+    units: injectAccessData(groupLibraryUnits),
+    emptyMessage: "If you'd like to see your group contributing units to the library..."
+  },
+  {
+    sectionTitle: "my organization's library units",
+    units: injectAccessData(orgLibraryUnits),
+    emptyMessage: "If you'd like to see your organization contributing units to the library..."
+  },
+  {
+    sectionTitle: "Twennie's library units",
+    units: injectAccessData(twennieLibraryUnits)
+  }
+];
 
 
 
