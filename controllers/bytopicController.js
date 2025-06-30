@@ -188,7 +188,7 @@ const author = authorId
 );
 
 const userId = req.session.user?.id;
-const userType = req.session.user?.membershipType;
+
 
 const myLibraryUnits = libraryUnits.filter(unit => String(unit.authorId) === String(userId));
 
@@ -204,7 +204,8 @@ const twennieLibraryUnits = libraryUnits.filter(unit => unit.visibility === 'all
 
 
 
-const user = req.user;
+// 👇 Make sure this comes BEFORE you use `user` in logic
+const user = req.user; // NOT req.session.user
 
 const loggedIn = !!user;
 const accessLevel = user?.accessLevel || null;
@@ -247,6 +248,7 @@ res.render('bytopic_views/bytopic_view', {
   longSummary: topic.longSummary,
   sectionedUnits
 });
+
 
 
     } catch (error) {
