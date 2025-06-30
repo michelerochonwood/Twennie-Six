@@ -552,6 +552,12 @@ html, body {
 .single_video-duration-image-container {
   display: block;
   margin: 0 auto;
+
+}
+
+.single_video-duration-image {
+  width: 100px;
+
 }
 
 
