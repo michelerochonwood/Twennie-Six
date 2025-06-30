@@ -549,6 +549,11 @@ html, body {
   text-decoration: underline;
 }
 
+.single_video-duration-image-container {
+  display: block;
+  margin: 0 auto;
+}
+
 
 /* Single Video Page Styles */
 /* .single_video-container {
