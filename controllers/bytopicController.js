@@ -199,27 +199,12 @@ const orgLibraryUnits = libraryUnits.filter(unit => unit.visibility === 'organiz
 
 const twennieLibraryUnits = libraryUnits.filter(unit => unit.visibility === 'all_members');
 
-const sectionedUnits = [
-  {
-    sectionTitle: "my library units",
-    units: myLibraryUnits,
-    emptyMessage: "If you'd like to contribute new units to the library, go to your dashboard under the \"contribute to the library\" tab. You can add an article, a video, an interview, a new prompt set, an exercise, or a template."
-  },
-  {
-    sectionTitle: "my group's library units",
-    units: groupLibraryUnits,
-    emptyMessage: "If you'd like to see your group contributing units to the library, give them some encouragement. A wide variety of Twennie topics allows them to share knowledge, from mental health, emotional intelligence, and team building, to ai, project management, and business development. Teaching others is one of the most powerful ways to learn and engage with team members."
-  },
-  {
-    sectionTitle: "my organization's library units",
-    units: orgLibraryUnits,
-    emptyMessage: "If you'd like to see your organization contributing units to the library, organize some friendly competition. Hold a prompt set writing contest in which teams compete to produce a prompt set for the whole organization. Have a team of judges decide the top prompts, such as the most insightful, the funniest, or most challenging. Friendly competition engages learners."
-  },
-  {
-    sectionTitle: "Twennie's library units",
-    units: twennieLibraryUnits
-  }
-];
+
+
+
+
+
+const user = req.user;
 
 const loggedIn = !!user;
 const accessLevel = user?.accessLevel || null;
@@ -255,20 +240,14 @@ const sectionedUnits = [
   }
 ];
 
-
-
-const user = req.user; 
-
 res.render('bytopic_views/bytopic_view', {
   layout: 'bytopiclayout',
   title: topic.title,
   shortSummary: topic.shortSummary,
   longSummary: topic.longSummary,
-  sectionedUnits,
-  loggedIn: !!user,
-  accessLevel: user?.accessLevel || null,
-  membershipType: user?.membershipType || null
+  sectionedUnits
 });
+
 
     } catch (error) {
         console.error('Error loading topic or units:', error);
