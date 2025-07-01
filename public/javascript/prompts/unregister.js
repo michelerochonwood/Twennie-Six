@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("🔍 Attempting to unregister ID:", registrationId);
     const unregisterButtons = document.querySelectorAll(".groupmember-unregister-btn, .leader-unregister-btn");
 
     unregisterButtons.forEach(button => {
