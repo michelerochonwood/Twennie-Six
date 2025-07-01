@@ -45,14 +45,6 @@
   </svg>
 </div>
 
-<!-- Add this inside .bytopic-hidden-content at the bottom -->
-<div class="bytopic-collapse-toggle" onclick="toggleCard(this)">
-  <svg class="bytopic-arrow-icon open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
-    <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
-    <polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/>
-  </svg>
-</div>
-
 
             <!-- Expandable content -->
             <div class="bytopic-hidden-content">
@@ -132,19 +124,23 @@
 
 <!-- Expand Toggle Script -->
 <script>
-function toggleCard(element) {
-  const card = element.closest('.bytopic-library-unit-card');
-  const arrows = card.querySelectorAll('.bytopic-arrow-icon');
-  const isActive = card.classList.contains('active');
+  function toggleCard(element) {
+    const card = element.closest('.bytopic-library-unit-card');
+    const content = card.querySelector('.bytopic-hidden-content');
+    const arrow = element.querySelector("svg");
 
-  if (isActive) {
-    card.classList.remove('active');
-    arrows.forEach(arrow => arrow.classList.remove('open'));
-  } else {
-    card.classList.add('active');
-    arrows.forEach(arrow => arrow.classList.add('open'));
+    const isActive = card.classList.contains("active");
+
+    if (isActive) {
+      card.classList.remove("active");
+      content.style.display = "none";
+      arrow.style.transform = "rotate(0deg)";
+    } else {
+      card.classList.add("active");
+      content.style.display = "flex"; // assuming flex is your intended display
+      arrow.style.transform = "rotate(180deg)";
+    }
   }
-}
 </script>
 
 

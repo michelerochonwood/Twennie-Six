@@ -179,6 +179,7 @@ html, body {
 
 .bytopic-arrow-icon {
   transition: transform 0.3s ease-in-out;
+  transform-origin: center;
 }
 
 .bytopic-arrow-icon.open {
