@@ -39,6 +39,11 @@
   UnitType: {{type}} |
   LoggedIn: {{loggedIn}}
 </p>
+<p style="font-size: 12px;">
+  isFree: {{isFree}} |
+  isVideoOrArticle: {{isVideoOrArticle}} |
+  type: {{type}}
+</p>
             </div>
 
             <!-- Expand Toggle -->
@@ -83,16 +88,22 @@
         review this unit
       </a>
 
-    {{else if (isFree)}}
-      {{#if isVideoOrArticle}}
-        <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
-          review this unit
-        </a>
-      {{else}}
-        <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
-          membership upgrade required
-        </div>
-      {{/if}}
+{{else}}
+  {{#if isFree}}
+    {{#if isVideoOrArticle}}
+      <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
+        review this unit
+      </a>
+    {{else}}
+      <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
+        membership upgrade required
+      </div>
+    {{/if}}
+  {{else}}
+    <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
+      membership upgrade required
+    </div>
+  {{/if}}
 
     {{else}}
       <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
