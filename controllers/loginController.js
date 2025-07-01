@@ -33,6 +33,19 @@ module.exports = {
                     error: info?.message || 'Invalid email or password.',
                 });
             }
+// Enforce correct login path for free members
+if (
+  user.membershipType === 'member' &&
+  user.accessLevel === 'free_individual' &&
+  req.body.membershipType === 'member'
+) {
+  console.warn(`Blocked login: Free member ${user.email} tried to log in as individual`);
+  return res.status(401).render('login_views/login_view', {
+    layout: 'mainlayout',
+    title: 'Login',
+    error: 'Free members must select the free login option to log in.'
+  });
+}
 
             req.logIn(user, (err) => {
                 if (err) {
