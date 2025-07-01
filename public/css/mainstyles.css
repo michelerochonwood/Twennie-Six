@@ -2147,6 +2147,59 @@ img[alt="Free"] {
   transform: scale(1.05);
 }
 
+/* Updated layout for free+contributor */
+.free-contributor-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* FREE section */
+.free-plan-header {
+  text-align: center;
+}
+
+.membership-subtitle-free {
+  font-family: 'Figtree', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #dc176a;
+}
+
+.membership-description-free {
+  font-family: 'Figtree', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgb(124, 124, 124);
+  margin-top: -6px;
+  text-align: center;
+}
+
+/* CONTRIBUTOR section */
+.contributor-plan-header {
+  text-align: center;
+}
+
+.membership-subtitle-contributor {
+  font-family: 'Figtree', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #dc176a;
+}
+
+.membership-description-contributor {
+  font-family: 'Figtree', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgb(124, 124, 124);
+  margin-top: -6px;
+  text-align: center;
+}
+
+
 /* Volume discounts link */
 .discount-link {
   color: green;
