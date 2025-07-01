@@ -236,23 +236,39 @@ html, body {
   color: #555;
 }
 
-/* ✅ No Badges Message */
-.profile-no-badges {
-  text-align: center;
-  font-size: 1rem;
-  color: #888;
-  margin-top: 20px;
-  font-size: 1rem;
-  font-style: italic;
-}
-
-.profile-no-badges-container {
+/* ✅ No ITEMS YET Messages for all profiles */
+/* Shared layout container */
+.profile-no-badges-container,
+.leader-no-library-units-container,
+.group-earned-badge-empty-container,
+.group-completed-prompts-empty-container,
+.member-no-library-units-container,
+.member-no-completed-prompts-container,
+.groupmember-library-empty-container,
+.groupmember-completed-prompts-empty-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 150px;
   text-align: center;
 }
+
+/* Shared message text */
+.profile-no-badges,
+.leader-no-library-units,
+.group-earned-badge-no-badges,
+.group-library-no-units,
+.group-no-completed-prompts,
+.member-no-library-units,
+.member-no-completed-prompts,
+.groupmember-library-no-units,
+.groupmember-no-completed-prompts {
+  font-size: 1rem;
+  font-style: italic;
+  color: #555;
+}
+
+
 
 
 
