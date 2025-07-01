@@ -174,6 +174,7 @@ html, body {
     /* margin-bottom: 20px; */
     /* margin-top: 150px; */
     margin: 0 auto 20px auto;
+    text-align: left;
   }
   
   .single_article-short-summary {
@@ -182,6 +183,7 @@ html, body {
     color: #4a4ab2;
     /* margin-bottom: 15px; */
     margin: 0 auto 15px auto;
+    text-align: left;
   }
   
   .single_article-long-summary {
@@ -192,6 +194,7 @@ html, body {
     line-height: 1.6;
     font-weight: 800;
     /* margin-bottom: 50px; */
+        text-align: left;
   }
 
   .single_article-short-summary,
@@ -655,6 +658,7 @@ html, body {
   color: #262262;
   margin: 0 auto 20px auto;
   /* margin-top: 150px; */
+      text-align: left;
 }
 
 .single_video-short-summary {
@@ -662,6 +666,7 @@ html, body {
   font-weight: 800;
   color: #4a4ab2;
   margin-bottom: 15px;
+      text-align: left;
 }
 
 .single_video-long-summary,
@@ -674,6 +679,7 @@ html, body {
   line-height: 1.6;
   font-weight: 800;
   margin-bottom: 100px;
+      text-align: left;
 }
 
 .single_interview-long-summary {
@@ -1146,6 +1152,7 @@ html, body {
 /* Sidebar Details */
 .view-promptset-details {
   text-align: center;
+  background-color: #c2c2c2;
 }
 
 /* Author Section */
