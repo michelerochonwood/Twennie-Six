@@ -1020,6 +1020,7 @@ html, body {
 .view-promptset-sidebar-details {
   background-color: #cdcccc;
   border-radius: 15px;
+  content: fit-content;
 }
 
 /* Page Title and Description */
