@@ -189,29 +189,23 @@ app.use('/badges', require('./routes/badgesroutes'));
 
 const csrfProtection = csrf();
 
+
+
 app.use((req, res, next) => {
   const skipPaths = [
     '/member/group/verify-registration-code'
   ];
 
   const csrfExemptDeletes = [
-    /^\/promptsetregistration\/unregister\/[\w\d]+$/ // Regex to match dynamic ID route
+    /^\/promptsetregistration\/unregister\/[\w\d]+$/
   ];
 
   const contentType = req.headers['content-type'] || '';
 
-  // Skip for form uploads
   if (contentType.startsWith('multipart/form-data')) return next();
-
-  // Skip specific POSTs
   if (req.method === 'POST' && skipPaths.includes(req.path)) return next();
+  if (req.method === 'DELETE' && csrfExemptDeletes.some(pattern => pattern.test(req.path))) return next();
 
-  // Skip specific DELETE routes
-  if (req.method === 'DELETE' && csrfExemptDeletes.some(pattern => pattern.test(req.path))) {
-    return next();
-  }
-
-  // Apply CSRF for everything else
   csrfProtection(req, res, next);
 });
 

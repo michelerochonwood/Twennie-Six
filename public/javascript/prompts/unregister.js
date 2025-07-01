@@ -1,6 +1,8 @@
 console.log("📦 unregister.js loaded");
 document.addEventListener("DOMContentLoaded", function () {
-    const unregisterButtons = document.querySelectorAll(".groupmember-unregister-btn, .leader-unregister-btn");
+const unregisterButtons = document.querySelectorAll(
+  ".groupmember-unregister-btn, .leader-unregister-btn, .member-unregister-btn"
+);
 
     unregisterButtons.forEach(button => {
         button.addEventListener("click", async function () {
