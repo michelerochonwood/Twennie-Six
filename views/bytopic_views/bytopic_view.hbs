@@ -33,10 +33,11 @@
               <div class="bytopic-unit-title-container">
                 <h2 class="bytopic-unit-title">{{this.title}}</h2>
               </div>
-              <p style="font-size: 12px; color: #888;">
-  AccessLevel: {{../../accessLevel}} |
-  MembershipType: {{../../membershipType}} |
-  UnitType: {{type}}
+<p style="font-size: 12px; color: #888;">
+  AccessLevel: {{accessLevel}} |
+  MembershipType: {{membershipType}} |
+  UnitType: {{type}} |
+  LoggedIn: {{loggedIn}}
 </p>
             </div>
 
@@ -68,41 +69,42 @@
                 </div>
               {{/if}}
 
-              <!-- ACCESS CONTROL BUTTON -->
-              <div class="bytopic-unit-review-container">
-                {{#if ../../loggedIn}}
+<!-- ACCESS CONTROL BUTTON -->
+<div class="bytopic-unit-review-container">
+  {{#if loggedIn}}
 
-                  {{#if (or (eq ../../membershipType "leader") (eq ../../membershipType "group_member"))}}
-                    <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
-                      review this unit
-                    </a>
+    {{#if (or (eq membershipType "leader") (eq membershipType "group_member"))}}
+      <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
+        review this unit
+      </a>
 
-                  {{else if (and (eq ../../membershipType "member")
-                                 (or (eq ../../accessLevel "paid_individual")
-                                     (eq ../../accessLevel "contributor_individual")))}}
-                    <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
-                      review this unit
-                    </a>
+    {{else if (and (eq membershipType "member")
+                   (or (eq accessLevel "paid_individual")
+                       (eq accessLevel "contributor_individual")))}}
+      <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
+        review this unit
+      </a>
 
-                  {{else if (and (eq ../../membershipType "member")
-                                 (eq ../../accessLevel "free_individual")
-                                 (or (eq type "article") (eq type "video")))}}
-                    <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
-                      review this unit
-                    </a>
+    {{else if (and (eq membershipType "member")
+                   (eq accessLevel "free_individual")
+                   (or (eq type "article") (eq type "video")))}}
+      <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
+        review this unit
+      </a>
 
-                  {{else}}
-                    <div class="bytopic-unit-review-btn disabled" title="Upgrade your membership to access this unit.">
-                      membership upgrade required
-                    </div>
-                  {{/if}}
+    {{else}}
+      <div class="bytopic-unit-review-btn disabled" title="Upgrade your membership to access this unit.">
+        membership upgrade required
+      </div>
+    {{/if}}
 
-                {{else}}
-                  <div class="bytopic-unit-review-btn disabled" title="Please log in to access this unit.">
-                    login required
-                  </div>
-                {{/if}}
-              </div>
+  {{else}}
+    <div class="bytopic-unit-review-btn disabled" title="Please log in to access this unit.">
+      login required
+    </div>
+  {{/if}}
+</div>
+
             </div>
           </div>
         </div>
