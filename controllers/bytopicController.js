@@ -215,8 +215,13 @@ const injectAccessData = (units) =>
   units.map(unit => ({
     ...unit,
     loggedIn,
-    accessLevel,
-    membershipType
+    isLeaderOrGroupMember:
+      membershipType === "leader" || membershipType === "group_member",
+    isPaid:
+      membershipType === "member" &&
+      (accessLevel === "paid_individual" || accessLevel === "contributor_individual"),
+    isFree: membershipType === "member" && accessLevel === "free_individual",
+    isVideoOrArticle: unit.type === "video" || unit.type === "article"
   }));
 
 const sectionedUnits = [
