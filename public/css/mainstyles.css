@@ -2199,6 +2199,33 @@ img[alt="Free"] {
   text-align: center;
 }
 
+.membership-grid-inner:not(.free-contributor-layout) .membership-subtitle {
+  margin-bottom: 4px; /* tighter than original 10px */
+}
+
+.membership-subtitle {
+  font-family: 'Figtree', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  color: #dc176a;
+  margin-bottom: 4px; /* tightened from default 10px */
+  text-align: center;
+}
+
+.membership-description-area {
+  padding: 0 10px;
+  text-align: center;
+}
+
+.membership-description {
+  font-family: 'Figtree', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgb(124, 124, 124);
+  line-height: 1.4;
+}
+
+
 
 /* Volume discounts link */
 .discount-link {
