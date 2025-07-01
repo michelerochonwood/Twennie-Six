@@ -73,48 +73,40 @@
 <div class="bytopic-unit-review-container">
   {{#if loggedIn}}
 
-    {{#if (or (eq membershipType "leader") (eq membershipType "group_member"))}}
+    {{#if isLeaderOrGroupMember}}
       <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
         review this unit
       </a>
 
-    {{else if (and (eq membershipType "member")
-                   (or (eq accessLevel "paid_individual")
-                       (eq accessLevel "contributor_individual")))}}
+    {{else if isPaid}}
       <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
         review this unit
       </a>
 
-{{else}}
-  {{#if (and (eq membershipType "member") (eq accessLevel "free_individual"))}}
-    {{#if (or (eq type "article") (eq type "video"))}}
-      <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
-        review this unit
-      </a>
-    {{else}}
-      <div class="bytopic-unit-review-btn notice" title="Upgrade your membership to access this unit.">
-        membership upgrade required
-      </div>
-    {{/if}}
-  {{else}}
-    <div class="bytopic-unit-review-btn notice" title="Upgrade your membership to access this unit.">
-      membership upgrade required
-    </div>
-  {{/if}}
-
+    {{else if (isFree)}}
+      {{#if isVideoOrArticle}}
+        <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
+          review this unit
+        </a>
+      {{else}}
+        <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
+          membership upgrade required
+        </div>
+      {{/if}}
 
     {{else}}
-      <div class="bytopic-unit-review-btn disabled" title="Upgrade your membership to access this unit.">
+      <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
         membership upgrade required
       </div>
     {{/if}}
 
   {{else}}
-    <div class="bytopic-unit-review-btn disabled" title="Please log in to access this unit.">
+    <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
       login required
     </div>
   {{/if}}
 </div>
+
 
 
 
