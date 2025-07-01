@@ -95,6 +95,25 @@ html, body {
   overflow: visible;
 }
 
+.bytopic-expand-toggle,
+.bytopic-collapse-toggle {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.3s ease;
+  z-index: 2;
+}
+
+.bytopic-collapse-toggle {
+  margin-top: 1rem;
+  position: relative; /* so it doesn't interfere with layout */
+}
+
+
 /* === HEADER WAVE SVG === */
 
 .bytopic-card-svg-header {
