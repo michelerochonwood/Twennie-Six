@@ -75,6 +75,7 @@
               {{/if}}
 
 <!-- ACCESS CONTROL BUTTON -->
+<!-- ACCESS CONTROL BUTTON -->
 <div class="bytopic-unit-review-container">
   {{#if loggedIn}}
 
@@ -82,33 +83,26 @@
       <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
         review this unit
       </a>
-
     {{else if isPaid}}
       <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
         review this unit
       </a>
-
-{{else}}
-  {{#if isFree}}
-    {{#if isVideoOrArticle}}
-      <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
-        review this unit
-      </a>
     {{else}}
-      <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
-        membership upgrade required
-      </div>
-    {{/if}}
-  {{else}}
-    <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
-      membership upgrade required
-    </div>
-  {{/if}}
-
-    {{else}}
-      <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
-        membership upgrade required
-      </div>
+      {{#if isFree}}
+        {{#if isVideoOrArticle}}
+          <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="bytopic-unit-review-btn">
+            review this unit
+          </a>
+        {{else}}
+          <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
+            membership upgrade required
+          </div>
+        {{/if}}
+      {{else}}
+        <div class="bytopic-unit-review-btn" style="color: gray; cursor: default;">
+          membership upgrade required
+        </div>
+      {{/if}}
     {{/if}}
 
   {{else}}
@@ -117,6 +111,7 @@
     </div>
   {{/if}}
 </div>
+
 
 
 
