@@ -242,6 +242,7 @@ html, body {
   font-size: 1rem;
   color: #888;
   margin-top: 20px;
+  margin: 0 auto;
 }
 
 /* ✅ Responsive Adjustments */
@@ -780,6 +781,7 @@ html, body {
   font-size: 1rem;
   color: #777;
   text-align: center;
+  margin: 0 auto;
 }
 
 /* ✅ Responsive Design */
@@ -919,6 +921,7 @@ html, body {
   font-size: 12px;
   color: #777;
   text-align: center;
+  margin: 0 auto;
 }
 
 /* ✅ Responsive Design */
@@ -1523,6 +1526,7 @@ html, body {
   font-size: 0.9rem;
   color: #777;
   padding: 15px;
+  margin: 0 auto;
 }
 
 /*GROUP MEMBER LIBRARY UNITS PARTIAL*/
@@ -1614,6 +1618,7 @@ html, body {
   font-size: 0.9rem;
   color: #777;
   padding: 15px;
+  margin: 0 auto;
 }
 
 
@@ -1679,6 +1684,7 @@ html, body {
   font-size: 0.9rem;
   color: #777;
   padding: 15px;
+  margin: 0 auto;
 }
 
 
@@ -1799,6 +1805,7 @@ html, body {
   font-size: 16px;
   color: #888;
   margin-top: 20px;
+  margin: 0 auto;
 }
 
 .group-library-section {
@@ -1975,6 +1982,7 @@ html, body {
   font-size: 16px;
   color: #888;
   margin-top: 20px;
+  margin: 0 auto;
 }
 
 /* ✅ Responsive Adjustments */
