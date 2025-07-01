@@ -1,10 +1,13 @@
+console.log("📦 unregister.js loaded");
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("🔍 Attempting to unregister ID:", registrationId);
     const unregisterButtons = document.querySelectorAll(".groupmember-unregister-btn, .leader-unregister-btn");
 
     unregisterButtons.forEach(button => {
         button.addEventListener("click", async function () {
             const registrationId = this.dataset.id;
+
+            console.log("🔍 Attempting to unregister ID:", registrationId);
+
             if (!registrationId) {
                 Swal.fire({
                     icon: "error",
@@ -60,5 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
 
 
