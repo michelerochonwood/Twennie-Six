@@ -1017,6 +1017,10 @@ html, body {
   width: 100%;
 }
 
+.view-promptset-sidebar-details {
+  background-color: #cdcccc;
+}
+
 /* Page Title and Description */
 .view-promptset-title {
   font-size: clamp(1.4rem, 5vw, 1.8rem);
@@ -1152,7 +1156,6 @@ html, body {
 /* Sidebar Details */
 .view-promptset-details {
   text-align: center;
-  background-color: #c2c2c2;
 }
 
 /* Author Section */
