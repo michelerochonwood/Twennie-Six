@@ -76,7 +76,7 @@
   {{!-- Extract just the file name from the full URL --}}
   {{#with (split this "/") as |parts|}}
     <a href="{{../this}}" target="_blank" rel="noopener" class="single_exercise-download-btn" download>
-      Download {{last parts}}
+      Download {{decode (last parts)}}
     </a>
   {{/with}}
 {{/each}}

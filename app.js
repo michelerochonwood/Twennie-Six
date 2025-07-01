@@ -135,7 +135,9 @@ helpers: {
 
   // ✅ NEW: Get last item in array
   last: (array) =>
-    Array.isArray(array) ? array[array.length - 1] : ''
+    Array.isArray(array) ? array[array.length - 1] : '',
+  
+  decode: (str) => decodeURIComponent(str) // ← add this here
 }
 
 
