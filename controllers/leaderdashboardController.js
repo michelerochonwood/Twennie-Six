@@ -338,17 +338,18 @@ if (!isCompleted) {
   const headlineKey = `prompt_headline${currentPromptIndex}`;
   const promptKey = `Prompt${currentPromptIndex}`;
 
-  leaderPrompts.push({
-    registrationId: registration._id,
-    promptSetId: registration.promptSetId._id.toString(),
-    promptSetTitle: promptSet.promptset_title,
-    frequency: registration.frequency,
-    mainTopic: promptSet.main_topic,
-    purpose: promptSet.purpose,
-    promptIndex: currentPromptIndex,
-    promptHeadline: promptSet[headlineKey] || "No headline found",
-    promptText: promptSet[promptKey] || "No prompt text found"
-  });
+leaderPrompts.push({
+  registrationId: registration._id.toString(), // ✅ this is what the unregister route needs
+  promptSetId: registration.promptSetId._id.toString(),
+  promptSetTitle: promptSet.promptset_title,
+  frequency: registration.frequency,
+  mainTopic: promptSet.main_topic,
+  purpose: promptSet.purpose,
+  promptIndex: currentPromptIndex,
+  promptHeadline: promptSet[headlineKey] || "No headline found",
+  promptText: promptSet[promptKey] || "No prompt text found"
+});
+
 }
 
             
