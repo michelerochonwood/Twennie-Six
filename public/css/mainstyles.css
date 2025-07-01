@@ -2107,7 +2107,7 @@ img[alt="Free"] {
 .membership-benefits-area  { grid-area: benefits; }
 .membership-alt-plan-area  {
   grid-area: altplan;
-  min-height: 100px;
+  min-height: 50px;
   display: flex;
   flex-direction: column; /* stack heading and paragraph */
   justify-content: center;
