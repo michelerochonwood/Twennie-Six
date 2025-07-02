@@ -50,23 +50,28 @@ module.exports = {
       }
 
       // Paid or contributor trying to use free login
-      if (
-        (userAccess === 'paid_individual' || userAccess === 'contributor_individual') &&
-        selection === 'free_individual'
-      ) {
-        return res.status(401).render('login_views/login_view', {
-          layout: 'mainlayout',
-          title: 'Login',
-          error: 'Please select the correct membership type to log in.'
-        });
-      }
-      if (!req.body.membershipSelector) {
-  return res.status(400).render('login_views/login_view', {
+if (
+  user.membershipType === 'member' &&
+  user.accessLevel !== selection
+) {
+  return res.status(401).render('login_views/login_view', {
     layout: 'mainlayout',
     title: 'Login',
-    error: 'Please select your membership type to continue.'
+    error: 'Please select the correct membership type to log in.'
   });
 }
+
+if (
+  user.membershipType === 'leader' && selection !== 'leader' ||
+  user.membershipType === 'group_member' && selection !== 'group_member'
+) {
+  return res.status(401).render('login_views/login_view', {
+    layout: 'mainlayout',
+    title: 'Login',
+    error: 'Please select the correct membership type to log in.'
+  });
+}
+
     }
 
     req.logIn(user, (err) => {
