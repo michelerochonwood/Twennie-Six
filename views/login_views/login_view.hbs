@@ -21,51 +21,13 @@
       <input type="email" id="email" name="email" class="login-input" required>
     </div>
 
-    <div class="login-field">
-      <label for="password" class="login-label">Password</label>
-      <input type="password" id="password" name="password" class="login-input" required>
-    </div>
-
-<div class="login-field">
-  <label class="login-label">Membership Type</label>
-  <p>Help Twennie find you in our database. Choose your membership type from the options below.</p>
-
-  <div class="membership-options" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-    <!-- Free Individual -->
-    <label class="membership-option">
-      <input type="radio" name="accessLevel" value="free_individual" required style="display: none;">
-      <div class="membership-icon">
-        <img src="https://www.twennie.com/images/freebluey.png" alt="Free" class="membership-character-image">
-      </div>
-      <span class="membership-label">free individual</span>
-    </label>
-
-    <!-- Paid Individual -->
-    <label class="membership-option">
-      <input type="radio" name="accessLevel" value="paid_individual" required style="display: none;">
-      <div class="membership-icon">
-        <img src="https://www.twennie.com/images/bluey1.png" alt="Individual" class="membership-character-image">
-      </div>
-      <span class="membership-label">individual member</span>
-    </label>
-
-    <!-- Group Leader -->
-    <label class="membership-option">
-      <input type="radio" name="accessLevel" value="leader" required style="display: none;">
-      <div class="membership-icon">
-        <img src="https://www.twennie.com/images/bluey_3.png" alt="Group" class="membership-character-image">
-      </div>
-      <span class="membership-label">leader</span>
-    </label>
-
-    <!-- Group Member -->
-    <label class="membership-option">
-      <input type="radio" name="accessLevel" value="group_member" required style="display: none;">
-      <div class="membership-icon">
-        <img src="https://www.twennie.com/images/bluey2.png" alt="Group Member" class="membership-character-image">
-      </div>
-      <span class="membership-label">group member</span>
-    </label>
+<div class="login-field password-toggle-container">
+  <label for="password" class="login-label">Password</label>
+  <div class="password-wrapper">
+    <input type="password" id="password" name="password" class="login-input" required>
+    <span class="toggle-password" onclick="togglePasswordVisibility()">
+      <ion-icon id="toggleIcon" name="eye-outline"></ion-icon>
+    </span>
   </div>
 </div>
 
@@ -79,25 +41,28 @@
   </form>
 
   <!-- Google Authentication Button -->
-<div class="google-login-container" style="margin-bottom: 200px;">
-
-  <a href="https://www.twennie.com/auth/google" class="google-login-button">
-    <img src="https://www.twennie.com/images/google.svg" alt="Google Logo" class="google-logo" >
-    <span class="google-login-text" >sign in with Google</span>
-  </a>
-</div>
-
+  <div class="google-login-container" style="margin-bottom: 200px;">
+    <a href="https://www.twennie.com/auth/google" class="google-login-button">
+      <img src="https://www.twennie.com/images/google.svg" alt="Google Logo" class="google-logo">
+      <span class="google-login-text">sign in with Google</span>
+    </a>
+  </div>
 </div>
 
 <script>
-  document.querySelectorAll('input[name="accessLevel"]').forEach((input) => {
-    input.addEventListener('change', () => {
-      document.querySelectorAll('.membership-option').forEach((label) => {
-        label.classList.remove('selected');
-      });
-      input.closest('.membership-option').classList.add('selected');
-    });
-  });
+  function togglePasswordVisibility() {
+    const input = document.getElementById("password");
+    const icon = document.getElementById("toggleIcon");
+    if (input.type === "password") {
+      input.type = "text";
+      icon.name = "eye-off-outline";
+    } else {
+      input.type = "password";
+      icon.name = "eye-outline";
+    }
+  }
 </script>
+
+
 
 
