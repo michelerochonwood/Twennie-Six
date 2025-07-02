@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
-const Member = require('../../models/member_models/member');
-const Leader = require('../../models/member_models/leader');
-const GroupMember = require('../../models/member_models/group_member');
+const Member = require('../models/member_models/member');
+const Leader = require('../models/member_models/leader');
+const GroupMember = require('../models/member_models/group_member');
 
 module.exports = {
   // Render login view
