@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const memberController = require('../../controllers/memberController');
-const Member = require('../../models/member'); // Needed for /check-username
+const Member = require('../../member_models/member'); // Needed for /check-username
 
 // Standard Individual Membership Form (GET + POST)
 router.get('/form', memberController.showMemberForm);
@@ -9,7 +9,7 @@ router.post('/form', memberController.createMember);
 
 // Free Membership Form (GET)
 router.get('/free-form', (req, res) => {
-  res.render('member_form_views/free_member_form', {
+  res.render('member_form_views/free_individual', {
     layout: 'memberformlayout',
     csrfToken: req.csrfToken()
   });
