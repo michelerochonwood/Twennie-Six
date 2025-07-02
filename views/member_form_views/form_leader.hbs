@@ -26,7 +26,7 @@
 
     <div class="form-field">
       <label for="organization">Organization</label>
-      <input type="text" id="organization" name="organization" placeholder="Organization (optional). You can remain anonymous, but providing your organization allows us to activate organizational learning features.">
+      <input type="text" id="organization" name="organization" placeholder="Organization (optional). Providing your organization name avails you of organizational learning features.">
     </div>
 
     <!-- Industry field -->
@@ -48,7 +48,6 @@
         <option value="Telecommunications">Telecommunications</option>
         <option value="E-Commerce">E-Commerce</option>
         <option value="Cybersecurity">Cybersecurity</option>
-        <option value="Fintech">Fintech</option>
         <option value="Edtech">Edtech</option>
         <option value="Energy and Utilities">Energy and Utilities</option>
         <option value="Manufacturing">Manufacturing</option>
@@ -66,10 +65,15 @@
       <input type="text" id="group-leader-email" name="groupLeaderEmail" required>
     </div>
 
-    <div class="form-field">
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" required>
-    </div>
+<div class="form-field password-toggle-container">
+  <label for="password">Password</label>
+  <div class="password-wrapper">
+    <input type="password" id="password" name="password" required>
+    <span class="toggle-password" onclick="togglePasswordVisibility()">
+      <ion-icon id="toggleIcon" name="eye-outline"></ion-icon>
+    </span>
+  </div>
+</div>
 
     <div class="leader-form-field">
       <label for="group-size">Number of Members</label>
@@ -136,3 +140,16 @@
   </div>
 </form>
 
+<script>
+  function togglePasswordVisibility() {
+    const input = document.getElementById("password");
+    const icon = document.getElementById("toggleIcon");
+    if (input.type === "password") {
+      input.type = "text";
+      icon.name = "eye-off-outline";
+    } else {
+      input.type = "password";
+      icon.name = "eye-outline";
+    }
+  }
+</script>

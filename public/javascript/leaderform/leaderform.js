@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
             nameField.classList.add('leader-form-field'); // Unique class for leader form
             nameField.innerHTML = `
                 <label for="leader-member-name-${i}">Name</label>
-                <input type="text" id="leader-member-name-${i}" name="members[${i - 1}][name]" placeholder="Enter member ${i}'s name" required>
+                <input type="text" id="leader-member-name-${i}" name="members[${i - 1}][name]" placeholder="Member ${i}'s name" required>
             `;
             memberFields.appendChild(nameField);
 
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             emailField.classList.add('leader-form-field'); // Unique class for leader form
             emailField.innerHTML = `
                 <label for="leader-member-email-${i}">Email</label>
-                <input type="email" id="leader-member-email-${i}" name="members[${i - 1}][email]" placeholder="Enter member ${i}'s email" required>
+                <input type="email" id="leader-member-email-${i}" name="members[${i - 1}][email]" placeholder="Member ${i}'s email" required>
             `;
             memberFields.appendChild(emailField);
 
