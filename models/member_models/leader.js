@@ -119,6 +119,12 @@ topics: {
     type: Date,
     default: Date.now
   },
+
+  accessLevel: {
+  type: String,
+  default: 'leader',
+  enum: ['leader']
+},
   isActive: {
     type: Boolean,
     default: true

@@ -17,6 +17,8 @@ module.exports = {
 
 handleLogin: (req, res, next) => {
   const email = req.body.email.toLowerCase();
+  const selectedAccessLevel = req.body.accessLevel;
+
   console.log('Login attempt with email:', email);
 
   passport.authenticate('local', (err, user, info) => {
@@ -26,6 +28,7 @@ handleLogin: (req, res, next) => {
     }
 
     if (!user) {
+      console.warn(`Login failed for ${email}: Invalid credentials`);
       return res.status(401).render('login_views/login_view', {
         layout: 'mainlayout',
         title: 'Login',
@@ -33,31 +36,20 @@ handleLogin: (req, res, next) => {
       });
     }
 
-    // ✅ From here on, user is defined
+    // ✅ Log form and user values for debugging
     console.log('--- LOGIN DEBUG ---');
-    console.log('Form accessLevel:', req.body.accessLevel);
-    console.log('User membershipType:', user.membershipType);
+    console.log('Form accessLevel:', selectedAccessLevel);
     console.log('User accessLevel:', user.accessLevel);
+    console.log('User membershipType:', user.membershipType);
 
-    const selection = req.body.accessLevel;
-
-    if (user.membershipType === 'member') {
-      if (user.accessLevel !== selection) {
-        return res.status(401).render('login_views/login_view', {
-          layout: 'mainlayout',
-          title: 'Login',
-          error: 'Please select the correct membership type to log in.'
-        });
-      }
-    } else {
-      // Group leaders and members do not have accessLevel
-      if (user.membershipType !== selection) {
-        return res.status(401).render('login_views/login_view', {
-          layout: 'mainlayout',
-          title: 'Login',
-          error: 'Please select the correct membership type to log in.'
-        });
-      }
+    // ✅ Check that selected value matches user's accessLevel
+    if (user.accessLevel !== selectedAccessLevel) {
+      console.warn(`Access level mismatch: form=${selectedAccessLevel}, user=${user.accessLevel}`);
+      return res.status(401).render('login_views/login_view', {
+        layout: 'mainlayout',
+        title: 'Login',
+        error: 'Please select the correct membership type to log in.'
+      });
     }
 
     // ✅ Login the user
@@ -75,19 +67,22 @@ handleLogin: (req, res, next) => {
 
       console.log(`Login successful: ${user.username}`);
 
-      // Redirect based on membershipType
-      if (user.membershipType === 'leader') {
-        res.redirect('/dashboard/leader');
-      } else if (user.membershipType === 'group_member') {
-        res.redirect('/dashboard/groupmember');
-      } else if (user.membershipType === 'member') {
-        res.redirect('/dashboard/member');
-      } else {
-        res.redirect('/dashboard');
+      // ✅ Redirect by membershipType
+      switch (user.membershipType) {
+        case 'leader':
+          return res.redirect('/dashboard/leader');
+        case 'group_member':
+          return res.redirect('/dashboard/groupmember');
+        case 'member':
+          return res.redirect('/dashboard/member');
+        default:
+          console.warn(`Unknown membership type for ${user.username}, redirecting to default dashboard.`);
+          return res.redirect('/dashboard');
       }
     });
   })(req, res, next);
 },
+
 
 
 

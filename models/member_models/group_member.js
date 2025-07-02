@@ -41,6 +41,11 @@ const groupMemberSchema = new mongoose.Schema({
         default: 'group_member',
         enum: ['group_member']
     },
+    accessLevel: {
+  type: String,
+  default: 'group_member',
+  enum: ['group_member']
+},
     isVerified: {
         type: Boolean,
         default: false
