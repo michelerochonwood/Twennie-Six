@@ -2098,7 +2098,7 @@ img[alt="Free"] {
     "altplan"
     "price";
   height: 100%;
-  gap: 1rem;
+  gap: 5px;
 }
 
 .membership-icon-area      { grid-area: icon; display: flex; justify-content: center; }
