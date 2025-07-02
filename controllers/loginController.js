@@ -4,7 +4,6 @@ const Leader = require('../models/member_models/leader');
 const GroupMember = require('../models/member_models/group_member');
 
 module.exports = {
-  // Render login view
   showLoginForm: (req, res) => {
     console.log('Login page accessed');
     const csrfToken = req.csrfToken ? req.csrfToken() : null;
@@ -15,7 +14,6 @@ module.exports = {
     });
   },
 
-  // Unified login for all types
   handleLogin: async (req, res, next) => {
     const email = req.body.email.toLowerCase();
     const password = req.body.password;
@@ -23,30 +21,25 @@ module.exports = {
     console.log('Login attempt with email:', email);
 
     try {
-      // Try each user type in sequence
-      let user =
+      // Search all user collections
+      const user =
         await Member.findOne({ email }) ||
         await Leader.findOne({ groupLeaderEmail: email }) ||
         await GroupMember.findOne({ email });
 
       if (!user) {
-        console.warn(`No matching user found for email: ${email}`);
+        console.warn(`No user found for ${email}`);
         return res.status(401).render('login_views/login_view', {
           layout: 'mainlayout',
           title: 'Login',
           error: 'Invalid email or password.',
         });
       }
-
-      // Determine login source
-      const isLeader = !!user.groupLeaderEmail;
-      const isGroupMember = !!user.membershipType && user.membershipType === 'group_member';
-      const isMember = !!user.membershipType && user.membershipType === 'member';
 
       // Check password
-      const passwordMatches = await bcrypt.compare(password, user.password);
-      if (!passwordMatches) {
-        console.warn(`Password mismatch for email: ${email}`);
+      const isValid = await bcrypt.compare(password, user.password);
+      if (!isValid) {
+        console.warn(`Password mismatch for ${email}`);
         return res.status(401).render('login_views/login_view', {
           layout: 'mainlayout',
           title: 'Login',
@@ -54,29 +47,35 @@ module.exports = {
         });
       }
 
-      // At this point, login is successful
-      req.session.user = {
+      // Determine role and session values
+      const membershipType = user.membershipType || 'leader';
+      const username =
+        user.username || user.groupLeaderName || user.name || user.groupMemberName || 'User';
+
+      const sessionUser = {
         id: user._id,
-        username: user.username || user.groupLeaderName || user.name,
-        membershipType: user.membershipType || 'leader', // leader doesn't have membershipType field
+        username,
+        membershipType,
       };
 
-      console.log(`Login successful: ${req.session.user.username}`);
+      req.session.user = sessionUser;
+      res.locals.user = sessionUser;
 
-      // Redirect based on user type
-      if (isLeader) {
-        return res.redirect('/dashboard/leader');
-      } else if (isGroupMember) {
-        return res.redirect('/dashboard/groupmember');
-      } else if (isMember) {
-        return res.redirect('/dashboard/member');
-      } else {
-        console.warn('Unrecognized user type — defaulting to /dashboard');
-        return res.redirect('/dashboard');
+      console.log(`✅ Login successful: ${username} (${membershipType})`);
+
+      switch (membershipType) {
+        case 'leader':
+          return res.redirect('/dashboard/leader');
+        case 'group_member':
+          return res.redirect('/dashboard/groupmember');
+        case 'member':
+          return res.redirect('/dashboard/member');
+        default:
+          return res.redirect('/dashboard');
       }
 
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('❌ Login error:', err);
       return res.status(500).render('login_views/login_view', {
         layout: 'mainlayout',
         title: 'Login',
@@ -85,22 +84,10 @@ module.exports = {
     }
   },
 
-  // Logout
   handleLogout: (req, res) => {
-    req.logout((err) => {
-      if (err) {
-        console.error('Logout error:', err.message);
-        return res.status(500).render('login_views/error', {
-          layout: 'mainlayout',
-          title: 'Error',
-          errorMessage: 'An error occurred during logout. Please try again.',
-        });
-      }
-
+    req.session.destroy(() => {
       console.log('Logout successful');
-      req.session.destroy(() => {
-        res.redirect('/auth/login');
-      });
+      res.redirect('/auth/login');
     });
   },
 };
