@@ -1037,6 +1037,12 @@ html, body {
   height: 0;
 }
 
+.membership-option.selected {
+  background-color: #dc176a; /* or whatever pink tone you're using */
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
 .login-container {
   display: flex;
   flex-direction: column;

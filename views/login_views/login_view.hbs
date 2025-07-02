@@ -26,53 +26,49 @@
       <input type="password" id="password" name="password" class="login-input" required>
     </div>
 
-    <div class="login-field">
-      <label class="login-label">Membership Type</label>
-      <p>Help Twennie find you in our database. Choose your membership type from the options below.</p>
+<div class="login-field">
+  <label class="login-label">Membership Type</label>
+  <p>Help Twennie find you in our database. Choose your membership type from the options below.</p>
 
-      <div class="membership-options">
-        <label class="membership-option">
-<input type="radio" name="membershipSelector" value="free_individual" required class="visually-hidden">
-
-
-<!-- Free Individual -->
-<label class="membership-option">
-  <input type="radio" name="accessLevel" value="free_individual" required style="display: none;">
-  <div class="membership-icon">
-    <img src="https://www.twennie.com/images/freebluey.png" alt="Free" class="membership-character-image">
-  </div>
-  <span class="membership-label">free individual</span>
-</label>
-
-<!-- Paid Individual -->
-<label class="membership-option">
-  <input type="radio" name="accessLevel" value="paid_individual" required style="display: none;">
-  <div class="membership-icon">
-    <img src="https://www.twennie.com/images/bluey1.png" alt="Individual" class="membership-character-image">
-  </div>
-  <span class="membership-label">individual member</span>
-</label>
-
-<!-- Group Leader -->
-<label class="membership-option">
-  <input type="radio" name="accessLevel" value="leader" required style="display: none;">
-  <div class="membership-icon">
-    <img src="https://www.twennie.com/images/bluey_3.png" alt="Group" class="membership-character-image">
-  </div>
-  <span class="membership-label">leader</span>
-</label>
-
-<!-- Group Member -->
-<label class="membership-option">
-  <input type="radio" name="accessLevel" value="group_member" required style="display: none;">
-  <div class="membership-icon">
-    <img src="https://www.twennie.com/images/bluey2.png" alt="Full Individual" class="membership-character-image">
-  </div>
-  <span class="membership-label">group member</span>
-</label>
-
+  <div class="membership-options" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+    <!-- Free Individual -->
+    <label class="membership-option">
+      <input type="radio" name="accessLevel" value="free_individual" required style="display: none;">
+      <div class="membership-icon">
+        <img src="https://www.twennie.com/images/freebluey.png" alt="Free" class="membership-character-image">
       </div>
-    </div>
+      <span class="membership-label">free individual</span>
+    </label>
+
+    <!-- Paid Individual -->
+    <label class="membership-option">
+      <input type="radio" name="accessLevel" value="paid_individual" required style="display: none;">
+      <div class="membership-icon">
+        <img src="https://www.twennie.com/images/bluey1.png" alt="Individual" class="membership-character-image">
+      </div>
+      <span class="membership-label">individual member</span>
+    </label>
+
+    <!-- Group Leader -->
+    <label class="membership-option">
+      <input type="radio" name="accessLevel" value="leader" required style="display: none;">
+      <div class="membership-icon">
+        <img src="https://www.twennie.com/images/bluey_3.png" alt="Group" class="membership-character-image">
+      </div>
+      <span class="membership-label">leader</span>
+    </label>
+
+    <!-- Group Member -->
+    <label class="membership-option">
+      <input type="radio" name="accessLevel" value="group_member" required style="display: none;">
+      <div class="membership-icon">
+        <img src="https://www.twennie.com/images/bluey2.png" alt="Group Member" class="membership-character-image">
+      </div>
+      <span class="membership-label">group member</span>
+    </label>
+  </div>
+</div>
+
 
     <button type="submit" class="login-button">login</button>
 
@@ -92,5 +88,16 @@
 </div>
 
 </div>
+
+<script>
+  document.querySelectorAll('input[name="accessLevel"]').forEach((input) => {
+    input.addEventListener('change', () => {
+      document.querySelectorAll('.membership-option').forEach((label) => {
+        label.classList.remove('selected');
+      });
+      input.closest('.membership-option').classList.add('selected');
+    });
+  });
+</script>
 
 

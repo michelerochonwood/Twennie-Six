@@ -50,26 +50,23 @@ module.exports = {
       }
 
       // Paid or contributor trying to use free login
-if (
-  user.membershipType === 'member' &&
-  user.accessLevel !== selection
-) {
-  return res.status(401).render('login_views/login_view', {
-    layout: 'mainlayout',
-    title: 'Login',
-    error: 'Please select the correct membership type to log in.'
-  });
-}
-
-if (
-  user.membershipType === 'leader' && selection !== 'leader' ||
-  user.membershipType === 'group_member' && selection !== 'group_member'
-) {
-  return res.status(401).render('login_views/login_view', {
-    layout: 'mainlayout',
-    title: 'Login',
-    error: 'Please select the correct membership type to log in.'
-  });
+if (user.membershipType === 'member') {
+  if (user.accessLevel !== selection) {
+    return res.status(401).render('login_views/login_view', {
+      layout: 'mainlayout',
+      title: 'Login',
+      error: 'Please select the correct membership type to log in.'
+    });
+  }
+} else {
+  // Group leaders and group members don't have accessLevel
+  if (user.membershipType !== selection) {
+    return res.status(401).render('login_views/login_view', {
+      layout: 'mainlayout',
+      title: 'Login',
+      error: 'Please select the correct membership type to log in.'
+    });
+  }
 }
 
     }
