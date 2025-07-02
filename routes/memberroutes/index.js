@@ -1,12 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const memberController = require('../../controllers/memberController');
+const Member = require('../../models/member'); // Needed for /check-username
 
-// Member registration form
+// Standard Individual Membership Form (GET + POST)
 router.get('/form', memberController.showMemberForm);
 router.post('/form', memberController.createMember);
 
-// Choose membership (landing)
+// Free Membership Form (GET)
+router.get('/free-form', (req, res) => {
+  res.render('member_form_views/free_member_form', {
+    layout: 'memberformlayout',
+    csrfToken: req.csrfToken()
+  });
+});
+
+// Choose Membership Landing
 router.get('/choose', (req, res) => {
   res.render('member_form_views/choose_membership', {
     layout: 'memberformlayout'
@@ -23,6 +32,8 @@ router.get('/convert-to-leader', (req, res) => {
       'Soft Skills in Technical Environments',
       'Project Management',
       'Business Development in Technical Services',
+      'Finding Projects Before they Become RFPs',
+      'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
       'Proposal Management',
       'Proposal Strategy',
       'Storytelling in Technical Marketing',
@@ -56,7 +67,7 @@ router.get('/convert-to-leader', (req, res) => {
 // Convert Member to Group Leader (POST)
 router.post('/convert-to-leader', memberController.convertToLeader);
 
-// Stripe Success + Cancel Routes
+// Stripe Payment Success + Cancel
 router.get('/payment/success', (req, res) => {
   const username = req.session.user?.username || 'User';
   const membershipType = req.session.user?.membershipType;
@@ -89,15 +100,17 @@ router.get('/register_success', (req, res) => {
     username,
     dashboardLink: '/dashboard/member'
   });
+});
 
-  router.get('/check-username', async (req, res) => {
+// Username availability check (AJAX endpoint)
+router.get('/check-username', async (req, res) => {
   const { username } = req.query;
   const user = await Member.findOne({ username });
   res.json({ available: !user });
 });
-});
 
 module.exports = router;
+
 
 
 
