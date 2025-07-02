@@ -16,7 +16,7 @@
 
     <div class="form-field">
       <label for="group-leader-name">Group Leader Name</label>
-      <input type="text" id="group-leader-name" name="groupLeaderName" placeholder="This should be the name by which your team knows you." required>
+      <input type="text" id="group-leader-name" name="groupLeaderName" placeholder="Your full name, or the name by which your team knows you, first and last." required>
     </div>
 
     <div class="form-field">
@@ -26,42 +26,10 @@
 
     <div class="form-field">
       <label for="organization">Organization</label>
-      <input type="text" id="organization" name="organization" placeholder="This should be the name of your organization." required>
+      <input type="text" id="organization" name="organization" placeholder="Organization (optional). You can remain anonymous, but providing your organization allows us to activate organizational learning features.">
     </div>
 
-    <!-- Billing Address Fields (required by Stripe for tax calculation) -->
-<div class="form-field">
-  <label for="line1">Billing Address Line 1</label>
-  <input type="text" id="line1" name="line1" placeholder="123 Main St" required>
-</div>
-
-<div class="form-field">
-  <label for="line2">Billing Address Line 2 (optional)</label>
-  <input type="text" id="line2" name="line2" placeholder="Unit, Suite, etc.">
-</div>
-
-<div class="form-field">
-  <label for="city">City</label>
-  <input type="text" id="city" name="city" required>
-</div>
-
-<div class="form-field">
-  <label for="province">Province</label>
-  <input type="text" id="province" name="province" required>
-</div>
-
-<div class="form-field">
-  <label for="postalCode">Postal Code</label>
-  <input type="text" id="postalCode" name="postalCode" required>
-</div>
-
-<div class="form-field">
-  <label for="country">Country</label>
-  <input type="text" id="country" name="country" value="CA" required>
-</div>
-
-
-    <!-- NEW: Industry field -->
+    <!-- Industry field -->
     <div class="form-field">
       <label for="industry">Industry</label>
       <select id="industry" name="industry" required>
@@ -123,7 +91,7 @@
     <div class="individual-members-container">
       <h3>Individual Group Members</h3>
       <div id="members-grid" class="members-grid">
-        <!-- Member fields will be dynamically added here -->
+        <!-- Member fields will be dynamically added by JS -->
       </div>
     </div>
 
@@ -141,8 +109,7 @@
       </small>
     </div>
 
-
-    <!-- Agreement Toggle -->
+    <!-- Group Agreement -->
     <div class="form-toggle">
       <label for="group-agreement-toggle" class="form-toggle-label">
         <input type="checkbox" id="group-agreement-toggle" name="group_agreement" value="true" required>
@@ -150,14 +117,15 @@
       </label>
     </div>
 
-    <!-- NEW: Payment placeholder -->
+    <!-- Payment Note -->
     <div class="form-field" id="group-payment-placeholder">
       <p><strong>Payment Reminder:</strong> Once you submit this form, you’ll be redirected to a placeholder page for payment. Your payment will cover <strong>all registered group members</strong>.</p>
-      <p>If your organization will pay by invoice or alternate method, please <a href="mailto:info@twennie.com">contact Twennie</a> to arrange billing before registering.</p>
+      <p>If your organization prefers to be invoiced, please <a href="mailto:info@twennie.com">contact Twennie</a> before registering to arrange billing.</p>
     </div>
 
+    <!-- Hidden Submission Info -->
     <input type="hidden" name="accessLevel" value="paid_leader">
-  <input type="hidden" name="redirectTarget" value="payment">
+    <input type="hidden" name="redirectTarget" value="payment">
 
     <!-- Submit Button -->
     <button type="submit" class="make-member-button">
@@ -167,3 +135,4 @@
     <script src="https://www.twennie.com/javascript/leaderform/leaderform.js"></script>
   </div>
 </form>
+
