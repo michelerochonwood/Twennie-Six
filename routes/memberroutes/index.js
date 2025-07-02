@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const memberController = require('../../controllers/memberController');
-const Member = require('../../../member_models/member'); // Needed for /check-username
+const Member = require('../member_models/member'); // Needed for /check-username
 
 // Standard Individual Membership Form (GET + POST)
 router.get('/form', memberController.showMemberForm);
