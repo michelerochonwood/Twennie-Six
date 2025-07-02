@@ -16,6 +16,10 @@ module.exports = {
     },
 
  handleLogin: (req, res, next) => {
+    console.log('--- LOGIN DEBUG ---');
+console.log('Form accessLevel:', req.body.accessLevel);
+console.log('User membershipType:', user.membershipType);
+console.log('User accessLevel:', user.accessLevel);
     console.log('Login body:', req.body);
   const email = req.body.email.toLowerCase(); // Normalize email
   console.log('Login attempt with email:', email);
