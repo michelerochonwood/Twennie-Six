@@ -16,6 +16,7 @@ module.exports = {
     },
 
  handleLogin: (req, res, next) => {
+    console.log('Login body:', req.body);
   const email = req.body.email.toLowerCase(); // Normalize email
   console.log('Login attempt with email:', email);
 
