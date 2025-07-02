@@ -15,13 +15,8 @@ module.exports = {
         });
     },
 
- handleLogin: (req, res, next) => {
-    console.log('--- LOGIN DEBUG ---');
-console.log('Form accessLevel:', req.body.accessLevel);
-console.log('User membershipType:', user.membershipType);
-console.log('User accessLevel:', user.accessLevel);
-    console.log('Login body:', req.body);
-  const email = req.body.email.toLowerCase(); // Normalize email
+handleLogin: (req, res, next) => {
+  const email = req.body.email.toLowerCase();
   console.log('Login attempt with email:', email);
 
   passport.authenticate('local', (err, user, info) => {
@@ -29,8 +24,8 @@ console.log('User accessLevel:', user.accessLevel);
       console.error('Authentication error:', err.message);
       return next(err);
     }
+
     if (!user) {
-      console.warn(`Login failed: Invalid credentials for email: ${email}`);
       return res.status(401).render('login_views/login_view', {
         layout: 'mainlayout',
         title: 'Login',
@@ -38,43 +33,34 @@ console.log('User accessLevel:', user.accessLevel);
       });
     }
 
-    // Enforce correct login path for free members
-    const selection = req.body.membershipSelector;
+    // ✅ From here on, user is defined
+    console.log('--- LOGIN DEBUG ---');
+    console.log('Form accessLevel:', req.body.accessLevel);
+    console.log('User membershipType:', user.membershipType);
+    console.log('User accessLevel:', user.accessLevel);
+
+    const selection = req.body.accessLevel;
 
     if (user.membershipType === 'member') {
-      const userAccess = user.accessLevel;
-
-      // Free user trying to log in using the wrong button
-      if (userAccess === 'free_individual' && selection !== 'free_individual') {
+      if (user.accessLevel !== selection) {
         return res.status(401).render('login_views/login_view', {
           layout: 'mainlayout',
           title: 'Login',
-          error: 'Free members must use the free login option.'
+          error: 'Please select the correct membership type to log in.'
         });
       }
-
-      // Paid or contributor trying to use free login
-if (user.membershipType === 'member') {
-  if (user.accessLevel !== selection) {
-    return res.status(401).render('login_views/login_view', {
-      layout: 'mainlayout',
-      title: 'Login',
-      error: 'Please select the correct membership type to log in.'
-    });
-  }
-} else {
-  // Group leaders and group members don't have accessLevel
-  if (user.membershipType !== selection) {
-    return res.status(401).render('login_views/login_view', {
-      layout: 'mainlayout',
-      title: 'Login',
-      error: 'Please select the correct membership type to log in.'
-    });
-  }
-}
-
+    } else {
+      // Group leaders and members do not have accessLevel
+      if (user.membershipType !== selection) {
+        return res.status(401).render('login_views/login_view', {
+          layout: 'mainlayout',
+          title: 'Login',
+          error: 'Please select the correct membership type to log in.'
+        });
+      }
     }
 
+    // ✅ Login the user
     req.logIn(user, (err) => {
       if (err) {
         console.error('Login error:', err.message);
@@ -89,7 +75,7 @@ if (user.membershipType === 'member') {
 
       console.log(`Login successful: ${user.username}`);
 
-      // Redirect based on user type
+      // Redirect based on membershipType
       if (user.membershipType === 'leader') {
         res.redirect('/dashboard/leader');
       } else if (user.membershipType === 'group_member') {
@@ -97,12 +83,12 @@ if (user.membershipType === 'member') {
       } else if (user.membershipType === 'member') {
         res.redirect('/dashboard/member');
       } else {
-        console.warn('Unknown membership type, redirecting to default dashboard');
         res.redirect('/dashboard');
       }
     });
   })(req, res, next);
 },
+
 
 
     // Handle logout
