@@ -60,6 +60,13 @@ module.exports = {
           error: 'Please select the correct membership type to log in.'
         });
       }
+      if (!req.body.membershipSelector) {
+  return res.status(400).render('login_views/login_view', {
+    layout: 'mainlayout',
+    title: 'Login',
+    error: 'Please select your membership type to continue.'
+  });
+}
     }
 
     req.logIn(user, (err) => {
