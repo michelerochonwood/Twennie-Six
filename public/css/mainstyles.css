@@ -3308,6 +3308,40 @@ line-height: 1.5;
 .form-title {
   color: #262262;
 }
+.login-bluey-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+  width: 100%;
+  max-width: 650px;
+  justify-items: center;
+}
+
+.bluey-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bluey-image {
+  width: 100px;
+  height: auto;
+}
+
+.bluey-label {
+  margin-top: 10px;
+  font-family: "Figtree";
+  font-size: 0.9rem;
+  color: #262262;
+  text-transform: lowercase;
+}
+
+/* Optional: Make password input icon not clickable on mobile text entry */
+.toggle-password ion-icon {
+  font-size: 1.2rem;
+  color: #4a4ab2;
+}
 
 /* Membership Options Container */
 .membership-options {
