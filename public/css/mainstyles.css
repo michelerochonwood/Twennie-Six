@@ -3325,8 +3325,8 @@ line-height: 1.5;
 }
 
 .bluey-image {
-  width: 100px;
-  height: auto;
+  height: 200px;
+  width: auto;
 }
 
 .bluey-label {
