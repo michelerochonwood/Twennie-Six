@@ -3333,7 +3333,8 @@ line-height: 1.5;
 .bluey-label {
   margin-top: 10px;
   font-family: "Figtree";
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 800;
   color: #262262;
   text-transform: lowercase;
 }
