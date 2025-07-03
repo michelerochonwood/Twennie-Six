@@ -3314,9 +3314,10 @@ line-height: 1.5;
   gap: 20px;
   margin-bottom: 30px;
   width: 100%;
-  max-width: 650px;
   justify-items: center;
+  justify-content: center; /* ← New */
 }
+
 
 .bluey-item {
   display: flex;
