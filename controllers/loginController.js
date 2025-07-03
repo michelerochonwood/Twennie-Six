@@ -12,8 +12,6 @@ module.exports = {
     });
   },
 
-
-
   handleLogin: async (req, res, next) => {
     const email = req.body.email.toLowerCase();
     const password = req.body.password;
@@ -21,8 +19,8 @@ module.exports = {
     console.log('Login attempt with email:', email);
 
     try {
-      // Try all three user types
-      let user =
+      // Try each user type in order
+      const user =
         await Member.findOne({ email }) ||
         await Leader.findOne({ groupLeaderEmail: email }) ||
         await GroupMember.findOne({ email });
@@ -46,20 +44,19 @@ module.exports = {
         });
       }
 
-      // Determine type
       const membershipType =
         user.membershipType || (user.groupLeaderEmail ? 'leader' : 'group_member');
       const username =
         user.username || user.groupLeaderName || user.name || user.groupMemberName || 'User';
 
-      // ✅ Use req.login to populate req.user
+      // ✅ Use req.login to populate req.user (used by your app.js middleware)
       req.login(user, (err) => {
         if (err) {
           console.error('❌ req.login error:', err);
           return next(err);
         }
 
-        // Also stash the needed info in req.session.user
+        // Also keep session user for dashboard link middleware
         req.session.user = {
           id: user._id,
           username,
@@ -89,13 +86,12 @@ module.exports = {
     }
   },
 
-
   handleLogout: (req, res) => {
     req.session.destroy(() => {
       console.log('Logout successful');
       res.redirect('/auth/login');
     });
-  },
+  }
 };
 
 
