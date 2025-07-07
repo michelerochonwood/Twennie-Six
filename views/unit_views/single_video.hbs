@@ -145,10 +145,7 @@
       <div class="single_video-details">
         <p class="single_video-unit-type">Video</p>
         <p class="single_video-main-topic">Main Topic: {{main_topic}}</p>
-        <p class="single_video-subtitle">Sub Topic(s): {{sub_topic}}</p>
-        <p class="single_video-secondary-topics">
-          {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
-        </p>
+
         {{#if isOwner}}
           <a href="/unitform/edit_video/{{_id}}" class="single_video-edit-btn">edit this unit</a>
         {{/if}}
