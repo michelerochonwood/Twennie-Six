@@ -14,6 +14,15 @@
 
     <h1 class="form-title">free membership form</h1>
 
+    <div class="form-field-access-level">
+  <label for="accessLevel">Choose your membership type</label>
+  <select id="accessLevel" name="accessLevel" required onchange="handleAccessLevelChange(this.value)">
+    <option value="">Please select an access level</option>
+    <option value="free_individual">Free Member</option>
+    <option value="contributor_individual">Contributor Member</option>
+  </select>
+</div>
+
     <!-- EXISTING FIELDS -->
     <div class="form-field">
       <label for="name">Full Name</label>

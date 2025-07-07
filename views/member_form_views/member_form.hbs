@@ -3,7 +3,7 @@
 <form id="member-form" action="/member/form" method="POST" class="membership-form">
   <input type="hidden" name="_csrf" value="{{csrfToken}}">
   <input type="hidden" name="redirectTarget" id="redirectTarget" value="form">
-
+  <input type="hidden" name="accessLevel" value="paid_individual">
 <div class="individual-form-container">
 
   <!-- Centered Bluey1 Image -->
@@ -14,15 +14,8 @@
   <h1 class="form-title">individual membership form</h1>
 
     <!-- Access Level Selection -->
-<div class="form-field-access-level">
-  <label for="accessLevel">Choose your membership type</label>
-  <select id="accessLevel" name="accessLevel" required onchange="handleAccessLevelChange(this.value)">
-    <option value="">Please select an access level</option>
-    <option value="free_individual">Free Member</option>
-    <option value="contributor_individual">Contributor Member</option>
-    <option value="paid_individual">Paid Member</option>
-  </select>
-</div>
+
+
 
     <!-- Contributor Agreement -->
     <div id="contributor-terms" class="form-field hidden">
