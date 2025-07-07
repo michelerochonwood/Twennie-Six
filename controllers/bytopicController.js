@@ -104,7 +104,7 @@ exports.getTopicView = async (req, res) => {
             'CRM Platforms': 'crmplatforms',
             'Client Feedback Software': 'clientfeedbacksoftware',
             'Mental Health in Consulting Environments': 'mentalhealthinconsultingenvironments',
-            'Remote or Hybrid Work': 'remoteorhybridwork',
+            'Remote and Hybrid Work': 'remoteandhybridwork',
             'Four Day Work Week': 'fourdayworkweek',
             'The Power of Play in the Workplace': 'thepowerofplayintheworkplace',
             'Team Building in Technical Consulting': 'teambuildingintechnicalconsulting',
