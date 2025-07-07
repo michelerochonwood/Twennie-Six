@@ -17,7 +17,7 @@ const TopicSuggestionSchema = new mongoose.Schema({
   topicTitle: { type: String, required: true },
   paragraph1: { type: String, required: true },
   paragraph2: { type: String, required: true },
-  paragraph3: { type: String, required: true },
+  paragraph3: { type: String, required: true }, 
   submittedAt: { type: Date, default: Date.now }
 });
 
