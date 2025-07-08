@@ -2147,6 +2147,11 @@ img[alt="Free"] {
   transform: scale(1.05);
 }
 
+.membership-benefits-list li {
+  margin-bottom: 0.5rem; /* Adjust spacing as needed */
+  line-height: 1.4;
+}
+
 /* Updated layout for free+contributor */
 .free-contributor-layout {
   display: flex;
