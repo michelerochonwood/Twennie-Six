@@ -25,7 +25,7 @@
       <!-- Main Topic -->
       <div class="form-field">
         <label for="main-topic">Main Topic</label>
-        <select id="main-topic" name="main_topic" style="border-radius: 99px;" required>
+        <select id="main-topic" name="main_topic" required>
           <option value="">Please select a main topic</option>
           {{#each mainTopics}}
             <option value="{{this}}" {{#ifEquals this ../data.main_topic}}selected{{/ifEquals}}>{{this}}</option>
@@ -33,15 +33,15 @@
         </select>
       </div>
 
-      <!-- Secondary Topics -->
+      <!-- Secondary Topic -->
       <div class="form-field">
-        <label for="secondary-topics">Secondary Topics (Optional)</label>
-        <select id="secondary-topics" name="secondary_topics" multiple>
+        <label for="secondary-topics">Secondary Topic (Optional)</label>
+        <select id="secondary-topics" name="secondary_topics">
+          <option value="">None</option>
           {{#each mainTopics}}
-            <option value="{{this}}" {{#if (includes ../data.secondary_topics this)}}selected{{/if}}>{{this}}</option>
+            <option value="{{this}}" {{#ifIncludes ../data.secondary_topics this}}selected{{/ifIncludes}}>{{this}}</option>
           {{/each}}
         </select>
-        <small>Select multiple topics by holding down Ctrl (Windows) or Command (Mac).</small>
       </div>
 
       <!-- Sub Topic (optional) -->
@@ -52,13 +52,20 @@
 
       <!-- Video Link -->
       <div class="form-field">
-        <label for="video-link">Video Link</label>
+        <label for="video-link">YouTube Link</label>
+        <p class="form-help-text" style="font-size: 0.85rem; color: #555; margin-bottom: 6px;">
+          <strong>Reminder:</strong> Please upload your video to YouTube and set it to <strong>Unlisted</strong> (not Private), so Twennie members can view it. 
+          <a href="https://support.google.com/youtube/answer/157177" target="_blank" rel="noopener noreferrer" style="color:#4a4ab2;">Learn how</a>.
+        </p>
         <input type="url" id="video-link" name="video_link" value="{{data.video_link}}" placeholder="Paste the YouTube link here" required>
       </div>
 
       <!-- Transcript -->
       <div class="form-field">
-        <label for="transcript">Interview Transcript</label>
+        <label for="transcript">Interview Transcript <span style="font-weight: normal; font-size: 0.85em;">(Optional)</span></label>
+        <p class="form-help-text" style="font-size: 0.85rem; color: #555;">
+          Transcripts improve accessibility and help members preview the content. Paste it here if available.
+        </p>
         <textarea id="transcript" name="transcript" rows="25" maxlength="8000" placeholder="Paste the interview transcript here">{{{formatContent data.transcript}}}</textarea>
       </div>
 
@@ -102,11 +109,16 @@
 
       <!-- Full Summary -->
       <div class="form-field">
-        <label for="full-summary">Full Summary (150 words)</label>
-        <textarea id="full-summary" name="full_summary" maxlength="600" required>{{data.full_summary}}</textarea>
+        <label for="full-summary">
+          Full Summary <span style="font-weight: normal; font-size: 0.85em;">(Optional, 150 words)</span>
+        </label>
+        <p class="form-help-text" style="font-size: 0.85rem; color: #555; margin-top: 4px;">
+          The full summary helps members understand the focus and insights of your interview. Including both summaries is recommended.
+        </p>
+        <textarea id="full-summary" name="full_summary" maxlength="600">{{data.full_summary}}</textarea>
       </div>
 
-      <!-- NEW: Visibility Toggles -->
+      <!-- Visibility -->
       <div class="form-field">
         <label>Who can access this interview?</label>
         <div class="visibility-toggle-row">
@@ -125,7 +137,7 @@
         </div>
       </div>
 
-      <!-- Buttons -->
+      <!-- Submit -->
       <div class="form-buttons">
         <button type="submit" name="submit" value="submit" class="form-button submit-button">submit for approval</button>
       </div>
@@ -134,3 +146,4 @@
 </div>
 
 {{> mainpartials/footer}}
+

@@ -36,32 +36,30 @@
       </div>
 
       <!-- Main Topic -->
-      <div class="form-field">
-        <label for="main-topic">Main Topic</label>
-        <select id="main-topic" name="main_topic" style="border-radius: 55px;" required>
-          <option value="">Please select a main topic</option>
-          {{#each mainTopics}}
-            <option value="{{this}}" {{#ifEquals this ../data.main_topic}}selected{{/ifEquals}}>{{this}}</option>
-          {{/each}}
-        </select>
-      </div>
+<!-- Main Topic -->
+<div class="form-field">
+  <label for="main-topic">Main Topic</label>
+  <select id="main-topic" name="main_topic" required>
+    <option value="">Please select a main topic</option>
+    {{#each mainTopics}}
+      <option value="{{this}}" {{#ifEquals this ../data.main_topic}}selected{{/ifEquals}}>{{this}}</option>
+    {{/each}}
+  </select>
+</div>
 
-      <!-- Secondary Topics -->
-      <div class="form-field">
-        <label for="secondary-topics">Secondary Topics (Optional)</label>
-        <select id="secondary-topics" name="secondary_topics" multiple>
-          {{#each mainTopics}}
-            <option value="{{this}}" {{#if (includes ../data.secondary_topics this)}}selected{{/if}}>{{this}}</option>
-          {{/each}}
-        </select>
-        <small>Select multiple topics by holding down Ctrl (Windows) or Command (Mac).</small>
-      </div>
+<!-- Secondary Topic -->
+<div class="form-field">
+  <label for="secondary-topics">Secondary Topic (Optional)</label>
+  <select id="secondary-topics" name="secondary_topics">
+    <option value="">None</option>
+    {{#each mainTopics}}
+      <option value="{{this}}" {{#ifIncludes ../data.secondary_topics this}}selected{{/ifIncludes}}>{{this}}</option>
+    {{/each}}
+  </select>
+</div>
 
-      <!-- Sub Topic -->
-      <div class="form-field">
-        <label for="sub-topic">Sub Topic (Optional)</label>
-        <input type="text" id="sub-topic" name="sub_topic" value="{{data.sub_topic}}">
-      </div>
+
+
 
       <!-- File Format -->
  <div class="form-field">
@@ -154,10 +152,16 @@
       </div>
 
       <!-- Full Summary -->
-      <div class="form-field">
-        <label for="full-summary">Full Summary (150 words)</label>
-        <textarea id="full-summary" name="full_summary" maxlength="600" required>{{data.full_summary}}</textarea>
-      </div>
+<!-- Full Summary -->
+<div class="form-field">
+  <label for="full-summary">
+    Full Summary <span style="font-weight: normal; font-size: 0.85em;">(Optional, 150 words)</span>
+  </label>
+  <p class="form-help-text" style="font-size: 0.85rem; color: #555; margin-top: 4px;">
+    The full summary gives additional context about your exercise and helps other members decide if it fits their needs. Including both summaries is recommended.
+  </p>
+  <textarea id="full-summary" name="full_summary" maxlength="600">{{data.full_summary}}</textarea>
+</div>
 
       <div class="form-field">
   <label>Who can access this exercise?</label>
