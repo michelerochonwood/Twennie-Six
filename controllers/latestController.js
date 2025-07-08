@@ -8,7 +8,7 @@ const Template = require('../models/unit_models/template');
 const MemberProfile = require('../models/profile_models/member_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const LeaderProfile = require('../models/profile_models/leader_profile');
-
+ 
 // Helper: get correct icon path based on unit type
 function getUnitTypeIcon(type) {
   const icons = {
@@ -73,39 +73,40 @@ exports.getLatestLibraryItems = async (req, res) => {
 
     allLibraryUnits.sort((a, b) => b.updated_at - a.updated_at);
 
-    const oneWeekAgo = moment().subtract(7, 'days').startOf('day');
-    const oneMonthAgo = moment().subtract(1, 'month').startOf('day');
+const startOfThisMonth = moment().startOf('month');
+const startOfLastMonth = moment().subtract(1, 'month').startOf('month');
+const endOfLastMonth = moment().subtract(1, 'month').endOf('month');
 
-    const thisWeekItems = [];
-    const lastMonthItems = [];
+const thisMonthItems = [];
+const lastMonthItems = [];
 
-    for (const unit of allLibraryUnits) {
-      const updatedDate = moment(unit.updated_at);
-      const authorId = unit.author?.id || unit.author;
+for (const unit of allLibraryUnits) {
+  const updatedDate = moment(unit.updated_at);
+  const authorId = unit.author?.id || unit.author;
 
-      const author = authorId
-        ? await resolveAuthorById(authorId)
-        : { name: 'Unknown Author', image: '/images/default-avatar.png' };
+  const author = authorId
+    ? await resolveAuthorById(authorId)
+    : { name: 'Unknown Author', image: '/images/default-avatar.png' };
 
-      const enrichedUnit = {
-        ...unit,
-        authorName: author.name,
-        authorImage: author.image,
-        unitTypeIcon: getUnitTypeIcon(unit.type)
-      };
+  const enrichedUnit = {
+    ...unit,
+    authorName: author.name,
+    authorImage: author.image,
+    unitTypeIcon: getUnitTypeIcon(unit.type)
+  };
 
-      if (updatedDate.isSameOrAfter(oneWeekAgo)) {
-        thisWeekItems.push(enrichedUnit);
-      } else if (updatedDate.isSameOrAfter(oneMonthAgo)) {
-        lastMonthItems.push(enrichedUnit);
-      }
-    }
+  if (updatedDate.isSameOrAfter(startOfThisMonth)) {
+    thisMonthItems.push(enrichedUnit);
+  } else if (updatedDate.isBetween(startOfLastMonth, endOfLastMonth, null, '[]')) {
+    lastMonthItems.push(enrichedUnit);
+  }
+}
 
     const user = req.user;
 
     res.render('latest_view/latest_view', {
       layout: 'bytopiclayout',
-      thisWeekItems,
+  thisMonthItems,
       lastMonthItems,
       loggedIn: !!user,
       membershipType: user?.membershipType || null,
