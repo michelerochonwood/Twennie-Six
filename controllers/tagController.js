@@ -121,17 +121,24 @@ exports.removeTag = async (req, res) => {
       return res.status(401).json({ message: 'User must be logged in to remove tags.' });
     }
 
-    const userId = req.user._id;
+    const userId = req.user._id.toString();
+    const userRole = req.user.role || req.user.accountType || req.user.membershipType || req.user.modelType; // fallback in case it's stored differently
+
     const tag = await Tag.findById(tagId);
 
     if (!tag) {
       return res.status(404).json({ message: 'Tag not found.' });
     }
 
-    if (tag.createdBy.toString() !== userId) {
-      return res.status(403).json({ message: 'You can only remove tags you created.' });
+    // ✅ Only restrict group members from removing tags they didn’t create
+    const tagCreatorId = tag.createdBy.toString();
+
+    if (userId !== tagCreatorId && req.user.createdByModel === 'group_member') {
+      console.warn(`🚫 Group member ${userId} attempted to remove tag created by ${tagCreatorId}`);
+      return res.status(403).json({ message: 'Group members can only remove tags they created.' });
     }
 
+    // ✅ Remove unit or topic association
     if (itemType === 'topic') {
       tag.associatedTopics = tag.associatedTopics.filter(id => id.toString() !== itemId);
     } else {
@@ -140,6 +147,7 @@ exports.removeTag = async (req, res) => {
       );
     }
 
+    // ✅ Clean up if tag is now empty
     const isNowEmpty =
       tag.associatedUnits.length === 0 &&
       tag.associatedTopics.length === 0 &&
@@ -147,6 +155,7 @@ exports.removeTag = async (req, res) => {
 
     if (isNowEmpty) {
       await Tag.findByIdAndDelete(tagId);
+      console.log(`🗑️ Tag ${tagId} deleted (no associations remain).`);
       return res.status(200).json({ message: 'Tag deleted because no associations remain.' });
     }
 
@@ -154,10 +163,11 @@ exports.removeTag = async (req, res) => {
     return res.status(200).json({ message: 'Tag updated successfully.', tag });
 
   } catch (error) {
-    console.error('Error removing tag:', error);
+    console.error('❌ Error removing tag:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 
