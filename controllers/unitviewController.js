@@ -133,12 +133,15 @@ viewArticle: async (req, res) => {
 
     // 5. Get group members if leader
     let groupMembers = [];
+    let leaderName = null;
+
     if (req.user?.membershipType === 'leader') {
       const leader = await Leader.findById(req.user.id);
       if (leader) {
         groupMembers = await GroupMember.find({ groupId: leader._id })
           .select('_id name')
           .lean();
+        leaderName = leader.groupLeaderName || leader.username || 'You';
         console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
@@ -174,8 +177,10 @@ viewArticle: async (req, res) => {
         req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
       isGroupMemberOrMember:
         req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
-      groupMembers,
       isLeader: req.user?.membershipType === 'leader',
+      groupMembers,
+      leaderId: req.user?._id.toString(),
+      leaderName: leaderName || req.user.username || 'You',
       csrfToken: req.csrfToken(),
     });
   } catch (err) {
@@ -187,6 +192,7 @@ viewArticle: async (req, res) => {
     });
   }
 },
+
 
 
 
@@ -254,18 +260,21 @@ viewVideo: async (req, res) => {
     }
 
     console.log("🔒 Access breakdown:");
-    console.log("• isOrgMatch:", isOrgMatch);
-    console.log("• isTeamMatch:", isTeamMatch);
+    console.log("• Org match:", isOrgMatch);
+    console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // 5. Get group members if leader
+    // 5. Get group members and leader name if applicable
     let groupMembers = [];
+    let leaderName = null;
+
     if (req.user?.membershipType === 'leader') {
       const leader = await Leader.findById(req.user.id);
       if (leader) {
         groupMembers = await GroupMember.find({ groupId: leader._id })
           .select('_id name')
           .lean();
+        leaderName = leader.groupLeaderName || leader.username || 'You';
         console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
@@ -294,7 +303,10 @@ viewVideo: async (req, res) => {
         req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
       isGroupMemberOrMember:
         req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
-      groupMembers
+      groupMembers,
+      leaderId: req.user._id.toString(),
+      leaderName: leaderName || req.user.username || 'You',
+      csrfToken: req.csrfToken()
     });
 
   } catch (err) {
@@ -306,6 +318,7 @@ viewVideo: async (req, res) => {
     });
   }
 },
+
 
 
       
@@ -374,14 +387,17 @@ viewInterview: async (req, res) => {
     console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // 5. Get group members if user is a leader
+    // 5. Get group members and leaderName if user is a leader
     let groupMembers = [];
+    let leaderName = null;
+
     if (req.user?.membershipType === 'leader') {
       const leader = await Leader.findById(req.user.id);
       if (leader) {
         groupMembers = await GroupMember.find({ groupId: leader._id })
           .select('_id name')
           .lean();
+        leaderName = leader.groupLeaderName || leader.username || 'You';
         console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
@@ -410,7 +426,10 @@ viewInterview: async (req, res) => {
         req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
       isGroupMemberOrMember:
         req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
-      groupMembers
+      groupMembers,
+      leaderId: req.user._id.toString(),
+      leaderName: leaderName || req.user.username || 'You',
+      csrfToken: req.csrfToken()
     });
 
   } catch (err) {
@@ -422,6 +441,7 @@ viewInterview: async (req, res) => {
     });
   }
 },
+
 
 
 
@@ -624,14 +644,17 @@ viewExercise: async (req, res) => {
     console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // 6. If leader, fetch group members
+    // 6. If leader, fetch group members and leader name
     let groupMembers = [];
+    let leaderName = null;
+
     if (req.user?.membershipType === 'leader') {
       const leader = await Leader.findById(req.user._id);
       if (leader) {
         groupMembers = await GroupMember.find({ groupId: leader._id })
           .select('_id name')
           .lean();
+        leaderName = leader.groupLeaderName || leader.username || 'You';
         console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
@@ -664,6 +687,8 @@ viewExercise: async (req, res) => {
       isGroupMemberOrMember:
         req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
       groupMembers,
+      leaderId: req.user._id.toString(),
+      leaderName: leaderName || req.user.username || 'You',
       csrfToken: req.csrfToken()
     });
 
@@ -738,14 +763,17 @@ viewTemplate: async (req, res) => {
     console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // ✅ Get group members if the user is a leader
+    // ✅ Get group members and leader name if the user is a leader
     let groupMembers = [];
+    let leaderName = null;
+
     if (req.user?.membershipType === 'leader') {
       const leader = await Leader.findById(req.user._id);
       if (leader) {
         groupMembers = await GroupMember.find({ groupId: leader._id })
           .select('_id name')
           .lean();
+        leaderName = leader.groupLeaderName || leader.username || 'You';
         console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
@@ -774,6 +802,8 @@ viewTemplate: async (req, res) => {
       isGroupMemberOrMember:
         req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
       groupMembers,
+      leaderId: req.user._id.toString(),
+      leaderName: leaderName || req.user.username || 'You',
       csrfToken: req.csrfToken()
     });
 
@@ -786,6 +816,7 @@ viewTemplate: async (req, res) => {
     });
   }
 }
+
 
 
 };    
