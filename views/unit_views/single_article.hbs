@@ -23,45 +23,69 @@
       <div class="single_article-content hidden">
         {{{article_body}}}
 
-        {{#if isLeader}}
-          <div class="assign-tag-form white-container">
-            <h4 class="assign-tag-title">Assign this unit to group members</h4>
-            <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
-              <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-              <input type="hidden" id="unitId" value="{{_id}}">
-              <input type="hidden" id="unitType" value="article">
+{{#if isLeader}}
+  <div class="assign-tag-form white-container">
+    <h4 class="assign-tag-title">Assign this unit to yourself or your group</h4>
+    <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
+      <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+      <input type="hidden" id="unitId" value="{{_id}}">
+      <input type="hidden" id="unitType" value="article">
 
-              <div class="form-field">
-                <label for="tagName">Give the tag a name</label>
-                <input type="text" id="tagName" name="tagName" required>
-              </div>
+      <div class="form-field">
+        <label for="tagName">Give the tag a name</label>
+        <input type="text" id="tagName" name="tagName" required>
+      </div>
 
-              <fieldset class="assign-tag-members">
-                <legend class="assign-tag-legend">Select group members and enter instructions:</legend>
-                {{#each groupMembers}}
-                  <div class="assign-tag-member-block">
-                    <label class="assign-tag-member-label">
-                      <input 
-                        type="checkbox" 
-                        name="assignedTo" 
-                        value="{{_id}}" 
-                        data-name="{{name}}" 
-                        onchange="toggleInstructionField(this)">
-                      {{name}}
-                    </label>
-                    <textarea 
-                      class="assign-tag-instructions" 
-                      name="instructions-{{_id}}" 
-                      placeholder="Instructions for {{name}}" 
-                      style="display: none;"></textarea>
-                  </div>
-                {{/each}}
-              </fieldset>
+      <fieldset class="assign-tag-members">
+        <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
 
-              <button type="submit" class="form-button submit-button">assign article</button>
-            </form>
+        <!-- ✅ Leader self-assignment -->
+        <div class="assign-tag-member-block">
+          <label class="assign-tag-member-label">
+            <input 
+              type="checkbox" 
+              name="assignedTo" 
+              value="{{leaderId}}" 
+              data-name="{{leaderName}}" 
+              onchange="toggleInstructionField(this)">
+            {{leaderName}} (you)
+          </label>
+          <textarea 
+            class="assign-tag-instructions" 
+            name="instructions-{{leaderId}}" 
+            placeholder="Instructions for yourself" 
+            style="display: none;"></textarea>
+        </div>
+
+        <!-- Divider -->
+        <hr class="assign-tag-divider">
+
+        <!-- 👥 Group members -->
+        {{#each groupMembers}}
+          <div class="assign-tag-member-block">
+            <label class="assign-tag-member-label">
+              <input 
+                type="checkbox" 
+                name="assignedTo" 
+                value="{{_id}}" 
+                data-name="{{name}}" 
+                onchange="toggleInstructionField(this)">
+              {{name}}
+            </label>
+            <textarea 
+              class="assign-tag-instructions" 
+              name="instructions-{{_id}}" 
+              placeholder="Instructions for {{name}}" 
+              style="display: none;"></textarea>
           </div>
-        {{/if}}
+        {{/each}}
+      </fieldset>
+
+      <button type="submit" class="form-button submit-button">assign article</button>
+    </form>
+  </div>
+{{/if}}
+
 
         {{#if isGroupMemberOrMember}}
           <div class="single_unit-tag-container" style="margin-bottom: 200px;">
