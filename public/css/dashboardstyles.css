@@ -2969,25 +2969,25 @@ box-shadow: none !important;
 .member-topic-subtopics {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 auto;
   width: 80%;
-  font-size: 0.7rem;
-  text-align: center;
   max-width: 90%;
+  font-size: 0.7rem;
+  text-align: center; /* ✅ center the list text */
 }
 
 /* ✅ Subtopic List Items */
 .member-topic-subtopics li {
   padding: 8px 0;
   font-size: 0.7rem;
-  position: relative;
-  text-align: center;
-  color:#333;
+  color: #333;
+  text-align: center;       /* ✅ center each list item */
+  margin: 0 auto;
 }
 
 /* ✅ Horizontal Line Between Subtopics */
 .member-topic-subtopics li:not(:last-child) {
-  border-bottom: 1px solid #ccc; /* Thin gray line */
+  border-bottom: 1px solid #ccc;
   width: 90%;
   margin: 0 auto;
 }
