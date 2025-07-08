@@ -408,7 +408,7 @@ return res.render("member_dashboard", {
     accessLevelLabel
   },
   memberUnits,
-  memberTaggedUnits,
+  recentTaggedUnits: await fetchTaggedUnits(id), // ← changed key here
   registeredPromptSets,
   promptSet: registeredPromptSets[0] || null,
   memberPromptSchedule: promptSchedules[0] || null,
