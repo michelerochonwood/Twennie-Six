@@ -3019,6 +3019,35 @@ box-shadow: none !important;
   }
 }
 
+/* Ensure each topic card has structured layout */
+.member-topic-inner {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "title"
+    "subtopics"
+    "button";
+  height: 100%;
+  width: 100%;
+  justify-items: center;
+}
+
+/* Assign grid areas */
+.member-topic-title-area {
+  grid-area: title;
+}
+
+.member-topic-subtopics-area {
+  grid-area: subtopics;
+  width: 100%;
+}
+
+.member-topic-button-area {
+  grid-area: button;
+  margin-top: 10px;
+}
+
+
 
 
 /* REPORT STYLES */
