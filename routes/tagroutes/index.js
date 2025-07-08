@@ -13,7 +13,7 @@ router.get('/item/:itemId/:itemType', tagController.getTagsForItem);
 router.get('/user', tagController.getTagsForUser);
 
 // Remove a tag from a unit or topic
-router.delete('/tags/remove/:tagId/:itemId/:itemType', ensureAuthenticated, tagController.removeTag);
+router.delete('/remove/:tagId/:itemId/:itemType', ensureAuthenticated, tagController.removeTag);
 
 
 module.exports = router;
