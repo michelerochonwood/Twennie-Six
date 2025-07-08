@@ -35,7 +35,6 @@ const videoSchema = new mongoose.Schema({
             'Social Media, Advertising, and Other Mysteries',
             'Emotional Intelligence',
             'The Pareto Principle or 80/20',
-            'Diversity and Inclusion in Consulting',
             'People Before Profit',
             'Non-Technical Roles in Technical Environments',
             'Leadership in Technical Services',
@@ -73,7 +72,6 @@ const videoSchema = new mongoose.Schema({
                 'Social Media, Advertising, and Other Mysteries',
                 'Emotional Intelligence',
                 'The Pareto Principle or 80/20',
-                'Diversity and Inclusion in Consulting',
                 'People Before Profit',
                 'Non-Technical Roles in Technical Environments',
                 'Leadership in Technical Services',
@@ -114,11 +112,12 @@ const videoSchema = new mongoose.Schema({
         required: true,
         maxlength: 300,
     },
-    full_summary: {
-        type: String,
-        required: true,
-        maxlength: 600,
-    },
+full_summary: {
+  type: String,
+  required: false, // ⬅️ make it optional
+  maxlength: 600,
+  trim: true
+},
     author: {
         id: {
             type: mongoose.Schema.Types.ObjectId,

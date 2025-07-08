@@ -101,10 +101,16 @@
       </div>
 
       <!-- Full Summary -->
-      <div class="form-field">
-        <label for="full-summary">Full Summary (150 words)</label>
-        <textarea id="full-summary" name="full_summary" maxlength="600" required>{{data.full_summary}}</textarea>
-      </div>
+<!-- Full Summary -->
+<div class="form-field">
+  <label for="full-summary">
+    Full Summary <span style="font-weight: normal; font-size: 0.85em;">(Optional, 150 words)</span>
+  </label>
+  <p class="form-help-text" style="font-size: 0.85rem; color: #555; margin-top: 4px;">
+    The full summary provides additional context about your video and helps other members understand its focus and value. While optional, including both summaries is encouraged.
+  </p>
+  <textarea id="full-summary" name="full_summary" maxlength="600">{{data.full_summary}}</textarea>
+</div>
 
       <!-- NEW: Visibility Toggles -->
       <div class="form-field">
