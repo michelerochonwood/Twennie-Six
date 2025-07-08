@@ -2712,6 +2712,7 @@ box-shadow: none !important;
 }
 
 /* Completed Prompt Sets Section */
+/* Completed Prompt Sets Section */
 .member-progress-completed {
   margin-top: 15px;
 }
@@ -2730,14 +2731,17 @@ box-shadow: none !important;
   padding-top: 7.5px;
 }
 
+/* ⬇️ Reduced card height and simplified layout */
 .member-progress-completed-card {
   background-color: rgb(230, 230, 230);
   padding: 11.25px;
   border-radius: 7.5px;
   text-align: center;
   box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.2);
-  height: 600px;
-  width: auto;
+  height: 300px; /* ⬅️ Reduced from 600px to ~half */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .member-progress-completed-main-topic,
@@ -2747,18 +2751,21 @@ box-shadow: none !important;
   color: #444;
 }
 
-/* Badge */
+/* ⬇️ Removed circular background and centered the image */
 .member-progress-badge {
-  width: 50px;
-  height: 50px;
-  background: #ccc;
-  border-radius: 50%;
-  margin: 10px auto;
+  margin: 0 auto;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background: none;        /* ⬅️ Remove gray circle */
+  border-radius: 0;        /* ⬅️ Remove circular shape */
+  width: auto;
+  height: auto;
 }
 
 .member-progress-badge-img {
-  width: 100px;
+  width: 80px;
   height: auto;
+  display: block;
   margin: 0 auto;
 }
 
@@ -2767,8 +2774,9 @@ box-shadow: none !important;
   font-weight: bold;
   color: #4e50a2;
   text-align: center;
-  width: 90%;
+  margin-top: 5px;
 }
+
 
 /* Animation for SVG */
 @keyframes spinProgress {
