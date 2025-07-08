@@ -41,7 +41,7 @@
     name="image" 
     accept="image/*"
   >
-  <p class="form-hint">If no image is uploaded, a default will be used.</p>
+  <p class="form-hint">If no image is uploaded, a default will be used. If your image is larger than 5MB, the article will not post and you will be rerouted to this form.</p>
 </div>
 
 
@@ -50,37 +50,36 @@
         <input type="text" id="article-title" name="article_title" value="{{data.article_title}}" required>
       </div>
 
-      <!-- Main Topic -->
-      <div class="form-field">
-        <label for="main-topic">Main Topic</label>
-        <select id="main-topic" name="main_topic" style="border-radius: 55px" required>
-          <option value="">Please select a main topic</option>
-          {{#each mainTopics}}
-            <option value="{{this}}" {{#ifEquals this ../data.main_topic}}selected{{/ifEquals}}>{{this}}</option>
-          {{/each}}
-        </select>
-      </div>
+<!-- Main Topic -->
+<!-- Main Topic -->
+<div class="form-field">
+  <label for="main-topic">Main Topic</label>
+  <select id="main-topic" name="main_topic" class="form-select" required>
+    <option value="">Please select a main topic</option>
+    {{#each mainTopics}}
+      <option value="{{this}}" {{#ifEquals this ../data.main_topic}}selected{{/ifEquals}}>{{this}}</option>
+    {{/each}}
+  </select>
+</div>
 
-      <!-- Secondary Topics -->
-      <div class="form-field">
-        <label for="secondary-topics">Secondary Topics (Optional)</label>
-        <select id="secondary-topics" name="secondary_topics" multiple>
-          {{#each mainTopics}}
-            <option value="{{this}}" {{#ifIncludes ../data.secondary_topics this}}selected{{/ifIncludes}}>{{this}}</option>
-          {{/each}}
-        </select>
-        <small>Select multiple topics by holding down Ctrl (Windows) or Command (Mac).</small>
-      </div>
+<!-- Secondary Topic -->
+<div class="form-field">
+  <label for="secondary-topics">Secondary Topic (Optional)</label>
+  <select id="secondary-topics" name="secondary_topics" class="form-select">
+    <option value="">None</option>
+    {{#each mainTopics}}
+      <option value="{{this}}" {{#ifIncludes ../data.secondary_topics this}}selected{{/ifIncludes}}>{{this}}</option>
+    {{/each}}
+  </select>
+</div>
 
-      <div class="form-field">
-        <label for="sub-topic">Sub Topic (optional)</label>
-        <input type="text" id="sub-topic" name="sub_topic" value="{{data.sub_topic}}">
-      </div>
+
+
 
       <!-- Rich Text Editor -->
 <!-- Rich Text Editor -->
 <div class="form-field">
-  <label for="articleBody">Articles should be a maximum of 1200 words, minimum 800.</label>
+  <label for="articleBody">Articles should be a maximum of 1200 words, minimum 800. If your word count does not meet the minimum or exceeds the maximum, your article will not post, and you will be redirected back to this form.</label>
 
   {{#if word_count}}
     <p style="font-size: 0.9rem; color: #777; margin-top: 0.25rem;">
