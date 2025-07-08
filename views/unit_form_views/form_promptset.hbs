@@ -46,25 +46,27 @@
       </div>
 
       <!-- Topic Dropdown -->
+<!-- Main Topic -->
 <div class="form-field">
-    <label for="main_topic">Main Topic</label>
-    <select id="main_topic" name="main_topic" style="border-radius: 55px">
-        <option value="">Please select a topic</option>
-        {{#each mainTopics}}
-        <option value="{{this}}" {{#ifEquals ../data.main_topic this}}selected{{/ifEquals}}>{{this}}</option>
-        {{/each}}
-    </select>
+  <label for="main_topic">Main Topic</label>
+  <select id="main_topic" name="main_topic" required style="border-radius: 55px;">
+    <option value="">Please select a main topic</option>
+    {{#each mainTopics}}
+      <option value="{{this}}" {{#ifEquals this ../data.main_topic}}selected{{/ifEquals}}>{{this}}</option>
+    {{/each}}
+  </select>
 </div>
 
-      <!-- Secondary Topics -->
+
+<!-- Secondary Topic (Optional) -->
 <div class="form-field">
-    <label for="secondary-topics">Secondary Topics (Optional)</label>
-    <select id="secondary-topics" name="secondary_topics" multiple>
-        {{#each secondaryTopics}}
-        <option value="{{this}}" {{#ifIncludes ../data.secondary_topics this}}selected{{/ifIncludes}}>{{this}}</option>
-        {{/each}}
-    </select>
-    <small>Select multiple topics by holding down Ctrl (Windows) or Command (Mac).</small>
+  <label for="secondary_topic">Secondary Topic (Optional)</label>
+  <select id="secondary_topic" name="secondary_topic" style="border-radius: 55px;">
+    <option value="">None</option>
+    {{#each secondaryTopics}}
+      <option value="{{this}}" {{#ifEquals this ../data.secondary_topic}}selected{{/ifEquals}}>{{this}}</option>
+    {{/each}}
+  </select>
 </div>
 
       <!-- Sub Topic (optional) -->
@@ -199,10 +201,17 @@ Example: to improve our communication skills
       </div>
 
       <!-- Full Summary -->
-      <div class="form-field">
-        <label for="full-summary">Full Summary (150 words)</label>
-        <textarea id="full-summary" name="full_summary">{{data.full_summary}}</textarea>
-      </div>
+<!-- Full Summary -->
+<div class="form-field">
+  <label for="full-summary">
+    Full Summary <span style="font-weight: normal; font-size: 0.85em;">(Optional, 150 words)</span>
+  </label>
+  <p class="form-help-text" style="font-size: 0.85rem; color: #555; margin-top: 4px;">
+    The full summary offers more context about your prompt set. This helps members decide if it aligns with their goals. Including both summaries is encouraged.
+  </p>
+  <textarea id="full-summary" name="full_summary" maxlength="1000">{{data.full_summary}}</textarea>
+</div>
+
 
       <!-- Submit Buttons -->
       <div class="form-buttons">

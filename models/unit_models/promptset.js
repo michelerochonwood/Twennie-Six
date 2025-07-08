@@ -35,7 +35,6 @@ const promptSetSchema = new mongoose.Schema({
       'Social Media, Advertising, and Other Mysteries',
       'Emotional Intelligence',
       'The Pareto Principle or 80/20',
-      'Diversity and Inclusion in Consulting',
       'People Before Profit',
       'Non-Technical Roles in Technical Environments',
       'Leadership in Technical Services',
@@ -73,7 +72,6 @@ const promptSetSchema = new mongoose.Schema({
         'Social Media, Advertising, and Other Mysteries',
         'Emotional Intelligence',
         'The Pareto Principle or 80/20',
-        'Diversity and Inclusion in Consulting',
         'People Before Profit',
         'Non-Technical Roles in Technical Environments',
         'Leadership in Technical Services',
@@ -181,7 +179,12 @@ const promptSetSchema = new mongoose.Schema({
   time: { type: Boolean, default: false },
   permission: { type: Boolean, required: true },
   short_summary: { type: String, required: true, maxlength: 300 },
-  full_summary: { type: String, required: true, maxlength: 1000 },
+full_summary: {
+  type: String,
+  required: false, // now optional
+  maxlength: 1000,
+  trim: true
+},
 
   // NEW badge subdocument
   badge: {
