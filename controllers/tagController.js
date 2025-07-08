@@ -3,14 +3,8 @@ const Member = require('../models/member_models/member');
 const Leader = require('../models/member_models/leader');
 const GroupMember = require('../models/member_models/group_member');
 
-
-
-
-
 exports.createTag = async (req, res) => {
   try {
-    console.log('📦 Incoming assignedTo:', req.body.assignedTo);
-
     const { name, itemId, itemType, assignedTo } = req.body;
 
     if (!req.user) {
@@ -20,15 +14,11 @@ exports.createTag = async (req, res) => {
     const userId = req.user._id;
     let userModel;
 
-    const isMember = await Member.exists({ _id: userId });
-    const isLeader = await Leader.exists({ _id: userId });
-    const isGroupMember = await GroupMember.exists({ _id: userId });
-
-    if (isMember) {
+    if (await Member.exists({ _id: userId })) {
       userModel = 'member';
-    } else if (isLeader) {
+    } else if (await Leader.exists({ _id: userId })) {
       userModel = 'leader';
-    } else if (isGroupMember) {
+    } else if (await GroupMember.exists({ _id: userId })) {
       userModel = 'group_member';
     } else {
       return res.status(403).json({ message: 'Invalid user. Unable to create a tag.' });
@@ -45,27 +35,26 @@ exports.createTag = async (req, res) => {
         name: name.trim(),
         createdBy: userId,
         createdByModel: userModel,
-        associatedUnits: itemType !== 'topic' ? [itemId] : [],
+        associatedUnits: itemType !== 'topic' ? [{ item: itemId, unitType: itemType }] : [],
         associatedTopics: itemType === 'topic' ? [itemId] : [],
-        unitType: itemType !== 'topic' ? itemType : undefined,
         assignedTo: []
       });
     } else {
       const isAlreadyTagged = itemType === 'topic'
-        ? tag.associatedTopics.includes(itemId)
-        : tag.associatedUnits.includes(itemId);
+        ? tag.associatedTopics.some(id => id.toString() === itemId)
+        : tag.associatedUnits.some(u => u.item.toString() === itemId && u.unitType === itemType);
 
       if (!isAlreadyTagged) {
         if (itemType === 'topic') {
           tag.associatedTopics.push(itemId);
         } else {
-          tag.associatedUnits.push(itemId);
-          tag.unitType = itemType;
+          tag.associatedUnits.push({ item: itemId, unitType: itemType });
         }
       }
     }
 
-    if (isLeader && Array.isArray(assignedTo)) {
+    // Only leaders assign tags to members
+    if (userModel === 'leader' && Array.isArray(assignedTo)) {
       const newAssignments = [];
 
       for (const entry of assignedTo) {
@@ -73,7 +62,6 @@ exports.createTag = async (req, res) => {
           const alreadyAssigned = tag.assignedTo?.some(existing =>
             existing.member.toString() === entry.member
           );
-
           if (!alreadyAssigned) {
             newAssignments.push({
               member: entry.member,
@@ -95,35 +83,34 @@ exports.createTag = async (req, res) => {
   }
 };
 
-
-
-
-
 exports.getTagsForItem = async (req, res) => {
-    try {
-        const { itemId, itemType } = req.params;
-        let tags = itemType === 'topic' 
-            ? await Tag.find({ associatedTopics: itemId })
-            : await Tag.find({ associatedUnits: itemId, unitType: itemType });
-        res.status(200).json(tags);
-    } catch (error) {
-        console.error('Error fetching tags:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
+  try {
+    const { itemId, itemType } = req.params;
+
+    const tags = itemType === 'topic'
+      ? await Tag.find({ associatedTopics: itemId })
+      : await Tag.find({ associatedUnits: { $elemMatch: { item: itemId, unitType: itemType } } });
+
+    res.status(200).json(tags);
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
 exports.getTagsForUser = async (req, res) => {
-    try {
-        if (!req.user) {
-            return res.status(401).json({ message: 'User must be logged in to view their tags.' });
-        }
-        const userId = req.user.id;
-        let tags = await Tag.find({ createdBy: userId }).lean();
-        res.status(200).json(tags);
-    } catch (error) {
-        console.error('Error fetching user tags:', error);
-        res.status(500).json({ message: 'Internal server error' });
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'User must be logged in to view their tags.' });
     }
+
+    const userId = req.user._id;
+    const tags = await Tag.find({ createdBy: userId }).lean();
+    res.status(200).json(tags);
+  } catch (error) {
+    console.error('Error fetching user tags:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
 exports.removeTag = async (req, res) => {
@@ -134,26 +121,25 @@ exports.removeTag = async (req, res) => {
       return res.status(401).json({ message: 'User must be logged in to remove tags.' });
     }
 
-    const userId = req.user.id;
+    const userId = req.user._id;
     const tag = await Tag.findById(tagId);
 
     if (!tag) {
       return res.status(404).json({ message: 'Tag not found.' });
     }
 
-    // ✅ Only the creator of the tag can remove or unassign it
     if (tag.createdBy.toString() !== userId) {
       return res.status(403).json({ message: 'You can only remove tags you created.' });
     }
 
-    // ✅ Remove the associated unit
     if (itemType === 'topic') {
       tag.associatedTopics = tag.associatedTopics.filter(id => id.toString() !== itemId);
     } else {
-      tag.associatedUnits = tag.associatedUnits.filter(id => id.toString() !== itemId);
+      tag.associatedUnits = tag.associatedUnits.filter(
+        u => !(u.item.toString() === itemId && u.unitType === itemType)
+      );
     }
 
-    // ✅ Clean up: if the tag is now empty, delete it
     const isNowEmpty =
       tag.associatedUnits.length === 0 &&
       tag.associatedTopics.length === 0 &&
@@ -172,6 +158,7 @@ exports.removeTag = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 

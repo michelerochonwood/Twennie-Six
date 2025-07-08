@@ -137,63 +137,62 @@ const topicViewMappings = {
 
 //we have used lean here and it doesn't appear to have caused problems, but lean caused problems elsewhere, so don't use it
 async function fetchTaggedUnits(userId) {
-    try {
-        const tags = await Tag.find({ assignedTo: userId }).lean(); // 🔍 Filter based on assignedTo
-        if (!tags.length) return [];
+  try {
+    // Only get tags assigned to this group member
+    const tags = await Tag.find({ 'assignedTo.member': userId }).lean();
+    if (!tags.length) return [];
 
-        const unitIds = tags.flatMap(tag => tag.associatedUnits);
+    const unitMap = {
+      article: [],
+      video: [],
+      promptset: [],
+      interview: [],
+      exercise: [],
+      template: []
+    };
 
-        const [taggedArticles, taggedVideos, taggedPromptSets, taggedInterviews, taggedExercises, taggedTemplates] = await Promise.all([
-            Article.find({ _id: { $in: unitIds } }).lean(),
-            Video.find({ _id: { $in: unitIds } }).lean(),
-            PromptSet.find({ _id: { $in: unitIds } }).lean(),
-            Interview.find({ _id: { $in: unitIds } }).lean(),
-            Exercise.find({ _id: { $in: unitIds } }).lean(),
-            Template.find({ _id: { $in: unitIds } }).lean(),
-        ]);
+    const tagLookup = new Map(); // key: `${itemId}-${unitType}` → tagId
 
-        return [
-            ...taggedArticles.map(unit => ({
-                unitType: 'article',
-                title: unit.article_title || "Untitled Article",
-                mainTopic: unit.main_topic || "No topic",
-                _id: unit._id
-            })),
-            ...taggedVideos.map(unit => ({
-                unitType: 'video',
-                title: unit.video_title || "Untitled Video",
-                mainTopic: unit.main_topic || "No topic",
-                _id: unit._id
-            })),
-            ...taggedPromptSets.map(unit => ({
-                unitType: 'promptset',
-                title: unit.promptset_title || "Untitled Prompt Set",
-                mainTopic: unit.main_topic || "No topic",
-                _id: unit._id
-            })),
-            ...taggedInterviews.map(unit => ({
-                unitType: 'interview',
-                title: unit.interview_title || "Untitled Interview",
-                mainTopic: unit.main_topic || "No topic",
-                _id: unit._id
-            })),
-            ...taggedExercises.map(unit => ({
-                unitType: 'exercise',
-                title: unit.exercise_title || "Untitled Exercise",
-                mainTopic: unit.main_topic || "No topic",
-                _id: unit._id
-            })),
-            ...taggedTemplates.map(unit => ({
-                unitType: 'template',
-                title: unit.template_title || "Untitled Template",
-                mainTopic: unit.main_topic || "No topic",
-                _id: unit._id
-            }))
-        ];
-    } catch (error) {
-        console.error("Error fetching tagged units:", error);
-        return [];
+    for (const tag of tags) {
+      for (const { item, unitType } of tag.associatedUnits || []) {
+        if (unitMap[unitType]) {
+          const key = `${item.toString()}-${unitType}`;
+          unitMap[unitType].push(item.toString());
+          tagLookup.set(key, tag._id.toString());
+        }
+      }
     }
+
+    const [articles, videos, promptSets, interviews, exercises, templates] = await Promise.all([
+      Article.find({ _id: { $in: unitMap.article } }),
+      Video.find({ _id: { $in: unitMap.video } }),
+      PromptSet.find({ _id: { $in: unitMap.promptset } }),
+      Interview.find({ _id: { $in: unitMap.interview } }),
+      Exercise.find({ _id: { $in: unitMap.exercise } }),
+      Template.find({ _id: { $in: unitMap.template } })
+    ]);
+
+    const tagResult = (units, type, titleField) =>
+      units.map(unit => ({
+        unitType: type,
+        title: unit[titleField] || `Untitled ${type}`,
+        mainTopic: unit.main_topic || "No topic",
+        _id: unit._id,
+        tagId: tagLookup.get(`${unit._id.toString()}-${type}`)
+      }));
+
+    return [
+      ...tagResult(articles, 'article', 'article_title'),
+      ...tagResult(videos, 'video', 'video_title'),
+      ...tagResult(promptSets, 'promptset', 'promptset_title'),
+      ...tagResult(interviews, 'interview', 'interview_title'),
+      ...tagResult(exercises, 'exercise', 'exercise_title'),
+      ...tagResult(templates, 'template', 'template_title')
+    ];
+  } catch (error) {
+    console.error("❌ Error fetching tagged units for group member:", error);
+    return [];
+  }
 }
 
 

@@ -14,7 +14,7 @@ const MemberProfile = require('../models/profile_models/member_profile');
 const PromptSetCompletion = require('../models/prompt_models/promptsetcompletion');
 
 
-
+ 
 
 
 async function resolveAuthorById(authorId) {
@@ -28,23 +28,36 @@ async function fetchTaggedUnits(userId) {
     const tags = await Tag.find({ createdBy: userId }).lean();
     if (!tags.length) return [];
 
-    const unitIds = tags.flatMap(tag => tag.associatedUnits.map(unitId => ({
-      unitId: unitId.toString(),
-      tagId: tag._id.toString(),
-      unitType: tag.unitType
-    })));
+    // Build a list of unit fetch targets by type
+    const unitMap = {
+      article: [],
+      video: [],
+      promptset: [],
+      interview: [],
+      exercise: [],
+      template: []
+    };
+
+    // Build a tag lookup for later association
+    const tagLookup = new Map(); // key: `${itemId}-${unitType}`, value: tagId
+
+    tags.forEach(tag => {
+      tag.associatedUnits.forEach(({ item, unitType }) => {
+        if (unitMap[unitType]) {
+          unitMap[unitType].push(item.toString());
+          tagLookup.set(`${item.toString()}-${unitType}`, tag._id.toString());
+        }
+      });
+    });
 
     const [articles, videos, promptSets, interviews, exercises, templates] = await Promise.all([
-      Article.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean(),
-      Video.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean(),
-      PromptSet.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean(),
-      Interview.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean(),
-      Exercise.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean(),
-      Template.find({ _id: { $in: unitIds.map(u => u.unitId) } }).lean()
+      Article.find({ _id: { $in: unitMap.article } }).lean(),
+      Video.find({ _id: { $in: unitMap.video } }).lean(),
+      PromptSet.find({ _id: { $in: unitMap.promptset } }).lean(),
+      Interview.find({ _id: { $in: unitMap.interview } }).lean(),
+      Exercise.find({ _id: { $in: unitMap.exercise } }).lean(),
+      Template.find({ _id: { $in: unitMap.template } }).lean()
     ]);
-
-    // Map units to their tag info
-    const taggedMap = new Map(unitIds.map(({ unitId, tagId, unitType }) => [`${unitId}-${unitType}`, tagId]));
 
     const tagResult = (units, type, titleField) =>
       units.map(unit => ({
@@ -52,7 +65,7 @@ async function fetchTaggedUnits(userId) {
         title: unit[titleField] || `Untitled ${type}`,
         mainTopic: unit.main_topic || "No topic",
         _id: unit._id,
-        tagId: taggedMap.get(`${unit._id.toString()}-${type}`)
+        tagId: tagLookup.get(`${unit._id.toString()}-${type}`)
       }));
 
     return [
@@ -63,11 +76,13 @@ async function fetchTaggedUnits(userId) {
       ...tagResult(exercises, 'exercise', 'exercise_title'),
       ...tagResult(templates, 'template', 'template_title')
     ];
+
   } catch (error) {
-    console.error("Error fetching tagged units:", error);
+    console.error("❌ Error fetching tagged units:", error);
     return [];
   }
 }
+
 
 
 const topicMappings = {
