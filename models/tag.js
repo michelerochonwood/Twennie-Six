@@ -17,14 +17,19 @@ const tagSchema = new mongoose.Schema({
     required: true,
     enum: ['member', 'group_member', 'leader'],
   },
-  associatedUnits: [{
+associatedUnits: [{
+  item: {
     type: mongoose.Schema.Types.ObjectId,
-    refPath: 'unitType',
-  }],
+    required: true,
+    refPath: 'associatedUnits.unitType'
+  },
   unitType: {
     type: String,
-    enum: ['article', 'video', 'interview', 'promptset', 'exercise', 'template'],
-  },
+    required: true,
+    enum: ['article', 'video', 'interview', 'promptset', 'exercise', 'template']
+  }
+}],
+
   assignedTo: [{
     member: {
       type: mongoose.Schema.Types.ObjectId,
