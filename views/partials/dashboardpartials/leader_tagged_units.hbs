@@ -1,3 +1,6 @@
+<!-- CSRF token required for AJAX -->
+<meta name="csrf-token" content="{{csrfToken}}">
+
 <section class="tagged-units-section">
   <h2 class="tagged-units-title">tagged library units</h2>
   <div class="tagged-units-grid">
@@ -12,7 +15,10 @@
           <p class="tagged-unit-topic">{{mainTopic}}</p>
         </div>
 
-        <a href="/unitviews/{{unitType}}s/view/{{_id}}" class="tagged-unit-link">view unit</a><br>
+        <!-- ✅ Correct view unit link for leader -->
+        <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">
+          view unit
+        </a><br>
 
         <!-- 🗑️ Remove Tag Button -->
         <button 
@@ -28,6 +34,10 @@
 </section>
 
 <script>
+  function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  }
+
   async function removeTag(tagId, unitId, unitType) {
     if (!confirm("Are you sure you want to remove this tag?")) return;
 
@@ -52,4 +62,5 @@
     }
   }
 </script>
+
 

@@ -1,3 +1,4 @@
+<!-- CSRF token for secure AJAX -->
 <meta name="csrf-token" content="{{csrfToken}}">
 
 <section class="tagged-units-section">
@@ -14,8 +15,12 @@
           <p class="tagged-unit-topic">{{mainTopic}}</p>
         </div>
 
-        <a href="/library/{{unitType}}/{{_id}}" class="tagged-unit-link">view unit</a>
+        <!-- ✅ Corrected link path to match your routing -->
+        <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">
+          view unit
+        </a>
 
+        <!-- 🗑️ Remove tag button -->
         <button 
           class="tag-remove-btn"
           onclick="removeTag('{{tagId}}', '{{_id}}', '{{unitType}}')">
@@ -57,6 +62,7 @@
     }
   }
 </script>
+
 
 
 
