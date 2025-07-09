@@ -17,37 +17,23 @@
     <div class="single_interview-content hidden">
       {{#if isAuthorizedToViewFullContent}}
         <div class="single_interview-window">
-{{#if interview_link}}
-  <div class="single_interview-video-wrapper">
-    <iframe 
-      width="100%" 
-      height="315" 
-      src="{{interview_link}}" 
-      frameborder="0" 
-      allowfullscreen 
-      class="single_interview-frame"
-      onerror="handleEmbedError(this)">
-    </iframe>
-    <noscript>
-      <p style="text-align: center; margin-top: 10px;">
-        Unable to display embedded video. 
-        <a href="{{interview_link}}" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
-      </p>
-    </noscript>
-  </div>
-  <script>
-    function handleEmbedError(iframe) {
-      const fallback = document.createElement('p');
-      fallback.innerHTML = 'Unable to display embedded video. <a href="' + iframe.src + '" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>';
-      fallback.style.textAlign = 'center';
-      fallback.style.marginTop = '10px';
-      iframe.replaceWith(fallback);
-    }
-  </script>
-{{else}}
-  <p style="text-align: center;">This is where the interview video will appear once uploaded.</p>
-{{/if}}
-
+          {{#if embedLink}}
+            <div class="single_interview-video-wrapper" style="text-align: center;">
+              <iframe 
+                width="100%" 
+                height="315" 
+                src="{{embedLink}}" 
+                frameborder="0" 
+                allowfullscreen 
+                class="single_interview-frame">
+              </iframe>
+              <p style="text-align: center; margin-top: 0.5rem;">
+                Having trouble viewing? <a href="{{embedLink}}" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
+              </p>
+            </div>
+          {{else}}
+            <p style="text-align: center;">This is where the interview video will appear once uploaded.</p>
+          {{/if}}
         </div>
 
         <div class="single_interview-transcript">
@@ -65,89 +51,82 @@
         </div>
       {{/if}}
 
-      <!-- Tag This Unit -->
-{{#if isGroupMemberOrMember}}
-  <div class="single_unit-tag-container">
-    <form id="tagForm" onsubmit="tagUnit(event)">
-      <input type="hidden" name="_csrf" value="{{csrfToken}}">
-      <input type="hidden" id="unitId" value="{{_id}}">
-      <input type="hidden" id="unitType" value="interview">
-      <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
-        tag this unit
-        <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
-          <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
-        </svg>
-      </a>
-    </form>
-  </div>
-{{/if}}
-
-{{#if isLeader}}
-  <div class="assign-tag-form white-container">
-    <h4 class="assign-tag-title">Assign this interview to yourself or your group</h4>
-    <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
-      <input type="hidden" name="_csrf" value="{{csrfToken}}">
-      <input type="hidden" id="unitId" value="{{_id}}">
-      <input type="hidden" id="unitType" value="interview">
-
-      <div class="form-field">
-        <label for="tagName">Give the tag a name</label>
-        <input type="text" id="tagName" name="tagName" required>
-      </div>
-
-      <fieldset class="assign-tag-members">
-        <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
-
-        <!-- ✅ Leader self-assignment -->
-        <div class="assign-tag-member-block">
-          <label class="assign-tag-member-label">
-            <input 
-              type="checkbox" 
-              name="assignedTo" 
-              value="{{leaderId}}" 
-              data-name="{{leaderName}}" 
-              onchange="toggleInstructionField(this)">
-            {{leaderName}} (you)
-          </label>
-          <textarea 
-            class="assign-tag-instructions" 
-            name="instructions-{{leaderId}}" 
-            placeholder="Instructions for yourself" 
-            style="display: none;"></textarea>
+      {{#if isGroupMemberOrMember}}
+        <div class="single_unit-tag-container">
+          <form id="tagForm" onsubmit="tagUnit(event)">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" id="unitId" value="{{_id}}">
+            <input type="hidden" id="unitType" value="interview">
+            <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
+              tag this unit
+              <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
+                <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
+              </svg>
+            </a>
+          </form>
         </div>
+      {{/if}}
 
-        <!-- Divider -->
-        <hr class="assign-tag-divider">
+      {{#if isLeader}}
+        <div class="assign-tag-form white-container">
+          <h4 class="assign-tag-title">Assign this interview to yourself or your group</h4>
+          <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" id="unitId" value="{{_id}}">
+            <input type="hidden" id="unitType" value="interview">
 
-        <!-- 👥 Group members -->
-        {{#each groupMembers}}
-          <div class="assign-tag-member-block">
-            <label class="assign-tag-member-label">
-              <input 
-                type="checkbox" 
-                name="assignedTo" 
-                value="{{_id}}" 
-                data-name="{{name}}" 
-                onchange="toggleInstructionField(this)">
-              {{name}}
-            </label>
-            <textarea 
-              class="assign-tag-instructions" 
-              name="instructions-{{_id}}" 
-              placeholder="Instructions for {{name}}" 
-              style="display: none;"></textarea>
-          </div>
-        {{/each}}
-      </fieldset>
+            <div class="form-field">
+              <label for="tagName">Give the tag a name</label>
+              <input type="text" id="tagName" name="tagName" required>
+            </div>
 
-      <button type="submit" class="form-button submit-button">assign interview</button>
-    </form>
-  </div>
-{{/if}}
+            <fieldset class="assign-tag-members">
+              <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
 
+              <div class="assign-tag-member-block">
+                <label class="assign-tag-member-label">
+                  <input 
+                    type="checkbox" 
+                    name="assignedTo" 
+                    value="{{leaderId}}" 
+                    data-name="{{leaderName}}" 
+                    onchange="toggleInstructionField(this)">
+                  {{leaderName}} (you)
+                </label>
+                <textarea 
+                  class="assign-tag-instructions" 
+                  name="instructions-{{leaderId}}" 
+                  placeholder="Instructions for yourself" 
+                  style="display: none;"></textarea>
+              </div>
 
+              <hr class="assign-tag-divider">
 
-      <!-- Notes Form -->
+              {{#each groupMembers}}
+                <div class="assign-tag-member-block">
+                  <label class="assign-tag-member-label">
+                    <input 
+                      type="checkbox" 
+                      name="assignedTo" 
+                      value="{{_id}}" 
+                      data-name="{{name}}" 
+                      onchange="toggleInstructionField(this)">
+                    {{name}}
+                  </label>
+                  <textarea 
+                    class="assign-tag-instructions" 
+                    name="instructions-{{_id}}" 
+                    placeholder="Instructions for {{name}}" 
+                    style="display: none;"></textarea>
+                </div>
+              {{/each}}
+            </fieldset>
+
+            <button type="submit" class="form-button submit-button">assign interview</button>
+          </form>
+        </div>
+      {{/if}}
+
       {{#if isGroupMemberOrLeader}}
         <div class="single_interview-notes-container">
           <h3 class="single_interview-notes-title">record notes</h3>
@@ -166,59 +145,55 @@
         </div>
       {{/if}}
     </div>
-  </div> <!-- .single_interview-main -->
+  </div>
 
   <!-- Sidebar -->
-<!-- Sidebar -->
-<aside class="single_interview-sidebar">
-  <!-- Icon -->
-  <div style="text-align: center; margin-bottom: 1rem;">
-    <img 
-      src="/images/20mins.svg" 
-      alt="20 minute interview icon" 
-      width="150" 
-      height="150"
-      style="display: inline-block;"
-    >
-  </div>
-
-  <!-- Toggle -->
-  <div class="single_interview-sidebar-toggle" onclick="toggleSidebarContent(this)">
-    <svg class="single_interview-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
-      <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
-      <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
-    </svg>
-  </div>
-
-  <!-- Hidden Sidebar Content -->
-  <div class="single_interview-sidebar-content hidden">
-    <p class="single_interview-title-sidebar">{{interview_title}}</p>
-    <div class="single_interview-author">
-      <img src="{{author.image}}" alt="Author Image" class="single_interview-author-image">
-      <p class="single_interview-author-name">Author: {{author.name}}</p>
+  <aside class="single_interview-sidebar">
+    <!-- Icon -->
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <img 
+        src="/images/20mins.svg" 
+        alt="20 minute interview icon" 
+        width="150" 
+        height="150"
+        style="display: inline-block;">
     </div>
-    <div class="single_interview-details">
-      <p class="single_interview-unit-type">Interview</p>
-      <p class="single_interview-main-topic">Main Topic: {{main_topic}}</p>
-      <p class="single_interview-subtitle">Sub Topic(s): {{sub_topic}}</p>
-      <p class="single_interview-secondary-topics">
-        {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
-      </p>
-      {{#if isOwner}}
-        <a href="/unitform/edit_interview/{{_id}}" class="single_interview-edit-btn">edit this unit</a>
-      {{/if}}
-    </div>
-  </div>
-</aside>
 
-</div> <!-- .single_interview-container -->
+    <!-- Toggle -->
+    <div class="single_interview-sidebar-toggle" onclick="toggleSidebarContent(this)">
+      <svg class="single_interview-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+      </svg>
+    </div>
+
+    <!-- Hidden Sidebar Content -->
+    <div class="single_interview-sidebar-content hidden">
+      <p class="single_interview-title-sidebar">{{interview_title}}</p>
+      <div class="single_interview-author">
+        <img src="{{author.image}}" alt="Author Image" class="single_interview-author-image">
+        <p class="single_interview-author-name">Author: {{author.name}}</p>
+      </div>
+      <div class="single_interview-details">
+        <p class="single_interview-unit-type">Interview</p>
+        <p class="single_interview-main-topic">Main Topic: {{main_topic}}</p>
+        <p class="single_interview-subtitle">Sub Topic(s): {{sub_topic}}</p>
+        <p class="single_interview-secondary-topics">
+          {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+        </p>
+        {{#if isOwner}}
+          <a href="/unitform/edit_interview/{{_id}}" class="single_interview-edit-btn">edit this unit</a>
+        {{/if}}
+      </div>
+    </div>
+  </aside>
+</div>
 
 <!-- JS Toggles -->
 <script>
 function toggleInterviewContent(element) {
   const isAuthorized = element.dataset.authorized === "true";
   const content = element.nextElementSibling;
-
   if (isAuthorized) {
     content.classList.toggle('hidden');
     element.classList.toggle('open');
@@ -241,6 +216,7 @@ function toggleInstructionField(checkbox) {
   }
 }
 </script>
+
 
 
 
