@@ -17,18 +17,37 @@
     <div class="single_interview-content hidden">
       {{#if isAuthorizedToViewFullContent}}
         <div class="single_interview-window">
-          {{#if interview_link}}
-            <iframe 
-              width="100%" 
-              height="315" 
-              src="{{interview_link}}" 
-              frameborder="0" 
-              allowfullscreen 
-              class="single_interview-frame">
-            </iframe>
-          {{else}}
-            <p style="text-align: center;">This is where the interview video will appear once uploaded.</p>
-          {{/if}}
+{{#if interview_link}}
+  <div class="single_interview-video-wrapper">
+    <iframe 
+      width="100%" 
+      height="315" 
+      src="{{interview_link}}" 
+      frameborder="0" 
+      allowfullscreen 
+      class="single_interview-frame"
+      onerror="handleEmbedError(this)">
+    </iframe>
+    <noscript>
+      <p style="text-align: center; margin-top: 10px;">
+        Unable to display embedded video. 
+        <a href="{{interview_link}}" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
+      </p>
+    </noscript>
+  </div>
+  <script>
+    function handleEmbedError(iframe) {
+      const fallback = document.createElement('p');
+      fallback.innerHTML = 'Unable to display embedded video. <a href="' + iframe.src + '" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>';
+      fallback.style.textAlign = 'center';
+      fallback.style.marginTop = '10px';
+      iframe.replaceWith(fallback);
+    }
+  </script>
+{{else}}
+  <p style="text-align: center;">This is where the interview video will appear once uploaded.</p>
+{{/if}}
+
         </div>
 
         <div class="single_interview-transcript">
@@ -150,35 +169,48 @@
   </div> <!-- .single_interview-main -->
 
   <!-- Sidebar -->
-  <aside class="single_interview-sidebar">
-    <!-- Toggle -->
-    <div class="single_interview-sidebar-toggle" onclick="toggleSidebarContent(this)">
-      <svg class="single_interview-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
-        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
-        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
-      </svg>
-    </div>
+<!-- Sidebar -->
+<aside class="single_interview-sidebar">
+  <!-- Icon -->
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <img 
+      src="/images/20mins.svg" 
+      alt="20 minute interview icon" 
+      width="150" 
+      height="150"
+      style="display: inline-block;"
+    >
+  </div>
 
-    <!-- Hidden Sidebar Content -->
-    <div class="single_interview-sidebar-content hidden">
-      <p class="single_interview-title-sidebar">{{interview_title}}</p>
-      <div class="single_interview-author">
-        <img src="{{author.image}}" alt="Author Image" class="single_interview-author-image">
-        <p class="single_interview-author-name">Author: {{author.name}}</p>
-      </div>
-      <div class="single_interview-details">
-        <p class="single_interview-unit-type">Interview</p>
-        <p class="single_interview-main-topic">Main Topic: {{main_topic}}</p>
-        <p class="single_interview-subtitle">Sub Topic(s): {{sub_topic}}</p>
-        <p class="single_interview-secondary-topics">
-          {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
-        </p>
-        {{#if isOwner}}
-          <a href="/unitform/edit_interview/{{_id}}" class="single_interview-edit-btn">edit this unit</a>
-        {{/if}}
-      </div>
+  <!-- Toggle -->
+  <div class="single_interview-sidebar-toggle" onclick="toggleSidebarContent(this)">
+    <svg class="single_interview-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+      <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+      <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+    </svg>
+  </div>
+
+  <!-- Hidden Sidebar Content -->
+  <div class="single_interview-sidebar-content hidden">
+    <p class="single_interview-title-sidebar">{{interview_title}}</p>
+    <div class="single_interview-author">
+      <img src="{{author.image}}" alt="Author Image" class="single_interview-author-image">
+      <p class="single_interview-author-name">Author: {{author.name}}</p>
     </div>
-  </aside>
+    <div class="single_interview-details">
+      <p class="single_interview-unit-type">Interview</p>
+      <p class="single_interview-main-topic">Main Topic: {{main_topic}}</p>
+      <p class="single_interview-subtitle">Sub Topic(s): {{sub_topic}}</p>
+      <p class="single_interview-secondary-topics">
+        {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+      </p>
+      {{#if isOwner}}
+        <a href="/unitform/edit_interview/{{_id}}" class="single_interview-edit-btn">edit this unit</a>
+      {{/if}}
+    </div>
+  </div>
+</aside>
+
 </div> <!-- .single_interview-container -->
 
 <!-- JS Toggles -->
