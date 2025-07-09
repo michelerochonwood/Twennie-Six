@@ -14,6 +14,19 @@ const GroupMemberProfile = require('../models/profile_models/groupmember_profile
 const MemberProfile = require('../models/profile_models/member_profile');
 const sanitizeHtml = require('sanitize-html');
 
+// Add this helper at the top of the controller file (outside the viewInterview function)
+function convertYouTubeToEmbed(url) {
+  if (!url) return null;
+
+  // Match typical YouTube formats like:
+  // - https://www.youtube.com/watch?v=VIDEO_ID
+  // - https://youtu.be/VIDEO_ID
+  // - https://www.youtube.com/embed/VIDEO_ID
+  const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/);
+
+  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+}
+
 
 async function resolveAuthorById(authorId) {
   // 1. Check leader profile
@@ -325,6 +338,8 @@ viewVideo: async (req, res) => {
     
     
     
+
+
 viewInterview: async (req, res) => {
   try {
     const { id } = req.params;
@@ -402,7 +417,10 @@ viewInterview: async (req, res) => {
       }
     }
 
-    // 6. Render the view
+    // ✅ 6. Convert the video link to embed format
+    const embedLink = convertYouTubeToEmbed(interview.video_link);
+
+    // 7. Render the view
     res.render('unit_views/single_interview', {
       layout: 'unitviewlayout',
       _id: interview._id.toString(),
@@ -410,6 +428,7 @@ viewInterview: async (req, res) => {
       short_summary: interview.short_summary,
       full_summary: interview.full_summary,
       interview_link: interview.video_link || '',
+      embedLink, // ✅ pass the embed version here
       interview_content: interview.transcript || "Transcript will be available soon.",
       author: {
         name: author.name || 'Unknown Author',
@@ -441,6 +460,7 @@ viewInterview: async (req, res) => {
     });
   }
 },
+
 
 
 
