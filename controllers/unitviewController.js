@@ -214,7 +214,6 @@ viewArticle: async (req, res) => {
       
     
     
-
 viewVideo: async (req, res) => {
   try {
     const { id } = req.params;
@@ -292,7 +291,10 @@ viewVideo: async (req, res) => {
       }
     }
 
-    // 6. Render the view
+    // ✅ 6. Convert video_content to embedLink
+    const embedLink = convertYouTubeToEmbed(video.video_content);
+
+    // 7. Render the view
     res.render('unit_views/single_video', {
       layout: 'unitviewlayout',
       _id: video._id.toString(),
@@ -300,6 +302,7 @@ viewVideo: async (req, res) => {
       short_summary: video.short_summary,
       full_summary: video.full_summary,
       video_content: video.video_content || '',
+      embedLink, // ✅ new YouTube embed URL
       video_url: video.video_url || '/images/valuegroupcont.png',
       author: {
         name: author.name || 'Unknown Author',
