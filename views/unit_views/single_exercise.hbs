@@ -104,22 +104,21 @@
         <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
 
         <!-- ✅ Leader self-assignment -->
-        <div class="assign-tag-member-block">
-          <label class="assign-tag-member-label">
-            <input 
-              type="checkbox" 
-              name="assignedTo" 
-              value="{{leaderId}}" 
-              data-name="{{leaderName}}" 
-              onchange="toggleInstructionField(this)">
-            {{leaderName}} (you)
-          </label>
-          <textarea 
-            class="assign-tag-instructions" 
-            name="instructions-{{leaderId}}" 
-            placeholder="Instructions for yourself" 
-            style="display: none;"></textarea>
-        </div>
+<div class="assign-tag-member-block">
+  <label class="assign-tag-member-label">
+    <input 
+      type="checkbox" 
+      name="assignedTo[{{leaderId}}][member]" 
+      value="{{leaderId}}" 
+      onchange="toggleInstructionField(this)">
+    {{leaderName}} (you)
+  </label>
+  <textarea 
+    class="assign-tag-instructions" 
+    name="assignedTo[{{leaderId}}][instructions]" 
+    placeholder="Instructions for yourself" 
+    style="display: none;"></textarea>
+</div>
 
         <!-- Divider -->
         <hr class="assign-tag-divider">
@@ -216,7 +215,7 @@
     <div class="single_exercise-details">
       <p class="single_exercise-unit-type">Exercise</p>
       <p class="single_exercise-main-topic">Main Topic: {{main_topic}}</p>
-      <p class="single_exercise-subtitle">Sub Topic(s): {{sub_topic}}</p>
+
       <p class="single_exercise-secondary-topics">{{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</p>
 
       {{#if isOwner}}

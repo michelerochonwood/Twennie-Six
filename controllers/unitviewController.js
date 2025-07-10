@@ -612,7 +612,6 @@ viewExercise: async (req, res) => {
     const { id } = req.params;
     console.log(`📘 Fetching exercise with ID: ${id}`);
 
-    // 1. Fetch the exercise
     const exercise = await Exercise.findById(id);
     if (!exercise) {
       return res.status(404).render('unit_views/error', {
@@ -622,9 +621,6 @@ viewExercise: async (req, res) => {
       });
     }
 
-    console.log("✅ Fetched Exercise:", exercise);
-
-    // 2. Get the author's ID
     const authorId = exercise.author?.id || exercise.author;
     if (!authorId) {
       return res.status(500).render('unit_views/error', {
@@ -634,15 +630,9 @@ viewExercise: async (req, res) => {
       });
     }
 
-    // 3. Resolve author profile
     const creator = await resolveAuthorById(authorId);
-    console.log("👤 Resolved creator:", creator);
-
-    // 4. Is the current user the creator?
     const isOwner = req.user && req.user._id.toString() === authorId.toString();
-    console.log(`👑 Is owner: ${isOwner}`);
 
-    // 5. Determine access based on visibility
     let isAuthorizedToViewFullContent = false;
     let isOrgMatch = false;
     let isTeamMatch = false;
@@ -665,14 +655,9 @@ viewExercise: async (req, res) => {
       isAuthorizedToViewFullContent = isOwner || isOrgMatch || isTeamMatch;
     }
 
-    console.log("🔒 Access breakdown:");
-    console.log("• Org match:", isOrgMatch);
-    console.log("• Team match:", isTeamMatch);
-    console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
-
-    // 6. If leader, fetch group members and leader name
     let groupMembers = [];
     let leaderName = null;
+    let leaderId = null;
 
     if (req.user?.membershipType === 'leader') {
       const leader = await Leader.findById(req.user._id);
@@ -681,11 +666,10 @@ viewExercise: async (req, res) => {
           .select('_id name')
           .lean();
         leaderName = leader.groupLeaderName || leader.username || 'You';
-        console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
+        leaderId = leader._id.toString();
       }
     }
 
-    // 7. Render the view
     res.render('unit_views/single_exercise', {
       layout: 'unitviewlayout',
       _id: exercise._id.toString(),
@@ -713,7 +697,7 @@ viewExercise: async (req, res) => {
       isGroupMemberOrMember:
         req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
       groupMembers,
-      leaderId: req.user._id.toString(),
+      leaderId: leaderId || req.user._id.toString(),
       leaderName: leaderName || req.user.username || 'You',
       csrfToken: req.csrfToken()
     });
@@ -727,7 +711,6 @@ viewExercise: async (req, res) => {
     });
   }
 },
-
 
 
     
