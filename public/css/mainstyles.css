@@ -2047,6 +2047,8 @@ img[alt="Free"] {
   font-size: 14px;
 }
 
+
+
 .membership-price {
   font-family: 'Figtree', sans-serif;
   font-weight: 600;
@@ -2220,7 +2222,10 @@ img[alt="Free"] {
 .membership-description-area {
   padding: 0 10px;
   text-align: center;
+  align-self: start;
 }
+
+
 
 .membership-description {
   font-family: 'Figtree', sans-serif;
