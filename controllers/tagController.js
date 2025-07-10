@@ -5,7 +5,9 @@ const GroupMember = require('../models/member_models/group_member');
 
 exports.createTag = async (req, res) => {
   try {
-    const { name, itemId, itemType, assignedTo } = req.body;
+    const { name, itemId, itemType } = req.body;
+    const assignedToRaw = req.body.assignedTo || {};
+    const normalizedAssignedTo = Object.values(assignedToRaw);
 
     if (!req.user) {
       return res.status(401).json({ message: 'User must be logged in to create tags.' });
@@ -53,13 +55,11 @@ exports.createTag = async (req, res) => {
       }
     }
 
-    let renderedSuccess = false;
-
-    // ✅ Handle assignments for leaders
-    if (userModel === 'leader' && Array.isArray(assignedTo)) {
+    // ✅ Handle assignments for leaders (form or AJAX)
+    if (userModel === 'leader' && normalizedAssignedTo.length > 0) {
       const newAssignments = [];
 
-      for (const entry of assignedTo) {
+      for (const entry of normalizedAssignedTo) {
         if (entry.member) {
           const alreadyAssigned = tag.assignedTo?.some(existing =>
             existing.member.toString() === entry.member
@@ -77,7 +77,6 @@ exports.createTag = async (req, res) => {
 
       await tag.save();
 
-      // ✅ Detect HTML form submission vs. JSON/AJAX
       const isFormRequest = req.headers.accept?.includes('text/html');
 
       if (isFormRequest) {
@@ -89,7 +88,7 @@ exports.createTag = async (req, res) => {
       }
     }
 
-    // ✅ Standard tag (non-assignment)
+    // ✅ If not an assignment, just tag normally
     await tag.save();
     return res.status(200).json({ message: 'Tag saved successfully.', tag });
 
@@ -184,6 +183,7 @@ exports.removeTag = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 
