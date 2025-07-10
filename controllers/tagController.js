@@ -53,7 +53,9 @@ exports.createTag = async (req, res) => {
       }
     }
 
-    // Only leaders assign tags to members
+    let renderedSuccess = false;
+
+    // ✅ Handle assignments for leaders
     if (userModel === 'leader' && Array.isArray(assignedTo)) {
       const newAssignments = [];
 
@@ -72,8 +74,22 @@ exports.createTag = async (req, res) => {
       }
 
       tag.assignedTo = [...(tag.assignedTo || []), ...newAssignments];
+
+      await tag.save();
+
+      // ✅ Detect HTML form submission vs. JSON/AJAX
+      const isFormRequest = req.headers.accept?.includes('text/html');
+
+      if (isFormRequest) {
+        return res.render('unit_views/assign_success', {
+          layout: 'unitviewlayout'
+        });
+      } else {
+        return res.status(200).json({ message: 'Assignment saved successfully.', tag });
+      }
     }
 
+    // ✅ Standard tag (non-assignment)
     await tag.save();
     return res.status(200).json({ message: 'Tag saved successfully.', tag });
 
@@ -82,6 +98,7 @@ exports.createTag = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 exports.getTagsForItem = async (req, res) => {
   try {
@@ -98,6 +115,7 @@ exports.getTagsForItem = async (req, res) => {
   }
 };
 
+
 exports.getTagsForUser = async (req, res) => {
   try {
     if (!req.user) {
@@ -113,6 +131,7 @@ exports.getTagsForUser = async (req, res) => {
   }
 };
 
+
 exports.removeTag = async (req, res) => {
   try {
     const { tagId, itemId, itemType } = req.params;
@@ -122,7 +141,7 @@ exports.removeTag = async (req, res) => {
     }
 
     const userId = req.user._id.toString();
-    const userRole = req.user.role || req.user.accountType || req.user.membershipType || req.user.modelType; // fallback in case it's stored differently
+    const userRole = req.user.role || req.user.accountType || req.user.membershipType || req.user.modelType;
 
     const tag = await Tag.findById(tagId);
 
@@ -130,7 +149,6 @@ exports.removeTag = async (req, res) => {
       return res.status(404).json({ message: 'Tag not found.' });
     }
 
-    // ✅ Only restrict group members from removing tags they didn’t create
     const tagCreatorId = tag.createdBy.toString();
 
     if (userId !== tagCreatorId && req.user.createdByModel === 'group_member') {
@@ -138,7 +156,7 @@ exports.removeTag = async (req, res) => {
       return res.status(403).json({ message: 'Group members can only remove tags they created.' });
     }
 
-    // ✅ Remove unit or topic association
+    // Remove topic or unit association
     if (itemType === 'topic') {
       tag.associatedTopics = tag.associatedTopics.filter(id => id.toString() !== itemId);
     } else {
@@ -147,7 +165,6 @@ exports.removeTag = async (req, res) => {
       );
     }
 
-    // ✅ Clean up if tag is now empty
     const isNowEmpty =
       tag.associatedUnits.length === 0 &&
       tag.associatedTopics.length === 0 &&
@@ -167,6 +184,7 @@ exports.removeTag = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 
