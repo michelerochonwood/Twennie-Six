@@ -56,40 +56,45 @@ exports.createTag = async (req, res) => {
     }
 
     // ✅ Handle leader assignment
-    if (userModel === 'leader' && normalizedAssignedTo.length > 0) {
-      const newAssignments = [];
+if (userModel === 'leader' && normalizedAssignedTo.length > 0) {
+  const newAssignments = [];
 
-      for (const entry of normalizedAssignedTo) {
-        if (entry.member) {
-          const alreadyAssigned = tag.assignedTo?.some(existing =>
-            existing.member.toString() === entry.member
-          );
-          if (!alreadyAssigned) {
-            newAssignments.push({
-              member: entry.member,
-              instructions: entry.instructions || ''
-            });
-          }
-        }
-      }
-
-      tag.assignedTo = [...(tag.assignedTo || []), ...newAssignments];
-
-      await tag.save();
-
-      const isFormRequest = req.headers.accept?.includes('text/html');
-      if (isFormRequest) {
-        return res.render('unit_views/assign_success', {
-          layout: 'unitviewlayout'
+  for (const entry of normalizedAssignedTo) {
+    if (entry.member) {
+      const alreadyAssigned = tag.assignedTo?.some(existing =>
+        existing.member.toString() === entry.member
+      );
+      if (!alreadyAssigned) {
+        newAssignments.push({
+          member: entry.member,
+          instructions: entry.instructions || ''
         });
-      } else {
-        return res.status(200).json({ message: 'Assignment saved successfully.', tag });
       }
     }
+  }
 
-    // ✅ Regular self-tag (no assignment)
-    await tag.save();
-    return res.status(200).json({ message: 'Tag saved successfully.', tag });
+  tag.assignedTo = [...(tag.assignedTo || []), ...newAssignments];
+
+  // ✅ Ensure the assigned unit is included in associatedUnits
+  const alreadyHasUnit = tag.associatedUnits.some(u =>
+    u.item.toString() === itemId && u.unitType === itemType
+  );
+
+  if (!alreadyHasUnit) {
+    tag.associatedUnits.push({ item: itemId, unitType: itemType });
+  }
+
+  await tag.save();
+
+  const isFormRequest = req.headers.accept?.includes('text/html');
+  if (isFormRequest) {
+    return res.render('unit_views/assign_success', {
+      layout: 'unitviewlayout'
+    });
+  } else {
+    return res.status(200).json({ message: 'Assignment saved successfully.', tag });
+  }
+}
 
   } catch (error) {
     console.error('❌ Error creating tag:', error);

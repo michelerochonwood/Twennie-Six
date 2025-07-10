@@ -416,7 +416,7 @@ const leaderAssignedTags = allTaggedUnits.filter(
 );
 
 const completedLeaderAssignedTags = allTaggedUnits.filter(
-  unit => unit.tagIdCreator !== id.toString() && unit.completedAt
+  unit => unit.tagIdCreator !== id.toString() && !!unit.completedAt
 );
 
 
