@@ -405,9 +405,10 @@ viewInterview: async (req, res) => {
     console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // 5. Get group members and leaderName if user is a leader
+    // 5. Get group members and leaderId if applicable
     let groupMembers = [];
     let leaderName = null;
+    let leaderId = null;
 
     if (req.user?.membershipType === 'leader') {
       const leader = await Leader.findById(req.user.id);
@@ -416,6 +417,7 @@ viewInterview: async (req, res) => {
           .select('_id name')
           .lean();
         leaderName = leader.groupLeaderName || leader.username || 'You';
+        leaderId = leader._id.toString();
         console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
@@ -431,7 +433,7 @@ viewInterview: async (req, res) => {
       short_summary: interview.short_summary,
       full_summary: interview.full_summary,
       interview_link: interview.video_link || '',
-      embedLink, // ✅ pass the embed version here
+      embedLink,
       interview_content: interview.transcript || "Transcript will be available soon.",
       author: {
         name: author.name || 'Unknown Author',
@@ -449,7 +451,7 @@ viewInterview: async (req, res) => {
       isGroupMemberOrMember:
         req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
       groupMembers,
-      leaderId: req.user._id.toString(),
+      leaderId: leaderId || req.user._id.toString(), // ✅ Ensures correct leaderId even if fallback
       leaderName: leaderName || req.user.username || 'You',
       csrfToken: req.csrfToken()
     });
@@ -463,6 +465,7 @@ viewInterview: async (req, res) => {
     });
   }
 },
+
 
 
 
