@@ -723,6 +723,7 @@ viewTemplate: async (req, res) => {
     const { id } = req.params;
     console.log(`📄 Fetching template with ID: ${id}`);
 
+    // 1. Fetch the template
     const template = await Template.findById(id);
     if (!template) {
       return res.status(404).render('unit_views/error', {
@@ -732,6 +733,7 @@ viewTemplate: async (req, res) => {
       });
     }
 
+    // 2. Resolve author
     const authorId = template.author?.id || template.author;
     const author = await resolveAuthorById(authorId);
     if (!author) {
@@ -742,9 +744,10 @@ viewTemplate: async (req, res) => {
       });
     }
 
+    // 3. Ownership check
     const isOwner = req.user && req.user._id.toString() === authorId.toString();
 
-    // ✅ Standard visibility access check
+    // 4. Access control
     let isAuthorizedToViewFullContent = false;
     let isOrgMatch = false;
     let isTeamMatch = false;
@@ -772,7 +775,7 @@ viewTemplate: async (req, res) => {
     console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // ✅ Get group members and leader name if the user is a leader
+    // 5. If leader, fetch group members and leader name
     let groupMembers = [];
     let leaderName = null;
 
@@ -787,6 +790,7 @@ viewTemplate: async (req, res) => {
       }
     }
 
+    // 6. Render the view
     res.render('unit_views/single_template', {
       layout: 'unitviewlayout',
       _id: template._id.toString(),
@@ -813,7 +817,8 @@ viewTemplate: async (req, res) => {
       groupMembers,
       leaderId: req.user._id.toString(),
       leaderName: leaderName || req.user.username || 'You',
-      csrfToken: req.csrfToken()
+      csrfToken: req.csrfToken(),
+      unitType: 'template' // ✅ Required for correct tag submission handling
     });
 
   } catch (err) {
@@ -825,6 +830,7 @@ viewTemplate: async (req, res) => {
     });
   }
 }
+
 
 
 

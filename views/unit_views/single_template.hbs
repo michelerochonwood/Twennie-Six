@@ -76,63 +76,61 @@
 {{#if isLeader}}
   <div class="assign-tag-form white-container">
     <h4 class="assign-tag-title">Assign this template to yourself or your group</h4>
-    <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
-      <input type="hidden" name="_csrf" value="{{csrfToken}}">
-      <input type="hidden" id="unitId" value="{{_id}}">
-      <input type="hidden" id="unitType" value="template">
+<form id="assignTagForm" action="/tags/create" method="POST">
+  <input type="hidden" name="_csrf" value="{{csrfToken}}">
+  <input type="hidden" name="itemId" value="{{_id}}">
+  <input type="hidden" name="itemType" value="template">
 
-      <div class="form-field">
-        <label for="tagName">Give the tag a name</label>
-        <input type="text" id="tagName" name="tagName" required>
-      </div>
+  <div class="form-field">
+    <label for="tagName">Give the tag a name</label>
+    <input type="text" id="tagName" name="tagName" required>
+  </div>
 
-      <fieldset class="assign-tag-members">
-        <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
+  <fieldset class="assign-tag-members">
+    <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
 
-        <!-- ✅ Leader self-assignment -->
-        <div class="assign-tag-member-block">
-          <label class="assign-tag-member-label">
-            <input 
-              type="checkbox" 
-              name="assignedTo" 
-              value="{{leaderId}}" 
-              data-name="{{leaderName}}" 
-              onchange="toggleInstructionField(this)">
-            {{leaderName}} (you)
-          </label>
-          <textarea 
-            class="assign-tag-instructions" 
-            name="instructions-{{leaderId}}" 
-            placeholder="Instructions for yourself" 
-            style="display: none;"></textarea>
-        </div>
+    <!-- ✅ Leader self-assignment -->
+    <div class="assign-tag-member-block">
+      <label class="assign-tag-member-label">
+        <input 
+          type="checkbox" 
+          name="assignedTo[{{leaderId}}][member]" 
+          value="{{leaderId}}" 
+          onchange="toggleInstructionField(this)">
+        {{leaderName}} (you)
+      </label>
+      <textarea 
+        class="assign-tag-instructions" 
+        name="assignedTo[{{leaderId}}][instructions]" 
+        placeholder="Instructions for yourself" 
+        style="display: none;"></textarea>
+    </div>
 
-        <!-- Divider -->
-        <hr class="assign-tag-divider">
+    <!-- Divider -->
+    <hr class="assign-tag-divider">
 
-        <!-- 👥 Group members -->
-        {{#each groupMembers}}
-          <div class="assign-tag-member-block">
-            <label class="assign-tag-member-label">
-              <input 
-                type="checkbox" 
-                name="assignedTo" 
-                value="{{_id}}" 
-                data-name="{{name}}" 
-                onchange="toggleInstructionField(this)">
-              {{name}}
-            </label>
-            <textarea 
-              class="assign-tag-instructions" 
-              name="instructions-{{_id}}" 
-              placeholder="Instructions for {{name}}" 
-              style="display: none;"></textarea>
-          </div>
-        {{/each}}
-      </fieldset>
+    <!-- 👥 Group members -->
+    {{#each groupMembers}}
+    <div class="assign-tag-member-block">
+      <label class="assign-tag-member-label">
+        <input 
+          type="checkbox" 
+          name="assignedTo[{{_id}}][member]" 
+          value="{{_id}}" 
+          onchange="toggleInstructionField(this)">
+        {{name}}
+      </label>
+      <textarea 
+        class="assign-tag-instructions" 
+        name="assignedTo[{{_id}}][instructions]" 
+        placeholder="Instructions for {{name}}" 
+        style="display: none;"></textarea>
+    </div>
+    {{/each}}
+  </fieldset>
 
-      <button type="submit" class="form-button submit-button">assign template</button>
-    </form>
+  <button type="submit" class="form-button submit-button">assign template</button>
+</form>
   </div>
 {{/if}}
 
@@ -190,8 +188,7 @@
     <div class="single_template-details">
       <p class="single_template-unit-type">Template</p>
       <p class="single_template-main-topic">Main Topic: {{main_topic}}</p>
-      <p class="single_template-subtitle">Sub Topic(s): {{sub_topic}}</p>
-      <p class="single_template-secondary-topics">{{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</p>
+
 
       {{#if isOwner}}
         <a href="/unitform/edit_template/{{_id}}" class="single_template-edit-btn">edit this unit</a>
@@ -200,4 +197,12 @@
   </aside>
 </div> <!-- Closing .single_template-container -->
 
-
+<script>
+function toggleInstructionField(checkbox) {
+  const memberId = checkbox.value;
+  const textarea = document.querySelector(`textarea[name="assignedTo[${memberId}][instructions]"]`);
+  if (textarea) {
+    textarea.style.display = checkbox.checked ? 'block' : 'none';
+  }
+}
+</script>
