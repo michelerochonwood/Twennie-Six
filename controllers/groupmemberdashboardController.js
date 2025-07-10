@@ -176,14 +176,18 @@ async function fetchTaggedUnits(userId) {
       units.map(unit => {
         const key = `${unit._id.toString()}-${type}`;
         const tag = tagLookup.get(key);
-        return {
-          unitType: type,
-          title: unit[titleField] || `Untitled ${type}`,
-          mainTopic: unit.main_topic || "No topic",
-          _id: unit._id,
-          tagId: tag?._id.toString(),
-          tagIdCreator: tag?.createdBy?.toString()
-        };
+        const assignment = tag?.assignedTo.find(a => a.member.toString() === userId.toString());
+        
+return {
+  unitType: type,
+  title: unit[titleField] || `Untitled ${type}`,
+  mainTopic: unit.main_topic || "No topic",
+  _id: unit._id,
+  tagId: tag?._id.toString(),
+  tagIdCreator: tag?.createdBy?.toString(),
+  instructions: assignment?.instructions || '',
+  completedAt: assignment?.completedAt || null
+};
       });
 
     return [
