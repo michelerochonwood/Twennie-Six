@@ -60,13 +60,14 @@
         </div>
       {{/if}}
 
+      <!-- Assign Form (Leader Only) -->
       {{#if isLeader}}
         <div class="assign-tag-form white-container">
           <h4 class="assign-tag-title">Assign this video to yourself or your group</h4>
-          <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
+          <form id="assignTagForm" action="/tags/create" method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
-            <input type="hidden" id="unitId" value="{{_id}}">
-            <input type="hidden" id="unitType" value="video">
+            <input type="hidden" name="itemId" value="{{_id}}">
+            <input type="hidden" name="itemType" value="video">
 
             <div class="form-field">
               <label for="tagName">Give the tag a name</label>
@@ -76,38 +77,39 @@
             <fieldset class="assign-tag-members">
               <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
 
+              <!-- Leader block -->
               <div class="assign-tag-member-block">
                 <label class="assign-tag-member-label">
-<input 
-  type="checkbox" 
-  name="assignedTo[{{leaderId}}][member]" 
-  value="{{_id}}" 
-  onchange="toggleInstructionField(this)">
+                  <input 
+                    type="checkbox" 
+                    name="assignedTo[{{leaderId}}][member]" 
+                    value="{{leaderId}}" 
+                    onchange="toggleInstructionField(this)">
                   {{leaderName}} (you)
                 </label>
-<textarea 
-  class="assign-tag-instructions" 
-  name="assignedTo[{{leaderId}}][instructions]" 
-  placeholder="Instructions for yourself" 
-  style="display: none;"></textarea>
+                <textarea 
+                  class="assign-tag-instructions" 
+                  name="assignedTo[{{leaderId}}][instructions]" 
+                  placeholder="Instructions for yourself" 
+                  style="display: none;"></textarea>
               </div>
 
               <hr class="assign-tag-divider">
 
+              <!-- Group members -->
               {{#each groupMembers}}
                 <div class="assign-tag-member-block">
                   <label class="assign-tag-member-label">
                     <input 
                       type="checkbox" 
-                      name="assignedTo" 
+                      name="assignedTo[{{_id}}][member]" 
                       value="{{_id}}" 
-                      data-name="{{name}}" 
                       onchange="toggleInstructionField(this)">
                     {{name}}
                   </label>
                   <textarea 
                     class="assign-tag-instructions" 
-                    name="instructions-{{_id}}" 
+                    name="assignedTo[{{_id}}][instructions]" 
                     placeholder="Instructions for {{name}}" 
                     style="display: none;"></textarea>
                 </div>
@@ -119,6 +121,7 @@
         </div>
       {{/if}}
 
+      <!-- Notes Form (Leader and Group Member) -->
       {{#if isGroupMemberOrLeader}}
         <div class="single_video-notes-container">
           <h3 class="single_video-notes-title">record notes</h3>

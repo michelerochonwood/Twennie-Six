@@ -287,11 +287,11 @@ viewVideo: async (req, res) => {
           .select('_id name')
           .lean();
         leaderName = leader.groupLeaderName || leader.username || 'You';
-        console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
+        console.log("🧑‍🧳 Group members found:", groupMembers);
       }
     }
 
-    // ✅ 6. Convert video_content to embedLink
+    // 6. Convert video_content to embedLink
     const embedLink = convertYouTubeToEmbed(video.video_content);
 
     // 7. Render the view
@@ -302,7 +302,7 @@ viewVideo: async (req, res) => {
       short_summary: video.short_summary,
       full_summary: video.full_summary,
       video_content: video.video_content || '',
-      embedLink, // ✅ new YouTube embed URL
+      embedLink,
       video_url: video.video_url || '/images/valuegroupcont.png',
       author: {
         name: author.name || 'Unknown Author',
@@ -313,18 +313,17 @@ viewVideo: async (req, res) => {
       sub_topic: video.sub_topic,
       isOwner,
       isAuthorizedToViewFullContent,
-      isAuthenticated: req.isAuthenticated(),
+      isAuthenticated: !!req.user,
       isLeader: req.user?.membershipType === 'leader',
       isGroupMemberOrLeader:
         req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
       isGroupMemberOrMember:
         req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
       groupMembers,
-      leaderId: req.user._id.toString(),
+      leaderId: req.user?._id.toString(),
       leaderName: leaderName || req.user.username || 'You',
-      csrfToken: req.csrfToken()
+      csrfToken: req.csrfToken(),
     });
-
   } catch (err) {
     console.error('💥 Error fetching video:', err.stack || err.message);
     res.status(500).render('unit_views/error', {
@@ -334,6 +333,7 @@ viewVideo: async (req, res) => {
     });
   }
 },
+
 
 
 
