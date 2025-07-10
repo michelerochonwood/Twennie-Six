@@ -138,7 +138,7 @@ const topicViewMappings = {
 //we have used lean here and it doesn't appear to have caused problems, but lean caused problems elsewhere, so don't use it
 async function fetchTaggedUnits(userId) {
   try {
-    // Only get tags assigned to this group member
+    // Get tags where this user was assigned (by anyone — leader or themself)
     const tags = await Tag.find({ 'assignedTo.member': userId }).lean();
     if (!tags.length) return [];
 
@@ -151,14 +151,14 @@ async function fetchTaggedUnits(userId) {
       template: []
     };
 
-    const tagLookup = new Map(); // key: `${itemId}-${unitType}` → tagId
+    const tagLookup = new Map(); // key: `${itemId}-${unitType}` → tag object
 
     for (const tag of tags) {
       for (const { item, unitType } of tag.associatedUnits || []) {
         if (unitMap[unitType]) {
           const key = `${item.toString()}-${unitType}`;
           unitMap[unitType].push(item.toString());
-          tagLookup.set(key, tag._id.toString());
+          tagLookup.set(key, tag); // Store full tag object
         }
       }
     }
@@ -173,13 +173,18 @@ async function fetchTaggedUnits(userId) {
     ]);
 
     const tagResult = (units, type, titleField) =>
-      units.map(unit => ({
-        unitType: type,
-        title: unit[titleField] || `Untitled ${type}`,
-        mainTopic: unit.main_topic || "No topic",
-        _id: unit._id,
-        tagId: tagLookup.get(`${unit._id.toString()}-${type}`)
-      }));
+      units.map(unit => {
+        const key = `${unit._id.toString()}-${type}`;
+        const tag = tagLookup.get(key);
+        return {
+          unitType: type,
+          title: unit[titleField] || `Untitled ${type}`,
+          mainTopic: unit.main_topic || "No topic",
+          _id: unit._id,
+          tagId: tag?._id.toString(),
+          tagIdCreator: tag?.createdBy?.toString()
+        };
+      });
 
     return [
       ...tagResult(articles, 'article', 'article_title'),
@@ -194,6 +199,7 @@ async function fetchTaggedUnits(userId) {
     return [];
   }
 }
+
 
 
 
@@ -391,7 +397,12 @@ let completedPromptSets = [];
             
             
     
-            const groupMemberTaggedUnits = await fetchTaggedUnits(id);
+const allTaggedUnits = await fetchTaggedUnits(id);
+
+// ✅ Filter units tagged by the group member themself
+const groupMemberTaggedUnits = allTaggedUnits.filter(
+  unit => unit.tagIdCreator === id.toString()
+);
 
 
 let leaderAssignedTags = await Tag.find({ 'assignedTo.member': id }).lean();
