@@ -1106,6 +1106,32 @@ html, body {
   margin-top: 15px;
 }
 
+.group-member-tagged-subsection {
+  margin-bottom: 25px;
+}
+
+.group-member-tagged-subtitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #4e50a2;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.tagged-unit-instructions {
+  font-size: 10px;
+  color: #444;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.tagged-unit-completed {
+  font-size: 10px;
+  color: #262262;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
 
 /*------------------------------------------------------------------------------*/
 

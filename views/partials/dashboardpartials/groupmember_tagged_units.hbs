@@ -1,11 +1,11 @@
 <meta name="csrf-token" content="{{csrfToken}}">
 
-<section class="tagged-units-section">
+<section class="group-member-tagged-units-section">
   <h2 class="tagged-units-title">tagged library units</h2>
 
   <!-- 🔖 Section 1: Units I Tagged Myself -->
-  <div class="tagged-units-subsection">
-    <h3 class="tagged-units-subtitle">my tagged units</h3>
+  <div class="group-member-tagged-subsection">
+    <h3 class="group-member-tagged-subtitle">my tagged units</h3>
     <div class="tagged-units-grid">
       {{#each groupMemberTaggedUnits}}
         <div class="tagged-unit-card">
@@ -16,7 +16,6 @@
             <h3 class="tagged-unit-title">{{title}}</h3>
             <p class="tagged-unit-topic">{{mainTopic}}</p>
           </div>
-          <!-- ✅ Corrected link -->
           <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">
             view unit
           </a>
@@ -28,8 +27,8 @@
   </div>
 
   <!-- 👥 Section 2: Units Tagged by My Leader -->
-  <div class="tagged-units-subsection">
-    <h3 class="tagged-units-subtitle">units tagged by my leader</h3>
+  <div class="group-member-tagged-subsection">
+    <h3 class="group-member-tagged-subtitle">units tagged by my leader</h3>
     <div class="tagged-units-grid">
       {{#each leaderAssignedTags}}
         <div class="tagged-unit-card">
@@ -43,7 +42,6 @@
               <p class="tagged-unit-instructions"><em>Instructions:</em> {{instructions}}</p>
             {{/if}}
           </div>
-          <!-- ✅ Corrected link -->
           <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">
             view unit
           </a>
@@ -55,8 +53,8 @@
   </div>
 
   <!-- ✅ Completed Units Section -->
-  <div class="tagged-units-subsection">
-    <h3 class="tagged-units-subtitle">completed leader-assigned units</h3>
+  <div class="group-member-tagged-subsection">
+    <h3 class="group-member-tagged-subtitle">completed leader-assigned units</h3>
     <div class="tagged-units-grid">
       {{#each completedLeaderAssignedTags}}
         <div class="tagged-unit-card">
@@ -68,7 +66,6 @@
             <p class="tagged-unit-topic">{{mainTopic}}</p>
             <p class="tagged-unit-completed"><strong>Completed:</strong> {{completedAt}}</p>
           </div>
-          <!-- ✅ Corrected link -->
           <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">
             review unit
           </a>
@@ -79,6 +76,7 @@
     </div>
   </div>
 </section>
+
 
 
 
