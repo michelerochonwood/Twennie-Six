@@ -5,12 +5,16 @@ const GroupMember = require('../models/member_models/group_member');
 
 exports.createTag = async (req, res) => {
   try {
-    const { name, itemId, itemType } = req.body;
+    const { tagName, itemId, itemType } = req.body;
     const assignedToRaw = req.body.assignedTo || {};
     const normalizedAssignedTo = Object.values(assignedToRaw);
 
     if (!req.user) {
       return res.status(401).json({ message: 'User must be logged in to create tags.' });
+    }
+
+    if (!tagName || !itemId || !itemType) {
+      return res.status(400).json({ message: 'Tag name, item ID, and item type are required.' });
     }
 
     const userId = req.user._id;
@@ -26,15 +30,11 @@ exports.createTag = async (req, res) => {
       return res.status(403).json({ message: 'Invalid user. Unable to create a tag.' });
     }
 
-    if (!name || !itemId || !itemType) {
-      return res.status(400).json({ message: 'Tag name, item ID, and item type are required.' });
-    }
-
-    let tag = await Tag.findOne({ name });
+    let tag = await Tag.findOne({ name: tagName });
 
     if (!tag) {
       tag = new Tag({
-        name: name.trim(),
+        name: tagName.trim(),
         createdBy: userId,
         createdByModel: userModel,
         associatedUnits: itemType !== 'topic' ? [{ item: itemId, unitType: itemType }] : [],
@@ -55,7 +55,7 @@ exports.createTag = async (req, res) => {
       }
     }
 
-    // ✅ Handle assignments for leaders (form or AJAX)
+    // ✅ Handle leader assignment
     if (userModel === 'leader' && normalizedAssignedTo.length > 0) {
       const newAssignments = [];
 
@@ -78,7 +78,6 @@ exports.createTag = async (req, res) => {
       await tag.save();
 
       const isFormRequest = req.headers.accept?.includes('text/html');
-
       if (isFormRequest) {
         return res.render('unit_views/assign_success', {
           layout: 'unitviewlayout'
@@ -88,7 +87,7 @@ exports.createTag = async (req, res) => {
       }
     }
 
-    // ✅ If not an assignment, just tag normally
+    // ✅ Regular self-tag (no assignment)
     await tag.save();
     return res.status(200).json({ message: 'Tag saved successfully.', tag });
 
@@ -143,19 +142,16 @@ exports.removeTag = async (req, res) => {
     const userRole = req.user.role || req.user.accountType || req.user.membershipType || req.user.modelType;
 
     const tag = await Tag.findById(tagId);
-
     if (!tag) {
       return res.status(404).json({ message: 'Tag not found.' });
     }
 
     const tagCreatorId = tag.createdBy.toString();
-
     if (userId !== tagCreatorId && req.user.createdByModel === 'group_member') {
       console.warn(`🚫 Group member ${userId} attempted to remove tag created by ${tagCreatorId}`);
       return res.status(403).json({ message: 'Group members can only remove tags they created.' });
     }
 
-    // Remove topic or unit association
     if (itemType === 'topic') {
       tag.associatedTopics = tag.associatedTopics.filter(id => id.toString() !== itemId);
     } else {
