@@ -2374,7 +2374,7 @@ html, body {
 /* ✅ Grid Layout for Topics */
 .leader-topics-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
   justify-content: center;
   margin-top: 20px;
@@ -2382,15 +2382,16 @@ html, body {
 
 /* ✅ Individual Topic Card */
 .leader-topic-card {
-  background: rgb(245, 245, 245); /* Light background */
+  background: rgb(245, 245, 245);
   padding: 20px;
-  text-align: center;
-  position: relative;
   border-radius: 10px;
   box-shadow: 3px 6px 12px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
+  min-height: 350px; /* Ensure all cards are equal height */
+  text-align: center;
 }
 
 /* ✅ Topic Title */
@@ -2398,7 +2399,6 @@ html, body {
   color: #262262;
   font-size: 1rem;
   font-weight: 800;
-  text-align: center;
   margin-bottom: 12px;
 }
 
@@ -2406,32 +2406,31 @@ html, body {
 .leader-topic-subtopics {
   list-style: none;
   padding: 0;
-  margin: 0;
-  width: 80%;
+  margin: 0 auto;
   font-size: 0.7rem;
-  text-align: center;
-  max-width: 90%;
+  width: 100%;
+  flex-grow: 1; /* Takes vertical space to push button to bottom */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 /* ✅ Subtopic List Items */
 .leader-topic-subtopics li {
   padding: 8px 0;
-  font-size: 0.7rem;
-  position: relative;
-  text-align: center;
   color: #333;
+  font-size: 0.7rem;
 }
 
 /* ✅ Horizontal Line Between Subtopics */
 .leader-topic-subtopics li:not(:last-child) {
-  border-bottom: 1px solid #ccc; /* Thin gray line */
+  border-bottom: 1px solid #ccc;
   width: 90%;
   margin: 0 auto;
 }
 
 /* ✅ Review Button */
 .leader-topic-review {
-  display: inline-block;
   margin-top: 15px;
   color: #fff;
   background: #262262;
@@ -2448,6 +2447,12 @@ html, body {
 .leader-topic-review:hover {
   background: #4a4ab2;
 }
+
+.leader-topic-subtopics {
+  max-height: 160px;
+  overflow-y: auto;
+}
+
 
 
 
