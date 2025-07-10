@@ -6,6 +6,7 @@ const Exercise = require('../models/unit_models/exercise');
 const GroupMember = require('../models/member_models/group_member');
 const Leader = require('../models/member_models/leader');
 const Template = require('../models/unit_models/template.js');
+const Tag = require('../models/tag');
 
 
 
@@ -54,6 +55,21 @@ exports.createNote = async (req, res) => {
 
 // ✅ Also mark the corresponding leader-assigned tag as completed
 await newNote.save();
+
+await Tag.updateMany(
+  {
+    associatedUnits: { $elemMatch: { item: unitId } },
+    'assignedTo.member': userId
+  },
+  {
+    $set: {
+      'assignedTo.$[elem].completedAt': new Date()
+    }
+  },
+  {
+    arrayFilters: [{ 'elem.member': userId }]
+  }
+);
 
 const dashboardLink = isGroupMember ? "/dashboard/groupmember" : "/dashboard/leader";
 
