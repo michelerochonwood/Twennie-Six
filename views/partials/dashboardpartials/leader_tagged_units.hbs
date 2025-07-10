@@ -15,12 +15,10 @@
           <p class="tagged-unit-topic">{{mainTopic}}</p>
         </div>
 
-        <!-- ✅ Correct view unit link for leader -->
         <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">
           view unit
         </a><br>
 
-        <!-- 🗑️ Remove Tag Button -->
         <button 
           class="tag-remove-btn" 
           onclick="removeTag('{{tagId}}', '{{_id}}', '{{unitType}}')">
@@ -29,6 +27,34 @@
       </div>
     {{else}}
       <p class="tagged-no-units">You have no tagged units.</p>
+    {{/each}}
+  </div>
+</section>
+
+<section class="leader-assigned-units-section">
+  <h2 class="tagged-units-title">assigned units</h2>
+  <div class="tagged-units-grid">
+    {{#each leaderAssignedUnits}}
+      <div class="leader-assigned-unit-card">
+        <div class="tagged-unit-icon">
+          <img src="/icons/{{unitType}}.svg" alt="{{unitType}} icon">
+        </div>
+
+        <div class="tagged-unit-info">
+          <h3 class="tagged-unit-title">{{title}}</h3>
+          <p class="tagged-unit-topic">{{mainTopic}}</p>
+          <p class="leader-assigned-to">assigned to: {{assignedTo.name}}</p>
+          <p class="leader-assigned-status">
+            {{#if completed}}✅ completed{{else}}⏳ pending{{/if}}
+          </p>
+        </div>
+
+        <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">
+          view unit
+        </a>
+      </div>
+    {{else}}
+      <p class="tagged-no-units">You have no assigned units.</p>
     {{/each}}
   </div>
 </section>
@@ -62,5 +88,6 @@
     }
   }
 </script>
+
 
 

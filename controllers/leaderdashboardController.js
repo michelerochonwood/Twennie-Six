@@ -15,6 +15,7 @@ const fs = require('fs'); // ✅ Ensure file system functions work
 const PromptSetCompletion = require('../models/prompt_models/promptsetcompletion');
 const LeaderProfile = require('../models/profile_models/leader_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
+const Note = require('../models/notes/notes');
 
 
 
@@ -97,6 +98,60 @@ async function fetchTaggedUnits(userId) {
   }
 }
 
+
+
+const getModelByUnitType = (type) => {
+  switch (type) {
+    case 'article': return Article;
+    case 'video': return Video;
+    case 'interview': return Interview;
+    case 'exercise': return Exercise;
+    case 'template': return Template;
+    default: return null;
+  }
+};
+
+async function buildLeaderAssignedUnits(leaderId) {
+  const assignedTags = await Tag.find({
+    createdBy: leaderId,
+    assignedTo: { $exists: true, $ne: [] },
+  }).lean();
+
+  const leaderAssignedUnits = [];
+
+  for (const tag of assignedTags) {
+    for (const { item, unitType } of tag.associatedUnits || []) {
+      if (unitType === 'promptset' || unitType === 'prompt') continue;
+
+      const Model = getModelByUnitType(unitType);
+      if (!Model) continue;
+
+      const unit = await Model.findById(item).lean();
+      if (!unit) continue;
+
+      for (const assignee of tag.assignedTo) {
+        const member = await GroupMember.findById(assignee.member).select('name').lean();
+        if (!member) continue;
+
+        const note = await Note.findOne({
+          unitID: item,
+          memberID: assignee.member,
+        });
+
+        leaderAssignedUnits.push({
+          _id: item,
+          unitType,
+          title: unit.article_title || unit.video_title || unit.interview_title || unit.exercise_title || unit.template_title || "Untitled",
+          mainTopic: unit.main_topic || "No topic",
+          assignedTo: { name: member.name },
+          completed: !!note,
+        });
+      }
+    }
+  }
+
+  return leaderAssignedUnits;
+}
 
 const topicMappings = {
     'AI in Consulting': 'aiinconsulting',
@@ -475,11 +530,12 @@ const formattedCompletedSets = completedRecords.map(record => ({
     badge: record.earnedBadge // This should now contain an object with { image, name }
 }));
 
+const leaderAssignedUnits = await buildLeaderAssignedUnits(id);
 
 return res.render('leader_dashboard', {
   layout: 'dashboardlayout',
   title: 'Leader Dashboard',
-  csrfToken: req.csrfToken(), // ✅ Add this line
+  csrfToken: req.csrfToken(),
   leader: {
     ...userData,
     profileImage: leaderProfile?.profileImage || '/images/default-avatar.png'
@@ -489,12 +545,14 @@ return res.render('leader_dashboard', {
   leaderUnits,
   groupMemberUnits,
   leaderTaggedUnits,
+  leaderAssignedUnits, // ✅ Added here
   registeredPromptSets: leaderPrompts,
   promptSchedules,
   currentPromptSets,
   completedPromptSets: formattedCompletedSets,
   selectedTopics
 });
+
 
 
 

@@ -994,83 +994,94 @@ html, body {
 
 
 
-/* Tagged Units Section */
-.tagged-units-section {
-  padding: 15px; /* Reduced from 20px */
+/* Leader Tagged & Assigned Units Section */
+.tagged-units-section,
+.leader-assigned-units-section {
+  padding: 15px;
   background-color: rgb(230, 230, 230);
-  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.2); /* Reduced from 2px 4px */
-  border-radius: 6px; /* Reduced from 8px */
-  margin-bottom: 15px; /* Reduced from 20px */
-  /* width: 91%; */
+  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  margin-bottom: 15px;
   margin: 0 auto;
 }
 
 .tagged-units-title {
-  font-size: 18px; /* Reduced from 24px */
+  font-size: 18px;
   font-weight: bold;
-  margin-bottom: 15px; /* Reduced from 20px */
+  margin-bottom: 15px;
   color: #262262;
   text-align: center;
 }
 
-.tagged-units-subtitle {
-  font-size: 0.9rem;
-  color:#4a4ab2;
-  font-weight: 800;
-  margin-bottom: 10px;
-  text-align: left;
-}
-
 .tagged-units-grid {
   display: grid;
-  /* grid-template-columns: repeat(6, 1fr); */
   grid-template-columns: repeat(4, 1fr);
-  gap: 11.25px; /* Reduced from 15px */
+  gap: 11.25px;
   justify-content: center;
   align-items: stretch;
 }
 
-.tagged-unit-card {
+/* Common Card Styles */
+.tagged-unit-card,
+.leader-assigned-unit-card {
   background-color: #cfcece;
-  border-radius: 6px; /* Reduced from 8px */
-  padding: 11.25px; /* Reduced from 15px */
+  border-radius: 6px;
+  padding: 11.25px;
   text-align: center;
   transition: transform 0.2s ease-in-out;
 }
 
-.tagged-unit-card:hover {
+.tagged-unit-card:hover,
+.leader-assigned-unit-card:hover {
   transform: scale(1.05);
 }
 
+/* Icons */
 .tagged-unit-icon img {
-  width: 37.5px; /* Reduced from 50px */
-  height: 37.5px; /* Reduced from 50px */
-  margin-bottom: 7.5px; /* Reduced from 10px */
+  width: 37.5px;
+  height: 37.5px;
+  margin-bottom: 7.5px;
 }
 
+/* Text Info */
 .tagged-unit-info {
-  font-size: 10.5px; /* Reduced from 14px */
+  font-size: 10.5px;
   color: #555;
 }
 
 .tagged-unit-title {
-  font-size: 12px; /* Reduced from 16px */
+  font-size: 12px;
   font-weight: bold;
   color: #4a4ab2;
-  margin-bottom: 3.75px; /* Reduced from 5px */
+  margin-bottom: 3.75px;
 }
 
 .tagged-unit-topic {
-  font-size: 10.5px; /* Reduced from 14px */
+  font-size: 10.5px;
   color: #777;
-  margin-bottom: 7.5px; /* Reduced from 10px */
+  margin-bottom: 7.5px;
 }
 
-.tagged-unit-link, .tag-remove-btn {
+.leader-assigned-to {
+  font-size: 10px;
+  color: #444;
+  margin-bottom: 5px;
+}
+
+.leader-assigned-status {
+  font-size: 10px;
+  font-weight: 700;
+  color: #262262;
+  margin-bottom: 5px;
+}
+
+/* Buttons */
+.tagged-unit-link,
+.tag-remove-btn {
   display: inline-block;
   font-family: "Figtree";
-  padding: 6px 9px; /* Reduced from 8px 12px */
-  font-size: 9px; /* Reduced from 12px */
+  padding: 6px 9px;
+  font-size: 9px;
   font-weight: bold;
   color: #fff;
   background-color: #262262;
@@ -1079,22 +1090,20 @@ html, body {
   cursor: pointer;
   text-align: center;
   text-decoration: none;
-  margin-top: 7.5px; /* Reduced from 10px */
+  margin-top: 7.5px;
 }
 
-.tagged-unit-link:hover {
-  background-color: #4a4ab2;
-}
-
+.tagged-unit-link:hover,
 .tag-remove-btn:hover {
   background-color: #4a4ab2;
 }
 
+/* No Units Message */
 .tagged-no-units {
   text-align: center;
-  font-size: 12px; /* Reduced from 16px */
+  font-size: 12px;
   color: #777;
-  margin-top: 15px; /* Reduced from 20px */
+  margin-top: 15px;
 }
 
 
