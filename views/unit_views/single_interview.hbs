@@ -209,7 +209,7 @@ function toggleSidebarContent(element) {
 
 function toggleInstructionField(checkbox) {
   const memberId = checkbox.value;
-  const textarea = document.querySelector(`textarea[name="instructions-" + memberId]`);
+  const textarea = document.querySelector(`textarea[name="instructions-${memberId}"]`);
   if (textarea) {
     textarea.style.display = checkbox.checked ? 'block' : 'none';
   }
