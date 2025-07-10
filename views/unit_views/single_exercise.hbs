@@ -125,22 +125,21 @@
 
         <!-- 👥 Group members -->
         {{#each groupMembers}}
-          <div class="assign-tag-member-block">
-            <label class="assign-tag-member-label">
-              <input 
-                type="checkbox" 
-                name="assignedTo" 
-                value="{{_id}}" 
-                data-name="{{name}}" 
-                onchange="toggleInstructionField(this)">
-              {{name}}
-            </label>
-            <textarea 
-              class="assign-tag-instructions" 
-              name="instructions-{{_id}}" 
-              placeholder="Instructions for {{name}}" 
-              style="display: none;"></textarea>
-          </div>
+<div class="assign-tag-member-block">
+  <label class="assign-tag-member-label">
+    <input 
+      type="checkbox" 
+      name="assignedTo[{{_id}}][member]" 
+      value="{{_id}}" 
+      onchange="toggleInstructionField(this)">
+    {{name}}
+  </label>
+  <textarea 
+    class="assign-tag-instructions" 
+    name="assignedTo[{{_id}}][instructions]" 
+    placeholder="Instructions for {{name}}" 
+    style="display: none;"></textarea>
+</div>
         {{/each}}
       </fieldset>
 
