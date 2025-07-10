@@ -70,10 +70,10 @@
       {{#if isLeader}}
         <div class="assign-tag-form white-container">
           <h4 class="assign-tag-title">Assign this interview to yourself or your group</h4>
-          <form id="assignTagForm" onsubmit="submitAssignedTag(event)">
+          <form id="assignTagForm" action="/tags/create" method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
-            <input type="hidden" id="unitId" value="{{_id}}">
-            <input type="hidden" id="unitType" value="interview">
+            <input type="hidden" name="itemId" value="{{_id}}">
+            <input type="hidden" name="itemType" value="interview">
 
             <div class="form-field">
               <label for="tagName">Give the tag a name</label>
@@ -87,15 +87,14 @@
                 <label class="assign-tag-member-label">
                   <input 
                     type="checkbox" 
-                    name="assignedTo" 
+                    name="assignedTo[{{leaderId}}][member]" 
                     value="{{leaderId}}" 
-                    data-name="{{leaderName}}" 
                     onchange="toggleInstructionField(this)">
                   {{leaderName}} (you)
                 </label>
                 <textarea 
                   class="assign-tag-instructions" 
-                  name="instructions-{{leaderId}}" 
+                  name="assignedTo[{{leaderId}}][instructions]" 
                   placeholder="Instructions for yourself" 
                   style="display: none;"></textarea>
               </div>
@@ -107,15 +106,14 @@
                   <label class="assign-tag-member-label">
                     <input 
                       type="checkbox" 
-                      name="assignedTo" 
+                      name="assignedTo[{{_id}}][member]" 
                       value="{{_id}}" 
-                      data-name="{{name}}" 
                       onchange="toggleInstructionField(this)">
                     {{name}}
                   </label>
                   <textarea 
                     class="assign-tag-instructions" 
-                    name="instructions-{{_id}}" 
+                    name="assignedTo[{{_id}}][instructions]" 
                     placeholder="Instructions for {{name}}" 
                     style="display: none;"></textarea>
                 </div>
@@ -149,7 +147,6 @@
 
   <!-- Sidebar -->
   <aside class="single_interview-sidebar">
-    <!-- Icon -->
     <div style="text-align: center; margin-bottom: 1rem;">
       <img 
         src="/images/20mins.svg" 
@@ -159,7 +156,6 @@
         style="display: inline-block;">
     </div>
 
-    <!-- Toggle -->
     <div class="single_interview-sidebar-toggle" onclick="toggleSidebarContent(this)">
       <svg class="single_interview-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
         <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
@@ -167,7 +163,6 @@
       </svg>
     </div>
 
-    <!-- Hidden Sidebar Content -->
     <div class="single_interview-sidebar-content hidden">
       <p class="single_interview-title-sidebar">{{interview_title}}</p>
       <div class="single_interview-author">
@@ -209,7 +204,7 @@ function toggleSidebarContent(element) {
 
 function toggleInstructionField(checkbox) {
   const memberId = checkbox.value;
-  const textarea = document.querySelector(`textarea[name="instructions-${memberId}"]`);
+  const textarea = document.querySelector(`textarea[name="assignedTo[${memberId}][instructions]"]`);
   if (textarea) {
     textarea.style.display = checkbox.checked ? 'block' : 'none';
   }
