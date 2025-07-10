@@ -473,7 +473,13 @@ console.log("Selected Topics for Leader:", selectedTopics);
 
             
 
-            const leaderTaggedUnits = await fetchTaggedUnits(id);
+            const allLeaderTaggedUnits = await fetchTaggedUnits(id);
+
+// Only show units the leader tagged for themselves, not ones they assigned
+const leaderTaggedUnits = allLeaderTaggedUnits.filter(unit =>
+  unit.tagIdCreator === id.toString() &&
+  !unit.assignedTo
+);
 
             const [leaderArticles, leaderVideos, leaderPromptSets, leaderInterviews, leaderExercises, leaderTemplates] = await Promise.all([
                 Article.find({ 'author.id': id }),

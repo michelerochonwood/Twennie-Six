@@ -204,12 +204,13 @@
     }
   }
 
-  function toggleInstructionField(checkbox) {
-    const memberId = checkbox.value;
-    const textarea = document.querySelector(`textarea[name="instructions-${memberId}"]`);
-    if (textarea) {
-      textarea.style.display = checkbox.checked ? 'block' : 'none';
-    }
+function toggleInstructionField(checkbox) {
+  const memberId = checkbox.value;
+  const selector = `textarea[name="assignedTo[${memberId}][instructions]"]`;
+  const textarea = document.querySelector(selector);
+  if (textarea) {
+    textarea.style.display = checkbox.checked ? 'block' : 'none';
   }
+}
 </script>
 
