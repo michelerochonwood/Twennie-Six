@@ -222,7 +222,7 @@ submitArticle: async (req, res) => {
       _id,
       article_title,
       main_topic,
-      secondary_topics = [],
+      secondary_topics,
       sub_topic,
       articleBody,
       short_summary,
@@ -273,10 +273,20 @@ submitArticle: async (req, res) => {
       normalizedBooleans[field] = req.body[field] === 'on';
     });
 
+    // ✅ Normalize optional secondary topic (single string or empty)
+    let parsedSecondaryTopics = [];
+    if (
+      secondary_topics &&
+      typeof secondary_topics === 'string' &&
+      secondary_topics.trim() !== ''
+    ) {
+      parsedSecondaryTopics = [secondary_topics];
+    }
+
     const articleData = {
       article_title,
       main_topic,
-      secondary_topics: Array.isArray(secondary_topics) ? secondary_topics : [secondary_topics],
+      secondary_topics: parsedSecondaryTopics,
       sub_topic,
       article_body: cleanHtml,
       short_summary,
@@ -359,6 +369,7 @@ submitArticle: async (req, res) => {
     });
   }
 },
+
 
 
 
