@@ -81,8 +81,8 @@ const topicMappings = {
     'Storytelling in Technical Marketing': 'storytellingintechnicalmarketing',
     'Client Experience': 'clientexperience',
     'Social Media, Advertising, and Other Mysteries': 'socialmediaadvertisingandothermysteries',
+    'Pull Marketing': 'pullmarketing',
     'Emotional Intelligence': 'emotionalintelligence',
-    'Diversity and Inclusion in Consulting': 'diversityandinclusioninconsulting',
     'People Before Profit': 'peoplebeforeprofit',
     'Non-Technical Roles in Technical Environments': 'nontechnicalrolesintechnicalenvironments',
     'Leadership in Technical Services': 'leadershipintechnicalservices',
@@ -106,12 +106,11 @@ const topicViewMappings = {
     'aiinprojectmanagement': 'single_topic_aiprojectmgmt',
     'businessdevelopmentintechnicalservices': 'single_topic_bd',
     'findingprojectsbeforetheybecomerfps': 'single_topic_findingprojects',
-    'uncommoditizingbydelivering': 'uncommoditizingbydelivering',
+    'uncommoditizingbydeliveringwhatclientstrulyvalue': 'uncommoditizingbydelivering',
     'careerdevelopmentintechnicalservices': 'single_topic_careerdev',
     'clientexperience': 'single_topic_clientex',
     'clientfeedbacksoftware': 'single_topic_clientfeedback',
     'crmplatforms': 'single_topic_crm',
-    'diversityandinclusioninconsulting': 'single_topic_diversity',
     'emotionalintelligence': 'single_topic_emotionali',
     'employeeexperience': 'single_topic_employeeex',
     'theadvantageoffailure': 'single_topic_failure',
@@ -132,6 +131,7 @@ const topicViewMappings = {
     'softskillsintechnicalenvironments': 'single_topic_softskills',
     'storytellingintechnicalmarketing': 'single_topic_storytelling',
     'teambuildingintechnicalconsulting': 'single_topic_teambuilding',
+    'pullmarketing': 'single_topic_pullmarketing',
     'workplaceculture': 'single_topic_workplaceculture'
 };
 

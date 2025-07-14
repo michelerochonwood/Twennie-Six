@@ -92,6 +92,7 @@ exports.getTopicView = async (req, res) => {
             'Storytelling in Technical Marketing': 'storytellingintechnicalmarketing',
             'Client Experience': 'clientexperience',
             'Social Media, Advertising, and Other Mysteries': 'socialmediaadvertisingandothermysteries',
+            'Pull Marketing': 'pullmarketing',
             'Emotional Intelligence': 'emotionalintelligence',
             'Diversity and Inclusion in Consulting': 'diversityandinclusioninconsulting',
             'People Before Profit': 'peoplebeforeprofit',
