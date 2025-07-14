@@ -79,11 +79,7 @@ router.get('/edit_article/:id', ensureAuthenticated, async (req, res) => {
       'AI in Learning',
     ];
 
-    // Ensure all topics (both selected and unselected) are available
-    const secondaryTopics = mainTopics.map((topic) => ({
-      name: topic,
-      selected: article.secondary_topics?.includes(topic) || false,
-    }));
+
 
     // Word count
     const plainText = article.article_body.replace(/<[^>]*>/g, ' ').trim();
@@ -97,21 +93,20 @@ router.get('/edit_article/:id', ensureAuthenticated, async (req, res) => {
           url: '/images/default-article.png',
         };
 
-    res.render('unit_form_views/form_article', {
-      layout: 'unitformlayout',
-      data: {
-        ...article.toObject(),
-        image, // ensures `data.image.url` always exists in the view
-        author: {
-          name: article.author?.id?.name || 'Unknown Author',
-          image: article.author?.id?.profileImage || '/images/default-avatar.png',
-        },
-      },
-      word_count: wordCount,
-      mainTopics,
-      secondaryTopics,
-      csrfToken: isDevelopment ? null : req.csrfToken(),
-    });
+res.render('unit_form_views/form_article', {
+  layout: 'unitformlayout',
+  data: {
+    ...article.toObject(),
+    image,
+    author: {
+      name: article.author?.id?.name || 'Unknown Author',
+      image: article.author?.id?.profileImage || '/images/default-avatar.png',
+    },
+  },
+  word_count: wordCount,
+  mainTopics,
+  csrfToken: isDevelopment ? null : req.csrfToken(),
+});
   } catch (error) {
     console.error(`Error loading edit form for article ID ${req.params.id}:`, error);
     res.status(500).render('unit_form_views/error', {
