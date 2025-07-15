@@ -16,7 +16,7 @@ const path = require('path');
 const MemberProfile = require('../models/profile_models/member_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const LeaderProfile = require('../models/profile_models/leader_profile');
-const TopicSuggestion = require('../models/topics/topic_suggestion');
+const TopicSuggestion = require('../models/topic/topic_suggestion');
 
 
 
