@@ -12,7 +12,7 @@ const path = require('path'); // ✅ Fix for "ReferenceError: path is not define
 const fs = require('fs'); // ✅ Ensure file system functions work
 const MemberProfile = require('../models/profile_models/member_profile');
 const PromptSetCompletion = require('../models/prompt_models/promptsetcompletion');
-const TopicSuggestion = require('../models/topics/topic_suggestion');
+const TopicSuggestion = require('../models/topic/topic_suggestion');
 
 
  
