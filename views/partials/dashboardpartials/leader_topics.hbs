@@ -49,17 +49,17 @@
     </div>
 </div>
 
-{{#if topicSuggestions.length}}
-  <div class="leader-topic-suggestion-card">
+<div class="leader-topic-suggestion-card">
+  {{#if topicSuggestions.length}}
     {{#each topicSuggestions}}
       <h4 class="leader-topic-suggestion-title">{{this.topicTitle}}</h4>
       <p class="leader-topic-suggestion-meta">
         Submitted on {{formatDate this.submittedAt}} |
         {{#if this.approved}}
-          ✅ Approved<br>
+          <span class="approved">✅ Approved</span><br>
           Estimated library release: {{formatDate this.expectedLibraryDate}}
         {{else}}
-          🕓 Approval pending
+          <span class="pending">🕓 Approval pending</span>
         {{/if}}
       </p>
       <div class="leader-topic-suggestion-grid">
@@ -68,7 +68,21 @@
         <div class="leader-topic-suggestion-col">{{this.paragraph3}}</div>
       </div>
     {{/each}}
+  {{else}}
+    <h4 class="leader-topic-suggestion-title">No Suggestions Yet</h4>
+    <p class="leader-topic-suggestion-meta">You have not suggested any new topics for Twennie’s library.</p>
+  {{/if}}
+
+  <!-- Always show this call-to-action -->
+  <div class="topic-grid-center" style="margin-top: 30px;">
+    <div class="topic-item">
+      <h3>suggest a new topic</h3>
+      <p>Have an idea that would benefit Twennie members? We’d love to hear it. Use the form to propose a new topic for future learning content.</p>
+      <a href="/topics/suggest" class="suggest-topic-button">submit a topic</a>
+    </div>
   </div>
-{{/if}}
+</div>
+
+
 
 
