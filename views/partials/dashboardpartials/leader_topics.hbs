@@ -52,7 +52,7 @@
 <div class="leader-topic-suggestion-card">
   {{#if topicSuggestions.length}}
     {{#each topicSuggestions}}
-      <h4 class="leader-topic-suggestion-title">{{this.topicTitle}}</h4>
+      <h4 class="leader-topic-suggestion-title">suggested new topic:{{this.topicTitle}}</h4>
       <p class="leader-topic-suggestion-meta">
         Submitted on {{formatDate this.submittedAt}} |
         {{#if this.approved}}
