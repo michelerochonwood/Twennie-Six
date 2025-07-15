@@ -16,6 +16,7 @@ const PromptSetCompletion = require('../models/prompt_models/promptsetcompletion
 const LeaderProfile = require('../models/profile_models/leader_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const Note = require('../models/notes/notes');
+const TopicSuggestion = require('../models/topic/topic_suggestion');
 
 
 
@@ -317,6 +318,12 @@ module.exports = {
             })
             .lean();
             const leaderProfile = await LeaderProfile.findOne({ leaderId: id }).select('profileImage');
+
+            const topicSuggestions = await TopicSuggestion.find({
+            suggestedBy: id,
+            memberType: 'Leader' // This ensures it's scoped to leaders only
+
+}).sort({ submittedAt: -1 }).lean();
             const resolvedGroupMembers = await Promise.all(
   (userData.members || []).map(async (member) => {
     const profile = await GroupMemberProfile.findOne({ memberId: member._id }).select('profileImage');
@@ -540,6 +547,8 @@ const formattedCompletedSets = completedRecords.map(record => ({
 
 const leaderAssignedUnits = await buildLeaderAssignedUnits(id);
 
+
+
 return res.render('leader_dashboard', {
   layout: 'dashboardlayout',
   title: 'Leader Dashboard',
@@ -553,13 +562,15 @@ return res.render('leader_dashboard', {
   leaderUnits,
   groupMemberUnits,
   leaderTaggedUnits,
-  leaderAssignedUnits, // ✅ Added here
+  leaderAssignedUnits,
   registeredPromptSets: leaderPrompts,
   promptSchedules,
   currentPromptSets,
   completedPromptSets: formattedCompletedSets,
-  selectedTopics
+  selectedTopics,
+  topicSuggestions // ✅ Add here
 });
+
 
 
 

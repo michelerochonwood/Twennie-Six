@@ -49,4 +49,26 @@
     </div>
 </div>
 
+{{#if topicSuggestions.length}}
+  <div class="leader-topic-suggestion-card">
+    {{#each topicSuggestions}}
+      <h4 class="leader-topic-suggestion-title">{{this.topicTitle}}</h4>
+      <p class="leader-topic-suggestion-meta">
+        Submitted on {{formatDate this.submittedAt}} |
+        {{#if this.approved}}
+          ✅ Approved<br>
+          Estimated library release: {{formatDate this.expectedLibraryDate}}
+        {{else}}
+          🕓 Approval pending
+        {{/if}}
+      </p>
+      <div class="leader-topic-suggestion-grid">
+        <div class="leader-topic-suggestion-col">{{this.paragraph1}}</div>
+        <div class="leader-topic-suggestion-col">{{this.paragraph2}}</div>
+        <div class="leader-topic-suggestion-col">{{this.paragraph3}}</div>
+      </div>
+    {{/each}}
+  </div>
+{{/if}}
+
 
