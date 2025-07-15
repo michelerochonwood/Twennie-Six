@@ -16,6 +16,7 @@ const path = require('path');
 const MemberProfile = require('../models/profile_models/member_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const LeaderProfile = require('../models/profile_models/leader_profile');
+const TopicSuggestion = require('../models/topics/topic_suggestion');
 
 
 
@@ -420,7 +421,10 @@ const completedLeaderAssignedTags = allTaggedUnits.filter(
 );
 
 
-
+const topicSuggestions = await TopicSuggestion.find({
+  suggestedBy: id,
+  memberType: 'GroupMember'
+}).sort({ submittedAt: -1 }).lean();
 
 
     
@@ -567,8 +571,9 @@ return res.render('groupmember_dashboard', {
   selectedTopics,
   leaderName: leader ? leader.groupLeaderName : "Group Leader",
   organization: leader?.organization || 'Unknown',
-leaderAssignedTags,
-completedLeaderAssignedTags,
+  leaderAssignedTags,
+  completedLeaderAssignedTags,
+  topicSuggestions // ✅ Add this here
 });
 
         

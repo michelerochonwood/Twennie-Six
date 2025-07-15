@@ -12,6 +12,7 @@ const path = require('path'); // ✅ Fix for "ReferenceError: path is not define
 const fs = require('fs'); // ✅ Ensure file system functions work
 const MemberProfile = require('../models/profile_models/member_profile');
 const PromptSetCompletion = require('../models/prompt_models/promptsetcompletion');
+const TopicSuggestion = require('../models/topics/topic_suggestion');
 
 
  
@@ -225,6 +226,10 @@ module.exports = {
             .lean();
             const memberProfile = await MemberProfile.findOne({ memberId: id }).select('profileImage');
 
+            const topicSuggestions = await TopicSuggestion.find({
+            suggestedBy: id,
+            memberType: 'Member'
+            }).sort({ submittedAt: -1 }).lean();
 
             const accessLevelLabels = {
                 free_individual: 'Free',
@@ -401,7 +406,7 @@ console.log("🔍 Selected Topics for Member Dashboard:", selectedTopics);
 return res.render("member_dashboard", {
   layout: "dashboardlayout",
   title: "Member Dashboard",
-  csrfToken: req.csrfToken(), // ✅ This is required!
+  csrfToken: req.csrfToken(),
   member: {
     ...userData,
     profileImage: memberProfile?.profileImage || '/images/default-avatar.png',
@@ -410,13 +415,14 @@ return res.render("member_dashboard", {
     accessLevelLabel
   },
   memberUnits,
-  recentTaggedUnits: await fetchTaggedUnits(id), // ← changed key here
+  recentTaggedUnits: await fetchTaggedUnits(id),
   registeredPromptSets,
   promptSet: registeredPromptSets[0] || null,
   memberPromptSchedule: promptSchedules[0] || null,
   promptSchedules,
   currentPromptSets,
-  completedPromptSets: formattedCompletedSets
+  completedPromptSets: formattedCompletedSets,
+  topicSuggestions // ✅ Add this
 });
 
 

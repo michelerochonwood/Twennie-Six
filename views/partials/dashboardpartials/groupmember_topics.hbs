@@ -1,51 +1,37 @@
-<div class="groupmember-topics-container">
-    <h3 class="groupmember-dashboard-subtitles">topics</h3>
-    <p>These are your three topics of interest. These determine the email notifications you receive about new units added to the library. If you want to change these topics, go to your profile and click the "edit profile" button. You can also leave these blank, if you wish, and you will only receive general email notifications.</p>
-
-    <div class="groupmember-topics-grid">
-        {{#if selectedTopics.topic1}}
-            <div class="groupmember-topic-card" data-topic-id="{{selectedTopics.topic1.slug}}">
-                <div class="groupmember-topic-title">{{selectedTopics.topic1.title}}</div>
-                <ul class="groupmember-topic-subtopics">
-                    {{#each selectedTopics.topic1.subtopics}}
-                        <li>{{this}}</li>
-                    {{else}}
-                        <li>No subtopics available</li>
-                    {{/each}}
-                </ul>
-                <a href="/membertopics/{{selectedTopics.topic1.viewName}}" class="groupmember-topic-review">review this topic</a>
-            </div>
+<div class="leader-topic-suggestion-card">
+  {{#if topicSuggestions.length}}
+    {{#each topicSuggestions}}
+      <h4 class="leader-topic-suggestion-title">suggested new topic: {{this.topicTitle}}</h4>
+      <p class="leader-topic-suggestion-meta">
+        Submitted on {{formatDate this.submittedAt}} |
+        {{#if this.approved}}
+          <span class="approved">✅ Approved</span><br>
+          Estimated library release: {{formatDate this.expectedLibraryDate}}
+        {{else}}
+          <span class="pending">🕓 Approval pending</span>
         {{/if}}
+      </p>
+      <div class="leader-topic-suggestion-grid">
+        <div class="leader-topic-suggestion-col">{{this.paragraph1}}</div>
+        <div class="leader-topic-suggestion-col">{{this.paragraph2}}</div>
+        <div class="leader-topic-suggestion-col">{{this.paragraph3}}</div>
+      </div>
+    {{/each}}
+  {{else}}
+    <h4 class="leader-topic-suggestion-title">No Suggestions Yet</h4>
+    <p class="leader-topic-suggestion-meta">You have not suggested any new topics for Twennie’s library.</p>
+  {{/if}}
 
-        {{#if selectedTopics.topic2}}
-            <div class="groupmember-topic-card" data-topic-id="{{selectedTopics.topic2.slug}}">
-                <div class="groupmember-topic-title">{{selectedTopics.topic2.title}}</div>
-                <ul class="groupmember-topic-subtopics">
-                    {{#each selectedTopics.topic2.subtopics}}
-                        <li>{{this}}</li>
-                    {{else}}
-                        <li>No subtopics available</li>
-                    {{/each}}
-                </ul>
-                <a href="/membertopics/{{selectedTopics.topic2.viewName}}" class="groupmember-topic-review">review this topic</a>
-            </div>
-        {{/if}}
-
-        {{#if selectedTopics.topic3}}
-            <div class="groupmember-topic-card" data-topic-id="{{selectedTopics.topic3.slug}}">
-                <div class="groupmember-topic-title">{{selectedTopics.topic3.title}}</div>
-                <ul class="groupmember-topic-subtopics">
-                    {{#each selectedTopics.topic3.subtopics}}
-                        <li>{{this}}</li>
-                    {{else}}
-                        <li>No subtopics available</li>
-                    {{/each}}
-                </ul>
-                <a href="/membertopics/{{selectedTopics.topic3.viewName}}" class="groupmember-topic-review">review this topic</a>
-            </div>
-        {{/if}}
+  <!-- Always show suggest-a-topic call-to-action -->
+  <div class="topic-grid-center" style="margin-top: 30px;">
+    <div class="topic-item">
+      <h3>suggest a new topic</h3>
+      <p>Have an idea that would benefit Twennie members? We’d love to hear it. Use the form to propose a new topic for future learning content.</p>
+      <a href="/topics/suggest" class="suggest-topic-button">submit a topic</a>
     </div>
+  </div>
 </div>
+
 
 
 
