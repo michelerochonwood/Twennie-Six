@@ -2575,22 +2575,32 @@ html, body {
   background-color: #4a4ab2;
 }
 
+.leader-topic-suggestion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  align-items: start; /* Ensures alignment at the top across columns */
+}
+
+/* Ensure uniform padding */
+.leader-topic-suggestion-col {
+  padding-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Style all h5 headers the same way */
 .leader-topic-suggestion-col h5 {
   font-size: 0.85rem;
   font-weight: 700;
   color: #262262;
   margin-bottom: 0.5rem;
   line-height: 1.4;
-}
-
-.leader-topic-suggestion-col {
-  padding-bottom: 1rem;
-}
-
-.leader-topic-suggestion-col h5 {
   border-bottom: 1px solid #ccc;
   padding-bottom: 0.25rem;
+  min-height: 2.25rem; /* Force consistent height for header rows */
 }
+
 
 
 
