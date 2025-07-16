@@ -42,8 +42,9 @@ helpers: {
   formatContent: (content) =>
     content ? content.replace(/\n/g, '<br>') : '',
 
-  ifEquals: (a, b, options) =>
-    a === b ? options.fn(this) : options.inverse(this),
+ifEquals: function (a, b, options) {
+  return a === b ? options.fn(this) : options.inverse(this);
+},
 
   toLowerCase: (str) =>
     typeof str === 'string' ? str.toLowerCase() : '',
