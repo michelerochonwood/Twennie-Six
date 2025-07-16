@@ -74,6 +74,7 @@
 </div>
 
 <!-- ✅ Topic Suggestion Section -->
+<!-- ✅ Topic Suggestion Section -->
 <div class="leader-topic-suggestion-card">
   {{#if topicSuggestions.length}}
     {{#each topicSuggestions}}
@@ -88,9 +89,20 @@
         {{/if}}
       </p>
       <div class="leader-topic-suggestion-grid">
-        <div class="leader-topic-suggestion-col">{{this.paragraph1}}</div>
-        <div class="leader-topic-suggestion-col">{{this.paragraph2}}</div>
-        <div class="leader-topic-suggestion-col">{{this.paragraph3}}</div>
+        <div class="leader-topic-suggestion-col">
+          <h5>1. How has this topic evolved? Why is it especially important now?</h5>
+          <p>{{this.paragraph1}}</p>
+        </div>
+        <div class="leader-topic-suggestion-col">
+          <h5>2. How does this topic fit in the world of technical services?</h5>
+          <p>Who is affected and why?</p>
+          <p>{{this.paragraph2}}</p>
+        </div>
+        <div class="leader-topic-suggestion-col">
+          <h5>3. What is the future of this topic?</h5>
+          <p>How will it develop over time, and how will it affect working technical professionals?</p>
+          <p>{{this.paragraph3}}</p>
+        </div>
       </div>
     {{/each}}
   {{else}}
@@ -107,6 +119,7 @@
     </div>
   </div>
 </div>
+
 
 
 
