@@ -43,9 +43,9 @@
   <section id="cancel-form-section" class="hidden">
     <form action="/change_membership/cancel" method="POST" class="cancel-membership-form">
       <input type="hidden" name="_csrf" value="{{csrfToken}}">
-      <h3>We're sorry to see you go.</h3>
+      <h3 style="margin-top: 40px">We're sorry to see you go.</h3>
       <p>Please let us know why you're cancelling (optional):</p>
-      <textarea name="reason" rows="4" placeholder="Your feedback helps us improve." style="width:100%; border-radius:8px; padding:10px;"></textarea>
+      <textarea name="reason" rows="4" placeholder="Your feedback helps us improve." style="width:75%; border-radius:8px; padding:10px;"></textarea>
       <br>
       <button type="submit" class="make-member-button" style="background-color:#aa2e2e">confirm cancellation</button>
     </form>
