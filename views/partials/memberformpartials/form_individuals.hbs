@@ -7,30 +7,9 @@
   <div class="individual-form-container">
     <h1 class="form-title">individual membership form</h1>
 
-    <!-- Access Level Selection -->
-<div class="form-field-access-level">
-  <label for="accessLevel">Choose your membership type</label>
-  <select id="accessLevel" name="accessLevel" required onchange="handleAccessLevelChange(this.value)">
-    <option value="">Please select an access level</option>
-    <option value="free_individual">Free Member</option>
-    <option value="contributor_individual">Contributor Member</option>
-    <option value="paid_individual">Paid Member</option>
-  </select>
-</div>
 
     <!-- Contributor Agreement -->
-    <div id="contributor-terms" class="form-field hidden">
-      <p><strong>Contributor Agreement</strong></p>
-      <ul>
-        <li>To maintain a contributor membership, members must submit one library unit per month. All submitted units are subject to the approval of Twennie administrators.</li>
-        <li>Instructions for submitting units are available in each submission form.</li>
-        <li>If you need further information about submitting library units or the contributor membership option, contact Twennie at <a href="mailto:info@twennie.com">info@twennie.com</a>.</li>
-      </ul>
-<div class="checkbox-wrapper">
-  <input type="checkbox" id="contributorAgreement" name="contributorAgreement" required>
-  <label for="contributorAgreement">I have read and understand these conditions.</label>
-</div>
-    </div>
+
 
     <!-- Hidden redirect notice for paid members -->
     <div id="paid-redirect-note" class="form-field hidden">
