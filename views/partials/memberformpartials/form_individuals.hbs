@@ -36,13 +36,22 @@
       <label for="industry">Industry</label>
       <select id="industry" name="industry" required>
         <option value="">Please select an industry</option>
-        {{#each [
-          "Engineering","Architecture","Project Management","Information Technology(IT)","Web Design","Construction",
-          "Social Media/Digital Advertising","Community Planning/Landscape Architecture","Land Development",
-          "E-Commerce","Cybersecurity","Fintech","Edtech","Energy and Utilities","Manufacturing","Other"
-        ]}}
-          <option value="{{this}}" {{#ifEquals this ../user.industry}}selected{{/ifEquals}}>{{this}}</option>
-        {{/each}}
+        <option value="Engineering">Engineering</option>
+        <option value="Architecture">Architecture</option>
+        <option value="Project Management">Project Management</option>
+        <option value="Information Technology(IT)">Information Technology(IT)</option>
+        <option value="Web Design">Web Design</option>
+        <option value="Construction">Construction</option>
+        <option value="Social Media/Digital Advertising">Social Media/Digital Advertising</option>
+        <option value="Community Planning/Landscape Architecture">Community Planning/Landscape Architecture</option>
+        <option value="Land Development">Land Development</option>
+        <option value="E-Commerce">E-Commerce</option>
+        <option value="Cybersecurity">Cybersecurity</option>
+        <option value="Fintech">Financial Tech</option>
+        <option value="Edtech">Education Tech</option>
+        <option value="Energy and Utilities">Energy and Utilities</option>
+        <option value="Manufacturing">Manufacturing</option>
+        <option value="Other">Other</option>
       </select>
     </div>
 
