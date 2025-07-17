@@ -1,5 +1,3 @@
-// routes/changemembership/index.js
-
 const express = require('express');
 const router = express.Router();
 const changeMembershipController = require('../../controllers/changemembershipController');
@@ -10,6 +8,15 @@ router.get('/', ensureAuthenticated, changeMembershipController.showChangeMember
 
 // Handle membership cancellation
 router.post('/cancel', ensureAuthenticated, changeMembershipController.cancelMembership);
+
+// Handle membership change to free
+router.post('/free', ensureAuthenticated, changeMembershipController.changeToFree);
+
+// Handle membership change to individual
+router.post('/individual', ensureAuthenticated, changeMembershipController.changeToIndividual);
+
+// Handle membership change to leader
+router.post('/leader', ensureAuthenticated, changeMembershipController.changeToLeader);
 
 // Redirect here after successful membership updates
 router.get('/success', ensureAuthenticated, changeMembershipController.changeSuccess);
