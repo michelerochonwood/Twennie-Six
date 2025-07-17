@@ -152,12 +152,19 @@ module.exports = {
         payment_method_types: ['card'],
         mode: 'subscription',
         customer_email: user.email,
-        line_items: [
-          {
-            price: process.env.STRIPE_INDIVIDUAL_PRICE_ID,
-            quantity: 1
-          }
-        ],
+line_items: [
+  {
+    price_data: {
+      currency: 'cad',
+      unit_amount: 1700,
+      recurring: { interval: 'month' },
+      product_data: {
+        name: 'Twennie Paid Individual Membership'
+      }
+    },
+    quantity: 1
+  }
+],
         metadata: {
           memberId: user._id.toString()
         },
@@ -178,72 +185,101 @@ module.exports = {
   },
 
   // Upgrade to Leader
-  changeToLeader: async (req, res) => {
-    try {
-      const user = req.user;
+changeToLeader: async (req, res) => {
+  try {
+    const user = req.user;
 
-      if (!user || user.membershipType !== 'member') {
-        return res.status(403).render('member_form_views/error', {
-          layout: 'memberformlayout',
-          title: 'Access Denied',
-          errorMessage: 'Only members can become leaders from this form.'
-        });
-      }
-
-      const {
-        groupName,
-        groupLeaderName,
-        professionalTitle,
-        organization,
-        industry,
-        username,
-        groupLeaderEmail,
-        password,
-        groupSize,
-        registration_code
-      } = req.body;
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const newLeader = new Leader({
-        groupName,
-        groupLeaderName,
-        professionalTitle,
-        organization,
-        industry,
-        username,
-        groupLeaderEmail,
-        password: hashedPassword,
-        groupSize,
-        registration_code,
-        isActive: true,
-        membershipType: 'leader',
-        accessLevel: 'leader',
-        paymentStatus: 'pending'
-      });
-
-      await newLeader.save();
-
-      await Member.findByIdAndUpdate(user._id, { isActive: false });
-
-      req.session.user = {
-        _id: newLeader._id,
-        membershipType: 'leader',
-        accessLevel: 'leader',
-        username: newLeader.username,
-        email: newLeader.groupLeaderEmail
-      };
-
-      return res.redirect('/change_membership/success');
-    } catch (err) {
-      console.error('❌ Error changing to leader:', err);
-      return res.status(500).render('member_form_views/error', {
+    if (!user || user.membershipType !== 'member') {
+      return res.status(403).render('member_form_views/error', {
         layout: 'memberformlayout',
-        title: 'Error Changing Membership',
-        errorMessage: 'An error occurred while registering you as a group leader. Please try again.'
+        title: 'Access Denied',
+        errorMessage: 'Only members can become leaders from this form.'
       });
     }
+
+    const {
+      groupName,
+      groupLeaderName,
+      professionalTitle,
+      organization,
+      industry,
+      username,
+      groupLeaderEmail,
+      password,
+      groupSize,
+      registration_code
+    } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newLeader = new Leader({
+      groupName,
+      groupLeaderName,
+      professionalTitle,
+      organization,
+      industry,
+      username,
+      groupLeaderEmail,
+      password: hashedPassword,
+      groupSize,
+      registration_code,
+      isActive: true,
+      membershipType: 'leader',
+      accessLevel: 'leader',
+      paymentStatus: 'pending'
+    });
+
+    await newLeader.save();
+    await Member.findByIdAndUpdate(user._id, { isActive: false });
+
+    req.session.user = {
+      _id: newLeader._id,
+      membershipType: 'leader',
+      accessLevel: 'leader',
+      username: newLeader.username,
+      email: newLeader.groupLeaderEmail
+    };
+
+    // Redirect to Stripe Checkout
+    const quantity = parseInt(groupSize, 10) || 1;
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'subscription',
+      line_items: [
+        {
+          price_data: {
+            currency: 'cad',
+            unit_amount: 1700, // $17 CAD per user
+            recurring: { interval: 'month' },
+            product_data: {
+              name: 'Twennie Group Leader Membership'
+            }
+          },
+          quantity: quantity
+        }
+      ],
+      billing_address_collection: 'required',
+      customer_email: groupLeaderEmail,
+      metadata: {
+        leaderId: newLeader._id.toString(),
+        originalMemberId: user._id.toString()
+      },
+      success_url: `${baseUrl}/change_membership/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/change_membership`
+    });
+
+    return res.redirect(303, session.url);
+
+  } catch (err) {
+    console.error('❌ Error changing to leader:', err);
+    return res.status(500).render('member_form_views/error', {
+      layout: 'memberformlayout',
+      title: 'Error Changing Membership',
+      errorMessage: 'An error occurred while registering you as a group leader. Please try again.'
+    });
   }
+}
 };
 
 
