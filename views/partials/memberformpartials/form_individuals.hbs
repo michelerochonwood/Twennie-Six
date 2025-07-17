@@ -1,6 +1,7 @@
 {{#*inline "title"}}Membership Form | Twennie{{/inline}}
 
-<form id="member-form" action="/member/form" method="POST" class="membership-form">
+<form id="member-form" action="/change_membership/individual" method="POST" class="membership-form">
+
   <input type="hidden" name="_csrf" value="{{csrfToken}}">
   <input type="hidden" name="redirectTarget" id="redirectTarget" value="form">
 
