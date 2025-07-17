@@ -3,11 +3,11 @@ const router = express.Router();
 const memberController = require('../../controllers/memberController');
 const Member = require('../../models/member_models/member'); // Needed for /check-username
 
-// Standard Individual Membership Form (GET + POST)
+// 🟢 New Member Registration Form (GET + POST)
 router.get('/form', memberController.showMemberForm);
 router.post('/form', memberController.createMember);
 
-// Free Membership Form (GET)
+// 🟢 New Free Member Registration Form (GET only — form posts to same /form endpoint)
 router.get('/free-form', (req, res) => {
   res.render('member_form_views/free_individual', {
     layout: 'memberformlayout',
@@ -15,63 +15,17 @@ router.get('/free-form', (req, res) => {
   });
 });
 
-// Choose Membership Landing
+// 🟢 Choose Membership Landing Page
 router.get('/choose', (req, res) => {
   res.render('member_form_views/choose_membership', {
     layout: 'memberformlayout'
   });
 });
 
-// Convert Member to Group Leader (GET)
-router.get('/convert-to-leader', (req, res) => {
-  res.render('member_form_views/membertoleaderform', {
-    layout: 'memberformlayout',
-    csrfToken: req.csrfToken(),
-    topicList: [
-      'Career Development in Technical Services',
-      'Soft Skills in Technical Environments',
-      'Project Management',
-      'Business Development in Technical Services',
-      'Finding Projects Before they Become RFPs',
-      'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
-      'Proposal Management',
-      'Proposal Strategy',
-      'Storytelling in Technical Marketing',
-      'Client Experience',
-      'Social Media, Advertising, and Other Mysteries',
-      'Emotional Intelligence',
-      'The Pareto Principle or 80/20',
-      'Diversity and Inclusion in Consulting',
-      'People Before Profit',
-      'Non-Technical Roles in Technical Environments',
-      'Leadership in Technical Services',
-      'The Advantage of Failure',
-      'Social Entrepreneurship',
-      'Employee Experience',
-      'Project Management Software',
-      'CRM Platforms',
-      'Client Feedback Software',
-      'Workplace Culture',
-      'Mental Health in Consulting Environments',
-      'Remote and Hybrid Work',
-      'Four Day Work Week',
-      'The Power of Play in the Workplace',
-      'Team Building in Consulting',
-      'AI in Consulting',
-      'AI in Project Management',
-      'AI in Learning'
-    ]
-  });
-});
-
-// Convert Member to Group Leader (POST)
-router.post('/convert-to-leader', memberController.convertToLeader);
-
-// Stripe Payment Success + Cancel
+// ✅ Stripe Payment Success Page
 router.get('/payment/success', (req, res) => {
   const username = req.session.user?.username || 'User';
   const membershipType = req.session.user?.membershipType;
-
   const dashboardLink =
     membershipType === 'leader' ? '/dashboard/leader' : '/dashboard/member';
 
@@ -83,6 +37,7 @@ router.get('/payment/success', (req, res) => {
   });
 });
 
+// ✅ Stripe Payment Cancel Page
 router.get('/payment/cancel', (req, res) => {
   res.render('member_form_views/error', {
     layout: 'memberformlayout',
@@ -91,7 +46,7 @@ router.get('/payment/cancel', (req, res) => {
   });
 });
 
-// Registration success for non-paid members
+// ✅ Registration success page (non-paid members)
 router.get('/register_success', (req, res) => {
   const username = req.session.user?.username || 'User';
   res.render('member_form_views/register_success', {
@@ -102,7 +57,7 @@ router.get('/register_success', (req, res) => {
   });
 });
 
-// Username availability check (AJAX endpoint)
+// ✅ AJAX username availability check
 router.get('/check-username', async (req, res) => {
   const { username } = req.query;
   const user = await Member.findOne({ username });
@@ -110,6 +65,7 @@ router.get('/check-username', async (req, res) => {
 });
 
 module.exports = router;
+
 
 
 
