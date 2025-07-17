@@ -6,21 +6,23 @@ const Leader = require('../models/member_models/leader');
 const GroupMember = require('../models/member_models/group_member');
 
 module.exports = {
-  showChangeMembershipForm: (req, res) => {
-    if (!req.user) {
-      return res.status(401).render('member_form_views/error', {
-        layout: 'memberformlayout',
-        title: 'Unauthorized',
-        errorMessage: 'You must be logged in to change your membership.'
-      });
-    }
+showChangeMembershipForm: (req, res) => {
+  console.log("✅ /change_membership route reached");
 
-    res.render('member_form_views/change_my_membership', {
+  if (!req.user) {
+    return res.status(401).render('member_form_views/error', {
       layout: 'memberformlayout',
-      csrfToken: req.csrfToken(),
-      user: req.user
+      title: 'Unauthorized',
+      errorMessage: 'You must be logged in to change your membership.'
     });
-  },
+  }
+
+  res.render('member_form_views/change_my_membership', {
+    layout: 'memberformlayout',
+    csrfToken: req.csrfToken(),
+    user: req.user
+  });
+},
 
   cancelMembership: async (req, res) => {
     try {
