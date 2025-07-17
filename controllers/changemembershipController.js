@@ -4,6 +4,7 @@ const CancelledMember = require('../models/member_models/cancelledmember');
 const Member = require('../models/member_models/member');
 const Leader = require('../models/member_models/leader');
 const GroupMember = require('../models/member_models/group_member');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Make sure your Stripe secret key is set
 
 module.exports = {
 showChangeMembershipForm: (req, res) => {
@@ -132,9 +133,12 @@ showChangeMembershipForm: (req, res) => {
   }
 },
 
+
+
 changeToIndividual: async (req, res) => {
   try {
     const user = req.user;
+
     if (!user || user.membershipType !== 'member') {
       return res.status(403).render('member_form_views/error', {
         layout: 'memberformlayout',
@@ -143,24 +147,37 @@ changeToIndividual: async (req, res) => {
       });
     }
 
-    await Member.findByIdAndUpdate(user._id, {
-      accessLevel: 'paid_individual',
-      membershipType: 'member'
+    // Create Stripe Checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'subscription',
+      customer_email: user.email,
+      line_items: [
+        {
+          price: process.env.STRIPE_INDIVIDUAL_PRICE_ID, // Your Stripe Price ID for the paid individual plan
+          quantity: 1
+        }
+      ],
+      metadata: {
+        memberId: user._id.toString()
+      },
+      success_url: `${process.env.BASE_URL}/change_membership/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.BASE_URL}/change_membership`
     });
 
-    req.session.user.membershipType = 'member';
-    req.session.user.accessLevel = 'paid_individual';
+    // Redirect to Stripe
+    return res.redirect(session.url);
 
-    res.redirect('/change_membership/success');
   } catch (err) {
-    console.error('❌ Error changing to individual membership:', err);
-    res.status(500).render('member_form_views/error', {
+    console.error('❌ Error starting Stripe checkout for individual membership:', err);
+    return res.status(500).render('member_form_views/error', {
       layout: 'memberformlayout',
       title: 'Error',
-      errorMessage: 'Unable to update your membership. Please try again.'
+      errorMessage: 'Unable to redirect to payment. Please try again.'
     });
   }
 },
+
 
 changeToLeader: async (req, res) => {
   try {
