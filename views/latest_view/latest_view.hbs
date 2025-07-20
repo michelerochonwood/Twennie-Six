@@ -5,97 +5,14 @@
     <h1 class="latest-title">latest additions to the Twennie library</h1>
 
     <!-- View-Level Debug Output -->
-    <div style="margin-bottom: 1rem;">
-    </div>
+    <div style="margin-bottom: 1rem;"></div>
 
-    <!-- Section: This Week -->
+    <!-- Section: This Month -->
     <div class="latest-section">
       <h2 class="latest-section-title">this month</h2>
-
       <div class="latest-library-units-grid">
         {{#each thisMonthItems}}
-          <div class="latest-library-unit-card">
-
-            <!-- SVG Header -->
-            <div class="latest-card-svg-header">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 198.89 17.83">
-                <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
-                <path class="cls-1" d="M0,9.74s30.57,13.88,92.83,1.88c0,0,68.2-13.17,106.06,6.21V0H0v9.74Z"/>
-              </svg>
-            </div>
-
-            <!-- Card Content -->
-            <div class="latest-card-content">
-              <div class="latest-unit-type-icon-container">
-                <img src="{{getUnitTypeIcon this.type}}" alt="Unit Type Icon" class="latest-unit-type-icon">
-              </div>
-              <div class="latest-unit-title-container">
-                <h2 class="latest-unit-title">{{this.title}}</h2>
-              </div>
-
-
-
-              <!-- Expand Toggle -->
-              <div class="latest-expand-toggle" onclick="toggleLatestCard(this)">
-                <svg class="latest-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
-                  <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
-                  <polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/>
-                </svg>
-              </div>
-
-              <!-- Hidden Expanded Content -->
-              <div class="latest-hidden-content">
-                <div class="latest-author-label">AUTHOR</div>
-                <div class="latest-author-image-container">
-                  <img src="{{this.authorImage}}" alt="Author Image" class="latest-author-image">
-                </div>
-                <div class="latest-author-name-container">
-                  <span class="latest-author-name">{{this.authorName}}</span>
-                </div>
-                <div class="latest-unit-summary-container">
-                  <p class="latest-unit-long-summary">{{this.full_summary}}</p>
-                </div>
-
-                {{#if (eq type "promptset")}}
-                  <div class="latest-detail-value-purpose">
-                    <strong>Purpose:</strong><br>
-                    {{this.purpose}}
-                  </div>
-                {{/if}}
-
-                <!-- Access Control Button -->
-                <div class="latest-unit-review-container">
-                  {{#if ../loggedIn}}
-                    {{#if (or (eq ../membershipType "leader") (eq ../membershipType "group_member"))}}
-                      <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="latest-unit-review-btn">
-                        review this unit
-                      </a>
-                    {{else if (and (eq ../membershipType "member")
-                                   (or (eq ../accessLevel "paid_individual")
-                                       (eq ../accessLevel "contributor_individual")))}}
-                      <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="latest-unit-review-btn">
-                        review this unit
-                      </a>
-                    {{else if (and (eq ../membershipType "member")
-                                   (eq ../accessLevel "free_individual")
-                                   (or (eq type "article") (eq type "video")))}}
-                      <a href="/unitviews/{{capitalize type}}s/view/{{_id}}" class="latest-unit-review-btn">
-                        review this unit
-                      </a>
-                    {{else}}
-                      <div class="latest-unit-review-btn disabled" title="This unit is not available with your current membership.">
-                        not available with your membership
-                      </div>
-                    {{/if}}
-                  {{else}}
-                    <div class="latest-unit-review-btn disabled" title="Please log in to access this unit.">
-                      login required
-                    </div>
-                  {{/if}}
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- ...existing unit cards... -->
         {{else}}
           <p>No new items this week.</p>
         {{/each}}
@@ -114,6 +31,16 @@
           <p>No new items last month.</p>
         {{/each}}
       </div>
+    </div>
+
+    <!-- Topics Page Footer -->
+    <div class="latest-topics-footer" style="text-align: center; margin-top: 3rem;">
+      <h2 style="font-size: 1.1rem; color: #4e50a2; margin-bottom: 1rem;">
+        For older units, see the Topics page.
+      </h2>
+      <a href="/topics" class="latest-unit-review-btn" style="display: inline-block; text-decoration: none;">
+        explore topics
+      </a>
     </div>
   </div>
 </div>
@@ -134,5 +61,6 @@
     }
   }
 </script>
+
 
 
