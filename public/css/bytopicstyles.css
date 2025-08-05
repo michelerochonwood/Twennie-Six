@@ -95,23 +95,6 @@ html, body {
   overflow: visible;
 }
 
-.bytopic-expand-toggle,
-.bytopic-collapse-toggle {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  cursor: pointer;
-  text-align: center;
-  transition: transform 0.3s ease;
-  z-index: 2;
-}
-
-.bytopic-collapse-toggle {
-  margin-top: 1rem;
-  position: relative; /* so it doesn't interfere with layout */
-}
 
 
 /* === HEADER WAVE SVG === */
@@ -163,29 +146,9 @@ html, body {
   text-align: center;
 }
 
-/* === TOGGLE EXPAND ARROW === */
 
-.bytopic-expand-toggle {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  cursor: pointer;
-  text-align: center;
-  transition: transform 0.3s ease;
-  z-index: 2;
-}
 
-.bytopic-arrow-icon {
-  transition: transform 0.3s ease-in-out;
-  transform-origin: center;
-}
 
-.bytopic-arrow-icon.open {
-  transform: rotate(180deg);
-  transform-origin: center;
-}
 
 /* === HIDDEN CONTENT AREA === */
 
@@ -700,35 +663,12 @@ html, body {
   background-color: #3d3f8c;
 }
 
-.bytopic-expand-toggle {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
-  cursor: pointer;
-}
 
-.bytopic-arrow-icon {
-  width: 40px;
-  height: 40px;
-  animation: bounceArrow 1.8s ease-in-out infinite;
-  transition: transform 0.3s ease;
-}
 
-/* Rotate arrow on card toggle */
-.bytopic-library-unit-card.active .bytopic-arrow-icon {
-  transform: rotate(180deg);
-}
 
-/* Continuous bounce animation */
-@keyframes bounceArrow {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(6px);
-  }
-}
+
+
+
 
 .bytopic-duration-image-container {
   min-height: 30px;
