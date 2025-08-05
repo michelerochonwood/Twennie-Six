@@ -363,7 +363,6 @@ html, body {
 
 
 
-
 /* === LATEST VIEW – Latest Library Page === */
 
 .latest-container {
@@ -388,7 +387,6 @@ html, body {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 0 1.5rem;
-  transition: all 0.3s ease-in-out;
 }
 
 .latest-divider {
@@ -402,14 +400,14 @@ html, body {
 .latest-library-unit-card {
   background-color: #d0cfcf;
   border-radius: 10px;
+  height: 350px;
+  overflow: hidden;
+  transition: height 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  overflow: hidden;
-  transition: height 0.3s ease;
   margin-bottom: 1.5rem;
-  height: 350px; /* collapsed height */
 }
 
 .latest-library-unit-card.active {
@@ -466,7 +464,6 @@ html, body {
   align-items: center;
   width: 100%;
   margin-top: 10px;
-  transition: transform 0.3s ease;
 }
 
 .latest-arrow-icon {
@@ -474,13 +471,8 @@ html, body {
   transition: transform 0.3s ease-in-out;
 }
 
-.latest-expand-toggle.open .latest-arrow-icon {
+.latest-library-unit-card.active .latest-arrow-icon {
   transform: rotate(180deg);
-}
-
-.latest-expand-toggle:hover .cls-1 {
-  fill: #dc176a; /* only arrow turns pink */
-  transition: fill 0.3s ease;
 }
 
 /* === EXPANDED CONTENT === */
@@ -492,13 +484,10 @@ html, body {
   width: 100%;
   padding-bottom: 20px;
   margin-top: 1.5rem;
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
 }
 
 .latest-library-unit-card.active .latest-hidden-content {
   display: flex;
-  opacity: 1;
 }
 
 /* === AUTHOR SECTION === */
@@ -506,6 +495,7 @@ html, body {
 .latest-author-label {
   color: #5a5552;
   font-weight: 800;
+  margin-top: 0.5rem;
 }
 
 .latest-author-image {
@@ -564,6 +554,7 @@ html, body {
   cursor: not-allowed;
   pointer-events: none;
 }
+
 
 /* === ERROR MESSAGE === */
 

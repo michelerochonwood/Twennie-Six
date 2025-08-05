@@ -12,7 +12,7 @@
       <h2 class="latest-section-title">this month</h2>
       <div class="latest-library-units-grid">
         {{#each thisMonthItems}}
-          <!-- ...existing unit cards... -->
+          {{> latestpartials/latest_card this }}
         {{else}}
           <p>No new items this week.</p>
         {{/each}}
@@ -49,18 +49,20 @@
 <script>
   function toggleLatestCard(element) {
     const card = element.closest('.latest-library-unit-card');
-    const arrow = element.querySelector('.latest-arrow-icon');
+    const content = card.querySelector('.latest-hidden-content');
+
     const isActive = card.classList.contains('active');
 
     if (isActive) {
       card.classList.remove('active');
-      arrow.classList.remove('open');
+      content.style.display = 'none';
     } else {
       card.classList.add('active');
-      arrow.classList.add('open');
+      content.style.display = 'flex';
     }
   }
 </script>
+
 
 
 
