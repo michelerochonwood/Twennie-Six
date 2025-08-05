@@ -35,6 +35,17 @@ html, body {
 
 /* BY TOPIC PAGE */
 
+/*arrows*/
+
+.expand-arrow {
+  transition: transform 0.3s ease-in-out;
+  margin-left: 0.5rem;
+}
+
+.bytopic-library-unit-card.active .expand-arrow {
+  transform: rotate(180deg);
+}
+
 
 /* === CONTAINER AND PAGE LAYOUT === */
 
