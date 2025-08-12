@@ -708,82 +708,130 @@ submitArticle: async (req, res) => {
       },
       
       
-      submitExercise: async (req, res) => {
-        try {
-          if (!isDevelopment && !req.body._csrf) {
-            throw new Error('CSRF token is missing or invalid.');
-          }
-    
-          const { _id, ...exerciseData } = req.body;
-    
-          const booleanFields = [
-            'clarify_topic',
-            'topics_and_enlightenment',
-            'challenge',
-            'instructions',
-            'time',
-            'permission'
-          ];
-          booleanFields.forEach((field) => {
-            exerciseData[field] = req.body[field] === 'on';
-          });
-    
-          exerciseData.author = { id: req.user._id };
-    
-          if (req.files && req.files.length > 0) {
-            const uploadPromises = req.files.map((file) => {
-              return new Promise((resolve, reject) => {
-                const stream = uploader.upload_stream(
-                  {
-                    folder: 'twennie_exercises',
-                    resource_type: 'raw',
-                    public_id: file.originalname.replace(/\.[^/.]+$/, '')
-                  },
-                  (error, result) => {
-                    if (error) return reject(error);
-                    resolve(result.secure_url);
-                  }
-                );
-    
-                if (file && file.buffer) {
-                  stream.end(file.buffer);
-                } else {
-                  resolve(null);
-                }
-              });
-            });
-    
-            const documentUrls = (await Promise.all(uploadPromises)).filter(Boolean);
-            exerciseData.document_uploads = documentUrls;
-          }
-    
-          let exercise;
-          if (_id) {
-            exercise = await Exercise.findByIdAndUpdate(_id, exerciseData, {
-              new: true,
-              runValidators: true
-            });
+submitExercise: async (req, res) => {
+  const mainTopics = [
+    'Career Development in Technical Services',
+    'Soft Skills in Technical Environments',
+    'Project Management',
+    'Business Development in Technical Services',
+    'Finding Projects Before they Become RFPs',
+    'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
+    'Proposal Management',
+    'Proposal Strategy',
+    'Storytelling in Technical Marketing',
+    'Client Experience',
+    'Social Media, Advertising, and Other Mysteries',
+    'Pull Marketing', // ✅ Make sure this is here
+    'Emotional Intelligence',
+    'The Pareto Principle or 80/20',
+    'People Before Profit',
+    'Non-Technical Roles in Technical Environments',
+    'Leadership in Technical Services',
+    'The Advantage of Failure',
+    'Social Entrepreneurship',
+    'Employee Experience',
+    'Project Management Software',
+    'CRM Platforms',
+    'Client Feedback Software',
+    'Workplace Culture',
+    'Mental Health in Consulting Environments',
+    'Remote and Hybrid Work',
+    'Four Day Work Week',
+    'The Power of Play in the Workplace',
+    'Team Building in Consulting',
+    'AI in Consulting',
+    'AI in Project Management',
+    'AI in Learning',
+  ];
+
+  try {
+    if (!isDevelopment && !req.body._csrf) {
+      throw new Error('CSRF token is missing or invalid.');
+    }
+
+    const { _id, ...exerciseData } = req.body;
+
+    const booleanFields = [
+      'clarify_topic',
+      'topics_and_enlightenment',
+      'challenge',
+      'instructions',
+      'time',
+      'permission'
+    ];
+    booleanFields.forEach((field) => {
+      exerciseData[field] = req.body[field] === 'on';
+    });
+
+    exerciseData.author = { id: req.user._id };
+
+    if (req.files && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) => {
+        return new Promise((resolve, reject) => {
+          const stream = uploader.upload_stream(
+            {
+              folder: 'twennie_exercises',
+              resource_type: 'raw',
+              public_id: file.originalname.replace(/\.[^/.]+$/, '')
+            },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result.secure_url);
+            }
+          );
+
+          if (file && file.buffer) {
+            stream.end(file.buffer);
           } else {
-            exercise = new Exercise(exerciseData);
-            await exercise.save();
+            resolve(null);
           }
-    
-          res.render('unit_form_views/unit_success', {
-            layout: 'unitformlayout',
-            unitType: 'exercise',
-            unit: exercise,
-            csrfToken: isDevelopment ? null : req.csrfToken()
-          });
-    
-        } catch (error) {
-          console.error('Error submitting exercise:', error);
-          res.status(500).render('unit_form_views/error', {
-            layout: 'unitformlayout',
-            title: 'Error',
-            errorMessage: 'An error occurred while submitting the exercise.'
-          });
-        }
-      },
+        });
+      });
+
+      const documentUrls = (await Promise.all(uploadPromises)).filter(Boolean);
+      exerciseData.document_uploads = documentUrls;
+    }
+
+    let exercise;
+    if (_id) {
+      exercise = await Exercise.findByIdAndUpdate(_id, exerciseData, {
+        new: true,
+        runValidators: true
+      });
+    } else {
+      exercise = new Exercise(exerciseData);
+      await exercise.save();
+    }
+
+    res.render('unit_form_views/unit_success', {
+      layout: 'unitformlayout',
+      unitType: 'exercise',
+      unit: exercise,
+      csrfToken: isDevelopment ? null : req.csrfToken()
+    });
+
+  } catch (error) {
+    console.error('Error submitting exercise:', error);
+
+    // If it's a validation error, re-render the form with data and topics
+    if (error.name === 'ValidationError') {
+      return res.status(400).render('unit_form_views/form_exercise', {
+        layout: 'unitformlayout',
+        data: req.body,
+        errorMessage: error.message,
+        mainTopics, // ✅ now it's actually used
+        csrfToken: isDevelopment ? null : req.csrfToken()
+      });
+    }
+
+    res.status(500).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Error',
+      errorMessage: 'An error occurred while submitting the exercise.'
+    });
+  }
+},
+
     
       submitTemplate: async (req, res) => {
         try {
