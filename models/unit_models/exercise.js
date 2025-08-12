@@ -33,6 +33,7 @@ const exerciseSchema = new mongoose.Schema({
         'Storytelling in Technical Marketing',
         'Client Experience',
         'Social Media, Advertising, and Other Mysteries',
+        'Pull Marketing',
         'Emotional Intelligence',
         'The Pareto Principle or 80/20',
         'People Before Profit',
