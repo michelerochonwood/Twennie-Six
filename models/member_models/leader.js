@@ -139,9 +139,18 @@ topics: {
     type: String,
     enum: ['active', 'cancelled', 'pending'],
     default: 'pending'
-  }
+  },
+    emailPreferenceLevel: {
+    type: Number,
+    enum: [1, 2, 3],           // 1=minimal, 2=product updates, 3=events+promotions
+    default: 1
+  },
+  emailPreferencesUpdatedAt: {
+    type: Date
+  },
 }, {
   timestamps: true // ✅ Properly placed as the second argument
+  
 });
 
 

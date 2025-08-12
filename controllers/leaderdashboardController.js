@@ -546,8 +546,24 @@ const formattedCompletedSets = completedRecords.map(record => ({
 }));
 
 const leaderAssignedUnits = await buildLeaderAssignedUnits(id);
+// --- Membership tab: derive view flags & user fields for template ---
 
+// 1) Email preference flags (defaults to Level 1 if unset/invalid)
+// --- Membership tab: prepare leader account & email preference flags ---
+// NOTE: Make sure your earlier Leader.findById(id).select(...) includes
+//       `email_preference_level`, `groupLeaderEmail`, and `username`,
+//       or the fallbacks below will be used.
 
+// --- Membership tab: prepare leader account & email preference for view ---
+const emailPreferenceLevel = [1, 2, 3].includes(Number(userData?.email_preference_level))
+  ? Number(userData.email_preference_level)
+  : 1;
+
+const leaderAccount = {
+  name: userData?.groupLeaderName || 'Leader',
+  email: userData?.groupLeaderEmail || req.session?.user?.email || '',
+  username: userData?.username || req.session?.user?.username || ''
+};
 
 return res.render('leader_dashboard', {
   layout: 'dashboardlayout',
@@ -568,27 +584,74 @@ return res.render('leader_dashboard', {
   currentPromptSets,
   completedPromptSets: formattedCompletedSets,
   selectedTopics,
-  topicSuggestions // ✅ Add here
+  topicSuggestions, // ✅ included
+  leaderAccount,
+  emailPreferenceLevel
 });
 
-
-
-
-
-            
-            
-            
-            
-            
-        } catch (err) {
-            console.error('Error rendering leader dashboard:', err);
-            return res.status(500).render('member_form_views/error', {
-                layout: 'mainlayout',
-                title: 'Error',
-                errorMessage: 'An unexpected error occurred. Please try again later.',
-            });
-        }
+    } catch (err) {
+      console.error('Error rendering leader dashboard:', err);
+      return res.status(500).render('member_form_views/error', {
+        layout: 'mainlayout',
+        title: 'Error',
+        errorMessage: 'An unexpected error occurred. Please try again later.',
+      });
     }
-};
+  }, // ← end of renderLeaderDashboard, KEEP THE COMMA
+
+  // --- POST /leader-dashboard/account/email-preferences ---
+  updateEmailPreferences: async (req, res) => {
+    try {
+      const leaderId = req.session?.user?.id;
+      if (!leaderId) return res.redirect('/auth/login');
+
+      let level = parseInt(req.body.email_preference_level, 10);
+      if (![1, 2, 3].includes(level)) level = 1;
+
+      await Leader.findByIdAndUpdate(
+        leaderId,
+        { $set: { email_preference_level: level } }
+      );
+
+      return res.redirect('/leader-dashboard');
+    } catch (err) {
+      console.error('updateEmailPreferences error:', err);
+      return res.status(500).render('member_form_views/error', {
+        layout: 'mainlayout',
+        title: 'Error',
+        errorMessage: 'Could not update email preferences. Please try again.'
+      });
+    }
+  },
+
+  // --- POST /leader-dashboard/account/details ---
+  updateAccountDetails: async (req, res) => {
+    try {
+      const leaderId = req.session?.user?.id;
+      if (!leaderId) return res.redirect('/auth/login');
+
+      const { name, email, username } = req.body || {};
+      const updates = {};
+
+      if (typeof name === 'string' && name.trim()) updates.groupLeaderName = name.trim();
+      if (typeof email === 'string' && email.trim()) updates.groupLeaderEmail = email.trim();
+      if (typeof username === 'string') updates.username = username.trim();
+
+      if (Object.keys(updates).length) {
+        await Leader.findByIdAndUpdate(leaderId, { $set: updates });
+      }
+
+      return res.redirect('/leader-dashboard');
+    } catch (err) {
+      console.error('updateAccountDetails error:', err);
+      return res.status(500).render('member_form_views/error', {
+        layout: 'mainlayout',
+        title: 'Error',
+        errorMessage: 'Could not update account details. Please try again.'
+      });
+    }
+  }
+}; // ← CLOSES module.exports
+
 
 

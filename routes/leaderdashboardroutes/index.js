@@ -34,4 +34,22 @@ router.get('/', isAuthenticated, async (req, res, next) => {
     }
 });
 
+router.post('/account/details', isAuthenticated, async (req, res, next) => {
+  try {
+    await leaderDashboardController.updateAccountDetails(req, res);
+  } catch (err) {
+    console.error('Error updating account details:', err);
+    next(err);
+  }
+});
+
+router.post('/account/email-preferences', isAuthenticated, async (req, res, next) => {
+  try {
+    await leaderDashboardController.updateEmailPreferences(req, res);
+  } catch (err) {
+    console.error('Error updating email preferences:', err);
+    next(err);
+  }
+});
+
 module.exports = router;
