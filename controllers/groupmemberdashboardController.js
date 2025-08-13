@@ -611,13 +611,21 @@ updateEmailPreferences: async (req, res) => {
     let level = parseInt(req.body.email_preference_level, 10);
     if (![1, 2, 3].includes(level)) level = 1;
 
-    await GroupMember.findByIdAndUpdate(
+    const result = await GroupMember.findByIdAndUpdate(
       memberId,
-      { $set: { emailPreferenceLevel: level, emailPreferencesUpdatedAt: new Date() } }
+      { $set: { emailPreferenceLevel: level, emailPreferencesUpdatedAt: new Date() } },
+      { new: false }
     );
 
-    // Redirect back or render a success page if you prefer
-    return res.redirect('/dashboard/groupmember');
+    console.log('✅ GroupMember email prefs updated:', { memberId, level, ok: !!result });
+
+    // Render success page (same look/feel as leader/member)
+    return res.render('partials/dashboardpartials/emailpreferencessuccess', {
+      layout: 'dashboardlayout',
+      title: 'Email Preferences Updated',
+      emailPreferenceLevel: level,
+      dashboard: req.baseUrl || '/dashboard/groupmember'
+    });
   } catch (err) {
     console.error('updateEmailPreferences (group member) error:', err);
     return res.status(500).render('member_form_views/error', {
@@ -641,12 +649,26 @@ updateAccountDetails: async (req, res) => {
     if (typeof email === 'string' && email.trim()) updates.email = email.trim();
     if (typeof username === 'string') updates.username = username.trim();
 
-    if (Object.keys(updates).length) {
+    const changedCount = Object.keys(updates).length;
+
+    if (changedCount) {
       await GroupMember.findByIdAndUpdate(memberId, { $set: updates });
+      console.log('✅ GroupMember account updated:', { memberId, updates });
+    } else {
+      console.log('ℹ️ No account fields changed for GroupMember:', memberId);
     }
 
-    // Redirect back or render a success page if desired
-    return res.redirect('/dashboard/groupmember');
+    // Render success page for visual confirmation
+    return res.render('partials/dashboardpartials/accountdetailssuccess', {
+      layout: 'dashboardlayout',
+      title: 'Account Updated',
+      dashboard: req.baseUrl || '/dashboard/groupmember',
+      changedCount,
+      // Only echo changed values
+      name: updates.name,
+      email: updates.email,
+      username: updates.username
+    });
   } catch (err) {
     console.error('updateAccountDetails (group member) error:', err);
     return res.status(500).render('member_form_views/error', {
@@ -656,6 +678,7 @@ updateAccountDetails: async (req, res) => {
     });
   }
 }
+
 
 
 };
