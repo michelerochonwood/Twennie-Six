@@ -2702,6 +2702,17 @@ html, body {
   border-radius: 10px;
 }
 
+.individual-preference-list {
+  margin: .25rem 0 1rem 2rem;
+  padding-left: 1rem;
+  list-style: disc;
+}
+.individual-preference-list li {
+  margin: .125rem 0;
+  line-height: 1.35;
+}
+
+
 .individual-membership-title {
   font-size: 1.4rem;
   font-weight: 800;

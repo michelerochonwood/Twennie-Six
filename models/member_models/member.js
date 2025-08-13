@@ -40,13 +40,13 @@ const memberSchema = new mongoose.Schema({
       'Other'
     ]
   },
-username: {
-  type: String,
-  required: true,
-  unique: true,
-  trim: true,
-  lowercase: true // optional, if you want usernames to be case-insensitive
-},
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true // optional, if you want usernames to be case-insensitive
+  },
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -61,15 +61,9 @@ username: {
     minlength: [6, 'Password must be at least 6 characters']
   },
   topics: {
-    topic1: {
-      type: String,
-    },
-    topic2: {
-      type: String,
-    },
-    topic3: {
-      type: String,
-    }
+    topic1: { type: String },
+    topic2: { type: String },
+    topic3: { type: String }
   },
   profileImage: {
     type: String,
@@ -108,6 +102,16 @@ username: {
   resetPasswordExpires: {
     type: Date,
     default: undefined
+  },
+
+  // --- New fields for account & email preferences ---
+  emailPreferenceLevel: {
+    type: Number,
+    enum: [1, 2, 3],  // 1=minimal, 2=updates, 3=all including promos/events
+    default: 1
+  },
+  emailPreferencesUpdatedAt: {
+    type: Date
   }
 }, {
   timestamps: true

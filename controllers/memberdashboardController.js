@@ -222,7 +222,8 @@ module.exports = {
             const { id } = req.session.user;
             const userData = await Member.findById(id)
             
-            .select('username profileImage professionalTitle organization topics accessLevel')
+            .select('username email emailPreferenceLevel profileImage professionalTitle organization topics accessLevel')
+
             .lean();
             const memberProfile = await MemberProfile.findOne({ memberId: id }).select('profileImage');
 
@@ -400,7 +401,16 @@ const selectedTopics = {
 
 // ✅ Log topics to debug missing data
 console.log("🔍 Selected Topics for Member Dashboard:", selectedTopics);
+const emailPreferenceLevel = [1, 2, 3].includes(Number(userData?.emailPreferenceLevel))
+  ? Number(userData.emailPreferenceLevel)
+  : 1;
 
+const memberAccount = {
+  // If you have a separate "name" field, use it; otherwise username is a good display-name here.
+  name: userData?.username || 'Member',
+  email: userData?.email || req.session?.user?.email || '',
+  username: userData?.username || ''
+};
 
 
 return res.render("member_dashboard", {
@@ -422,8 +432,12 @@ return res.render("member_dashboard", {
   promptSchedules,
   currentPromptSets,
   completedPromptSets: formattedCompletedSets,
-  topicSuggestions // ✅ Add this
+  topicSuggestions, // ✅ Add this
+  // 👇 NEW:
+  memberAccount,
+  emailPreferenceLevel
 });
+
 
 
 
@@ -437,8 +451,86 @@ return res.render("member_dashboard", {
                 errorMessage: 'An unexpected error occurred. Please try again later.',
             });
         }
+    },
+
+
+  // --- POST /dashboard/member/account/email-preferences ---
+  updateEmailPreferences: async (req, res) => {
+    try {
+      const memberId = req.session?.user?.id;
+      if (!memberId) return res.redirect('/auth/login');
+
+      let level = parseInt(req.body.email_preference_level, 10);
+      if (![1, 2, 3].includes(level)) level = 1;
+
+      const result = await Member.findByIdAndUpdate(
+        memberId,
+        { $set: { emailPreferenceLevel: level } },
+        { new: false }
+      );
+
+      console.log('Member email preferences updated:', memberId, '→ level:', level, 'ok:', !!result);
+
+      // Success page (reuse your leader success partial if you like)
+      return res.render('partials/dashboardpartials/emailpreferencessuccess', {
+        layout: 'dashboardlayout',
+        title: 'Email Preferences Updated',
+        emailPreferenceLevel: level,
+        dashboard: '/dashboard/member'
+      });
+    } catch (err) {
+      console.error('member.updateEmailPreferences error:', err);
+      return res.status(500).render('member_form_views/error', {
+        layout: 'mainlayout',
+        title: 'Error',
+        errorMessage: 'Could not update email preferences. Please try again.'
+      });
     }
-};
+  },
+
+  // --- POST /dashboard/member/account/details ---
+  updateAccountDetails: async (req, res) => {
+    try {
+      const memberId = req.session?.user?.id;
+      if (!memberId) return res.redirect('/auth/login');
+
+      const { name, email, username } = req.body || {};
+      const updates = {};
+
+      // If you have a separate "name" field in Member schema, map it here.
+      // Otherwise, continue to use username as the display name.
+      if (typeof name === 'string' && name.trim()) updates.username = name.trim();
+
+      if (typeof email === 'string' && email.trim()) updates.email = email.trim();
+      if (typeof username === 'string') updates.username = username.trim();
+
+      const changedCount = Object.keys(updates).length;
+
+      if (changedCount) {
+        await Member.findByIdAndUpdate(memberId, { $set: updates });
+      }
+
+      return res.render('partials/dashboardpartials/accountdetailssuccess', {
+        layout: 'dashboardlayout',
+        title: 'Account Updated',
+        dashboard: '/dashboard/member',
+        changedCount,
+        name: updates.username,    // what the user sees as name
+        email: updates.email,
+        username: updates.username // explicit username if different
+      });
+    } catch (err) {
+      console.error('member.updateAccountDetails error:', err);
+      return res.status(500).render('member_form_views/error', {
+        layout: 'mainlayout',
+        title: 'Error',
+        errorMessage: 'Could not update account details. Please try again.'
+      });
+    }
+  }
+
+  };
+
 
 
 
