@@ -608,9 +608,23 @@ updateEmailPreferences: async (req, res) => {
     let level = parseInt(req.body.email_preference_level, 10);
     if (![1, 2, 3].includes(level)) level = 1;
 
-    await Leader.findByIdAndUpdate(leaderId, { $set: { email_preference_level: level } });
+    const result = await Leader.findByIdAndUpdate(
+      leaderId,
+      { $set: { email_preference_level: level } },
+      { new: false }
+    );
 
-    return res.redirect(req.baseUrl || '/dashboard/leader');
+    console.log('Email preferences updated for leader:', leaderId, '→ level:', level, 'ok:', !!result);
+
+    // Render success page (your file: views/partials/dashboardpartials/emailpreferencessuccess.hbs)
+    // If your view engine is configured with "views" pointing to the root views folder,
+    // you can render nested templates by their relative path:
+    return res.render('partials/dashboardpartials/emailpreferencessuccess', {
+      layout: 'dashboardlayout',
+      title: 'Email Preferences Updated',
+      emailPreferenceLevel: level,
+      dashboard: req.baseUrl || '/dashboard/leader'
+    });
   } catch (err) {
     console.error('updateEmailPreferences error:', err);
     return res.status(500).render('member_form_views/error', {
@@ -628,15 +642,28 @@ updateAccountDetails: async (req, res) => {
 
     const { name, email, username } = req.body || {};
     const updates = {};
+
     if (typeof name === 'string' && name.trim()) updates.groupLeaderName = name.trim();
     if (typeof email === 'string' && email.trim()) updates.groupLeaderEmail = email.trim();
     if (typeof username === 'string') updates.username = username.trim();
 
-    if (Object.keys(updates).length) {
+    const changedCount = Object.keys(updates).length;
+
+    if (changedCount) {
       await Leader.findByIdAndUpdate(leaderId, { $set: updates });
     }
 
-    return res.redirect(req.baseUrl || '/dashboard/leader');
+    // Render success page so you can visually confirm it worked
+    return res.render('partials/dashboardpartials/accountdetailssuccess', {
+      layout: 'dashboardlayout',
+      title: 'Account Updated',
+      dashboard: req.baseUrl || '/dashboard/leader',
+      changedCount,
+      // Only echo the values that were actually changed
+      name: updates.groupLeaderName,
+      email: updates.groupLeaderEmail,
+      username: updates.username
+    });
   } catch (err) {
     console.error('updateAccountDetails error:', err);
     return res.status(500).render('member_form_views/error', {
