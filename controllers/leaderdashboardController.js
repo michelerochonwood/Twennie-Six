@@ -310,7 +310,8 @@ module.exports = {
             console.log("Fetching dashboard for leader:", id);
 
             const userData = await Leader.findById(id)
-            .select('groupName groupLeaderName groupLeaderEmail profileImage professionalTitle organization topics members')
+            .select('groupName groupLeaderName groupLeaderEmail username emailPreferenceLevel profileImage professionalTitle organization topics members')
+
             .populate({
               path: 'members',
               model: 'GroupMember',
@@ -555,14 +556,14 @@ const leaderAssignedUnits = await buildLeaderAssignedUnits(id);
 //       or the fallbacks below will be used.
 
 // --- Membership tab: prepare leader account & email preference for view ---
-const emailPreferenceLevel = [1, 2, 3].includes(Number(userData?.email_preference_level))
-  ? Number(userData.email_preference_level)
-  : 1;
+// --- Membership tab: prepare leader account & email preference for view ---
+const rawPref = userData?.emailPreferenceLevel ?? userData?.email_preference_level;
+const emailPreferenceLevel = [1, 2, 3].includes(Number(rawPref)) ? Number(rawPref) : 1;
 
 const leaderAccount = {
   name: userData?.groupLeaderName || 'Leader',
-  email: userData?.groupLeaderEmail || req.session?.user?.email || '',
-  username: userData?.username || req.session?.user?.username || ''
+  email: userData?.groupLeaderEmail || '',
+  username: userData?.username || ''
 };
 
 return res.render('leader_dashboard', {
