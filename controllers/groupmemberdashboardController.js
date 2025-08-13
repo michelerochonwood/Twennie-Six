@@ -567,11 +567,10 @@ const groupMemberAccount = {
 return res.render('groupmember_dashboard', {
   layout: 'dashboardlayout',
   title: 'Group Member Dashboard',
+  csrfToken: req.csrfToken(),
   groupMember: {
     ...userData.toObject(),
-    profileImage: groupMemberProfile?.profileImage || '/images/default-avatar.png',
-      groupMemberAccount,
-  emailPreferenceLevel,
+    profileImage: groupMemberProfile?.profileImage || '/images/default-avatar.png'
   },
   groupMembers,
   maxGroupSize: userData.groupId.groupSize,
@@ -586,7 +585,10 @@ return res.render('groupmember_dashboard', {
   organization: leader?.organization || 'Unknown',
   leaderAssignedTags,
   completedLeaderAssignedTags,
-  topicSuggestions // ✅ Add this here
+  topicSuggestions,
+  // ⬇️ make these top-level so the template sees them
+  groupMemberAccount,
+  emailPreferenceLevel
 });
 
         
