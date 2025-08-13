@@ -55,18 +55,18 @@
 
         <p class="leader-membership-line">
           <label class="leader-membership-label" for="acc_name">Name:</label>
-          <input id="acc_name" class="leader-membership-input" type="text" name="name" value="{{leaderAccount.name}}" required>
+          <input id="acc_name" class="leader-membership-input" type="text" name="name" value="{{leaderAccount.name}}" required style="border-radius: 55px; height: 30px; border-width: 1px">
         </p>
 
         <p class="leader-membership-line">
           <label class="leader-membership-label" for="acc_email">Email:</label>
-          <input id="acc_email" class="leader-membership-input" type="email" name="email" value="{{leaderAccount.email}}" required>
+          <input id="acc_email" class="leader-membership-input" type="email" name="email" value="{{leaderAccount.email}}" required style="border-radius: 55px; height: 30px; border-width: 1px">
         </p>
 
         {{#if leaderAccount.username}}
         <p class="leader-membership-line">
           <label class="leader-membership-label" for="acc_username">Username:</label>
-          <input id="acc_username" class="leader-membership-input" type="text" name="username" value="{{leaderAccount.username}}">
+          <input id="acc_username" class="leader-membership-input" type="text" name="username" value="{{leaderAccount.username}}" style="border-radius: 55px; height: 30px; border-width: 1px">
         </p>
         {{/if}}
 

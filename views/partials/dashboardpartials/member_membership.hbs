@@ -54,18 +54,18 @@
 
         <p class="individual-membership-line">
           <label class="individual-membership-label" for="m_acc_name">Name:</label>
-          <input id="m_acc_name" class="individual-membership-input" type="text" name="name" value="{{memberAccount.name}}" required>
+          <input id="m_acc_name" class="individual-membership-input" type="text" name="name" value="{{memberAccount.name}}" required style="border-radius: 55px; height: 30px; border-width: 1px">
         </p>
 
         <p class="individual-membership-line">
           <label class="individual-membership-label" for="m_acc_email">Email:</label>
-          <input id="m_acc_email" class="individual-membership-input" type="email" name="email" value="{{memberAccount.email}}" required>
+          <input id="m_acc_email" class="individual-membership-input" type="email" name="email" value="{{memberAccount.email}}" required style="border-radius: 55px; height: 30px; border-width: 1px">
         </p>
 
         {{#if memberAccount.username}}
         <p class="individual-membership-line">
           <label class="individual-membership-label" for="m_acc_username">Username:</label>
-          <input id="m_acc_username" class="individual-membership-input" type="text" name="username" value="{{memberAccount.username}}">
+          <input id="m_acc_username" class="individual-membership-input" type="text" name="username" value="{{memberAccount.username}}" style="border-radius: 55px; height: 30px; border-width: 1px">
         </p>
         {{/if}}
 
