@@ -4,18 +4,19 @@ const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 const bcrypt = require('bcrypt');
 
-// Pull in all three models so we can resolve by role
-const Leader = require('../models/member_models/leader');
-const Member = require('../models/member_models/member');
-const GroupMember = require('../models/member_models/group_member');
+// Models
+const Leader = require('../../models/member_models/leader');
+const Member = require('../../models/member_models/member');
+const GroupMember = require('../../models/member_models/group_member');
 
+// Utils (single, correct import)
 const {
   encryptSecret,
   decryptSecret,
   generateRecoveryCodes,
   hashRecoveryCodes,
   verifyRecoveryCode,
-} = require('../utils/cryptoMfa');
+} = require('../../utils/cryptoMfa'); // <-- correct path, no duplicate import
 
 // ---- helpers ----
 const byRole = {
