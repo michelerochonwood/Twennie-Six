@@ -600,57 +600,52 @@ return res.render('leader_dashboard', {
   }, // ← end of renderLeaderDashboard, KEEP THE COMMA
 
   // --- POST /leader-dashboard/account/email-preferences ---
-  updateEmailPreferences: async (req, res) => {
-    try {
-      const leaderId = req.session?.user?.id;
-      if (!leaderId) return res.redirect('/auth/login');
+updateEmailPreferences: async (req, res) => {
+  try {
+    const leaderId = req.session?.user?.id;
+    if (!leaderId) return res.redirect('/auth/login');
 
-      let level = parseInt(req.body.email_preference_level, 10);
-      if (![1, 2, 3].includes(level)) level = 1;
+    let level = parseInt(req.body.email_preference_level, 10);
+    if (![1, 2, 3].includes(level)) level = 1;
 
-      await Leader.findByIdAndUpdate(
-        leaderId,
-        { $set: { email_preference_level: level } }
-      );
+    await Leader.findByIdAndUpdate(leaderId, { $set: { email_preference_level: level } });
 
-      return res.redirect('/leader-dashboard');
-    } catch (err) {
-      console.error('updateEmailPreferences error:', err);
-      return res.status(500).render('member_form_views/error', {
-        layout: 'mainlayout',
-        title: 'Error',
-        errorMessage: 'Could not update email preferences. Please try again.'
-      });
-    }
-  },
-
-  // --- POST /leader-dashboard/account/details ---
-  updateAccountDetails: async (req, res) => {
-    try {
-      const leaderId = req.session?.user?.id;
-      if (!leaderId) return res.redirect('/auth/login');
-
-      const { name, email, username } = req.body || {};
-      const updates = {};
-
-      if (typeof name === 'string' && name.trim()) updates.groupLeaderName = name.trim();
-      if (typeof email === 'string' && email.trim()) updates.groupLeaderEmail = email.trim();
-      if (typeof username === 'string') updates.username = username.trim();
-
-      if (Object.keys(updates).length) {
-        await Leader.findByIdAndUpdate(leaderId, { $set: updates });
-      }
-
-      return res.redirect('/leader-dashboard');
-    } catch (err) {
-      console.error('updateAccountDetails error:', err);
-      return res.status(500).render('member_form_views/error', {
-        layout: 'mainlayout',
-        title: 'Error',
-        errorMessage: 'Could not update account details. Please try again.'
-      });
-    }
+    return res.redirect(req.baseUrl || '/dashboard/leader');
+  } catch (err) {
+    console.error('updateEmailPreferences error:', err);
+    return res.status(500).render('member_form_views/error', {
+      layout: 'mainlayout',
+      title: 'Error',
+      errorMessage: 'Could not update email preferences. Please try again.'
+    });
   }
+},
+
+updateAccountDetails: async (req, res) => {
+  try {
+    const leaderId = req.session?.user?.id;
+    if (!leaderId) return res.redirect('/auth/login');
+
+    const { name, email, username } = req.body || {};
+    const updates = {};
+    if (typeof name === 'string' && name.trim()) updates.groupLeaderName = name.trim();
+    if (typeof email === 'string' && email.trim()) updates.groupLeaderEmail = email.trim();
+    if (typeof username === 'string') updates.username = username.trim();
+
+    if (Object.keys(updates).length) {
+      await Leader.findByIdAndUpdate(leaderId, { $set: updates });
+    }
+
+    return res.redirect(req.baseUrl || '/dashboard/leader');
+  } catch (err) {
+    console.error('updateAccountDetails error:', err);
+    return res.status(500).render('member_form_views/error', {
+      layout: 'mainlayout',
+      title: 'Error',
+      errorMessage: 'Could not update account details. Please try again.'
+    });
+  }
+}
 }; // ← CLOSES module.exports
 
 

@@ -50,7 +50,7 @@
   <div class="leader-membership-grid">
     <!-- Column 1: Account info -->
     <div class="leader-membership-column">
-      <form action="/leader-dashboard/account/details" method="POST" novalidate>
+      <form action="/dashboard/leader/account/details" method="POST" novalidate>
         <input type="hidden" name="_csrf" value="{{csrfToken}}">
 
         <p class="leader-membership-line">
@@ -80,9 +80,8 @@
     <div class="leader-membership-column">
       <p class="leader-membership-access-title">email notifications</p>
 
-      <form action="/leader-dashboard/account/email-preferences" method="POST" novalidate>
+<form action="/dashboard/leader/account/email-preferences" method="POST" novalidate>
         <input type="hidden" name="_csrf" value="{{csrfToken}}">
-
         <ul class="leader-membership-access-list">
           <li>
             <label class="leader-membership-line" style="display:flex; gap:.5rem; align-items:flex-start;">
