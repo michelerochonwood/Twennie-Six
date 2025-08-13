@@ -286,12 +286,13 @@ let completedPromptSets = [];
 
             //members of a group are meant to show in the group member dashboard as cards - it is important that none of this changed because the group members are located based on the leader of the group - if you are rewriting anything in this renderdashboard, make sure to rewrite it exactly as you see it here. 
     
-            const userData = await GroupMember.findById(id)
-            .select('name profileImage professionalTitle organization groupId') // include profileImage explicitly
-            .populate({
-              path: 'groupId',
-              populate: { path: 'members', model: 'GroupMember', select: 'name profileImage professionalTitle' }
-            });
+const userData = await GroupMember.findById(id)
+  .select('name email username profileImage professionalTitle organization groupId emailPreferenceLevel') // ← add email, username, emailPreferenceLevel
+  .populate({
+    path: 'groupId',
+    populate: { path: 'members', model: 'GroupMember', select: 'name profileImage professionalTitle' }
+  });
+
         
             console.log("🔍 Fetched user data:", JSON.stringify(userData, null, 2));
             if (!userData) {
@@ -552,13 +553,25 @@ const leader = await Leader.findOne({ _id: userData.groupId._id }).select('group
 console.log("✅ Final Leader Name Before Rendering:", leader ? leader.groupLeaderName : "Not Found");
 
 const groupMemberProfile = await GroupMemberProfile.findOne({ memberId: id });
+
+const emailPreferenceLevel = [1, 2, 3].includes(Number(userData?.emailPreferenceLevel))
+  ? Number(userData.emailPreferenceLevel)
+  : 1;
+
+const groupMemberAccount = {
+  name: userData?.name || '',
+  email: userData?.email || '',
+  username: userData?.username || ''
+};
 // ✅ Final render
 return res.render('groupmember_dashboard', {
   layout: 'dashboardlayout',
   title: 'Group Member Dashboard',
   groupMember: {
     ...userData.toObject(),
-    profileImage: groupMemberProfile?.profileImage || '/images/default-avatar.png'
+    profileImage: groupMemberProfile?.profileImage || '/images/default-avatar.png',
+      groupMemberAccount,
+  emailPreferenceLevel,
   },
   groupMembers,
   maxGroupSize: userData.groupId.groupSize,
@@ -584,17 +597,66 @@ return res.render('groupmember_dashboard', {
             console.error('Error rendering group member dashboard:', err);
             return res.status(500).render('error', { title: 'Error', errorMessage: 'An unexpected error occurred.' });
         }
+    },
+
+
+// --- POST /dashboard/groupmember/account/email-preferences ---
+updateEmailPreferences: async (req, res) => {
+  try {
+    const memberId = req.session?.user?.id;
+    if (!memberId) return res.redirect('/auth/login');
+
+    let level = parseInt(req.body.email_preference_level, 10);
+    if (![1, 2, 3].includes(level)) level = 1;
+
+    await GroupMember.findByIdAndUpdate(
+      memberId,
+      { $set: { emailPreferenceLevel: level, emailPreferencesUpdatedAt: new Date() } }
+    );
+
+    // Redirect back or render a success page if you prefer
+    return res.redirect('/dashboard/groupmember');
+  } catch (err) {
+    console.error('updateEmailPreferences (group member) error:', err);
+    return res.status(500).render('member_form_views/error', {
+      layout: 'mainlayout',
+      title: 'Error',
+      errorMessage: 'Could not update email preferences. Please try again.'
+    });
+  }
+},
+
+// --- POST /dashboard/groupmember/account/details ---
+updateAccountDetails: async (req, res) => {
+  try {
+    const memberId = req.session?.user?.id;
+    if (!memberId) return res.redirect('/auth/login');
+
+    const { name, email, username } = req.body || {};
+    const updates = {};
+
+    if (typeof name === 'string' && name.trim()) updates.name = name.trim();
+    if (typeof email === 'string' && email.trim()) updates.email = email.trim();
+    if (typeof username === 'string') updates.username = username.trim();
+
+    if (Object.keys(updates).length) {
+      await GroupMember.findByIdAndUpdate(memberId, { $set: updates });
     }
+
+    // Redirect back or render a success page if desired
+    return res.redirect('/dashboard/groupmember');
+  } catch (err) {
+    console.error('updateAccountDetails (group member) error:', err);
+    return res.status(500).render('member_form_views/error', {
+      layout: 'mainlayout',
+      title: 'Error',
+      errorMessage: 'Could not update account details. Please try again.'
+    });
+  }
+}
+
+
 };
-
-
-
-
-
-
-
-
-
 
 
 

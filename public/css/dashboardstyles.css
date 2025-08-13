@@ -1153,6 +1153,16 @@ html, body {
   color: #262262;
 }
 
+.group-preference-list {
+  margin: .25rem 0 1rem 2rem;
+  padding-left: 1rem;
+  list-style: disc;
+}
+.group-preference-list li {
+  margin: .125rem 0;
+  line-height: 1.35;
+}
+
 .group-membership-title {
   font-size: 1.2rem;
   font-weight: 800;
@@ -2725,7 +2735,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  gap: 2rem; /* ✅ space between the two columns */
+    gap: 2rem; /* ✅ space between the two columns */
 }
 
 .individual-membership-column {
