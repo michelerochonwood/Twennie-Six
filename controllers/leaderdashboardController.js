@@ -310,7 +310,7 @@ module.exports = {
             console.log("Fetching dashboard for leader:", id);
 
             const userData = await Leader.findById(id)
-            .select('groupName groupLeaderName profileImage professionalTitle organization topics members')
+            .select('groupName groupLeaderName groupLeaderEmail profileImage professionalTitle organization topics members')
             .populate({
               path: 'members',
               model: 'GroupMember',
