@@ -52,6 +52,18 @@ async function getCurrentUserDoc(req) {
   return { doc, Model, role: key };
 }
 
+// settings (alias) → same handler as /mfa
+router.get(['/mfa', '/mfa/settings'], isAuthenticated, async (req, res) => {
+  const ctx = await getCurrentUserDoc(req);
+  if (!ctx || !ctx.doc) return res.redirect('/auth/login');
+
+  return res.render('auth/mfa_settings', {
+    layout: 'dashboardlayout',
+    title: 'Multi-Factor Authentication',
+    mfaEnabled: !!ctx.doc.mfa?.enabled,
+  });
+});
+
 // -------------- UI: MFA settings page ----------------
 router.get('/mfa', isAuthenticated, async (req, res) => {
   const ctx = await getCurrentUserDoc(req);
