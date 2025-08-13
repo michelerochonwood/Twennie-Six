@@ -1,4 +1,3 @@
-
 const bcrypt = require('bcrypt');
 
 const Member = require('../models/member_models/member');
@@ -18,7 +17,7 @@ module.exports = {
   },
 
   handleLogin: async (req, res, next) => {
-    const email = req.body.email.toLowerCase();
+    const email = (req.body.email || '').toLowerCase();
     const password = req.body.password;
 
     console.log('Login attempt with email:', email);
@@ -36,6 +35,7 @@ module.exports = {
           layout: 'mainlayout',
           title: 'Login',
           error: 'Invalid email or password.',
+          csrfToken: req.csrfToken ? req.csrfToken() : null,
         });
       }
 
@@ -46,22 +46,66 @@ module.exports = {
           layout: 'mainlayout',
           title: 'Login',
           error: 'Invalid email or password.',
+          csrfToken: req.csrfToken ? req.csrfToken() : null,
         });
       }
 
+      // Normalize role/membership for dashboard routing
+      // Leaders have membershipType 'leader' (or detect by groupLeaderEmail)
+      // Group members have membershipType 'group_member'
+      // Individual members use 'member'
       const membershipType =
-        user.membershipType || (user.groupLeaderEmail ? 'leader' : 'group_member');
+        user.membershipType ||
+        (user.groupLeaderEmail ? 'leader' : (user.groupId ? 'group_member' : 'member'));
+
       const username =
         user.username || user.groupLeaderName || user.name || user.groupMemberName || 'User';
 
-      // ✅ Use req.login to populate req.user (used by your app.js middleware)
+      // Where to go after full login (or after MFA success)
+      const redirectByType = {
+        leader: '/dashboard/leader',
+        group_member: '/dashboard/groupmember',
+        member: '/dashboard/member',
+      };
+      const redirectTo = redirectByType[membershipType] || '/';
+
+      // ---- MFA BRANCH ----
+      if (user.mfa?.enabled) {
+        // Do NOT call req.login yet. Hold a "pending MFA" session and challenge.
+        req.session.pendingMfa = {
+          userId: user._id.toString(),
+          role:
+            membershipType === 'leader'
+              ? 'leader'
+              : membershipType === 'group_member'
+              ? 'group_member'
+              : 'member',
+          // Whatever you usually put in req.session.user after login
+          user: {
+            id: user._id.toString(),
+            username,
+            accessLevel:
+              membershipType === 'leader'
+                ? 'leader'
+                : membershipType === 'group_member'
+                ? 'group_member'
+                : 'member',
+          },
+          redirectTo,
+        };
+
+        console.log(`🔐 Password ok; MFA required for ${username}. Redirecting to challenge.`);
+        return res.redirect('/auth/mfa/challenge');
+      }
+
+      // ---- NO MFA: regular login path ----
       req.login(user, (err) => {
         if (err) {
           console.error('❌ req.login error:', err);
           return next(err);
         }
 
-        // Also keep session user for dashboard link middleware
+        // Keep your existing lightweight session payload for other middleware
         req.session.user = {
           id: user._id,
           username,
@@ -69,17 +113,7 @@ module.exports = {
         };
 
         console.log(`✅ Login successful: ${username} (${membershipType})`);
-
-        switch (membershipType) {
-          case 'leader':
-            return res.redirect('/dashboard/leader');
-          case 'group_member':
-            return res.redirect('/dashboard/groupmember');
-          case 'member':
-            return res.redirect('/dashboard/member');
-          default:
-            return res.redirect('/dashboard');
-        }
+        return res.redirect(redirectTo);
       });
     } catch (err) {
       console.error('❌ Login error:', err);
@@ -87,6 +121,7 @@ module.exports = {
         layout: 'mainlayout',
         title: 'Login',
         error: 'An unexpected error occurred. Please try again.',
+        csrfToken: req.csrfToken ? req.csrfToken() : null,
       });
     }
   },
@@ -98,5 +133,6 @@ module.exports = {
     });
   }
 };
+
 
 

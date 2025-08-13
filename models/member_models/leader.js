@@ -148,6 +148,16 @@ topics: {
   emailPreferencesUpdatedAt: {
     type: Date
   },
+  mfa: {
+  enabled: { type: Boolean, default: false },
+  method: { type: String, enum: ['totp'], default: undefined },
+  // Encrypted at rest (AES-256-GCM). Never store raw.
+  secretEnc: { type: String },       // base64 of ciphertext
+  secretIv: { type: String },        // base64 of IV
+  secretTag: { type: String },       // base64 of auth tag
+  recoveryCodes: [{ type: String }], // bcrypt-hashed codes
+  updatedAt: { type: Date }
+},
 }, {
   timestamps: true // ✅ Properly placed as the second argument
   

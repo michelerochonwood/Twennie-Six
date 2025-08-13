@@ -1,0 +1,9 @@
+{{#*inline "title"}}MFA Enabled | Twennie{{/inline}}
+<div class="success-container">
+  <h1 class="success-title">Multi-factor authentication is enabled!</h1>
+  <p class="success-message">Save these <strong>recovery codes</strong> in a safe place. Each can be used once if you lose access to your authenticator app.</p>
+  <ul class="individual-membership-access-list">
+    {{#each recoveryCodes}}<li><code>{{this}}</code></li>{{/each}}
+  </ul>
+  <a href="{{dashboard}}" class="success-button">return to my dashboard</a>
+</div>

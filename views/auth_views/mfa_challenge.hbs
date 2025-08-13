@@ -1,0 +1,19 @@
+{{#*inline "title"}}Verify MFA | Twennie{{/inline}}
+<section class="leader-membership-tab">
+  <h2 class="leader-membership-title">verify your login</h2>
+  <div class="leader-membership-grid" style="gap:1.5rem;">
+    <div class="leader-membership-column">
+      {{#if error}}<p style="color:#b00020;">{{error}}</p>{{/if}}
+      <form action="/auth/mfa/challenge" method="POST">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+        <p class="leader-membership-line">
+          <label class="leader-membership-label" for="token">Authenticator or recovery code:</label>
+          <input id="token" class="leader-membership-input" type="text" name="token" required>
+        </p>
+        <div class="group-membership-button-container">
+          <button class="group-membership-btn">verify</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

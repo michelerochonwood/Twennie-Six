@@ -39,9 +39,9 @@
     </div>
   </div>
 
-<div class="group-membership-button-container">
-  <a href="/change_membership" class="group-membership-btn" style="text-decoration: none">change my membership</a>
-</div>
+  <div class="group-membership-button-container">
+    <a href="/change_membership" class="group-membership-btn" style="text-decoration: none">change my membership</a>
+  </div>
 </section>
 
 <section class="leader-membership-tab">
@@ -74,6 +74,17 @@
           <button type="submit" class="group-membership-btn">save my account information</button>
         </div>
       </form>
+
+      <!-- MFA settings link + explanation -->
+      <div class="leader-membership-mfa" style="margin-top:1.25rem;">
+        <p class="leader-membership-access-title" style="margin-bottom:.25rem;">multi-factor authentication</p>
+        <p class="leader-membership-line" style="font-size:.9rem; margin-bottom:.75rem;">
+          Add an extra layer of security to your account. This link takes you to your MFA settings page where you can:
+          set up an authenticator app, view or regenerate backup codes, or disable MFA if needed.
+        </p>
+        <a href="/auth/mfa/settings" class="group-membership-btn" style="text-decoration:none;">manage my MFA settings</a>
+      </div>
+      <!-- /MFA settings -->
     </div>
 
     <!-- Column 2: Email preferences -->
@@ -140,6 +151,7 @@
     </div>
   </div>
 </section>
+
 
 
 
