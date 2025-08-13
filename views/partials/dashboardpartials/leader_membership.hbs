@@ -80,37 +80,56 @@
     <div class="leader-membership-column">
       <p class="leader-membership-access-title">email notifications</p>
 
-<form action="/dashboard/leader/account/email-preferences" method="POST" novalidate>
+      <form action="/dashboard/leader/account/email-preferences" method="POST" novalidate>
         <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
         <ul class="leader-membership-access-list">
+          <!-- Level 1 -->
           <li>
-            <label class="leader-membership-line" style="display:flex; gap:.5rem; align-items:flex-start;">
-              <input type="radio" name="email_preference_level" value="1" {{#if (eq emailPreferenceLevel 1)}}checked{{/if}}>
-              <span>
-                <span class="leader-membership-label">Level 1:</span>
-                changes to account | password resets only
-              </span>
-            </label>
+            <div class="leader-membership-line" style="display:flex; gap:.5rem; align-items:flex-start;">
+              <input id="email_pref_1" type="radio" name="email_preference_level" value="1" {{#if (eq emailPreferenceLevel 1)}}checked{{/if}}>
+              <label for="email_pref_1">
+                <span class="leader-membership-label">Level 1</span>
+              </label>
+            </div>
+            <ul class="leader-preference-list">
+              <li>changes to account</li>
+              <li>password resets only</li>
+            </ul>
           </li>
 
+          <!-- Level 2 -->
           <li>
-            <label class="leader-membership-line" style="display:flex; gap:.5rem; align-items:flex-start;">
-              <input type="radio" name="email_preference_level" value="2" {{#if (eq emailPreferenceLevel 2)}}checked{{/if}}>
-              <span>
-                <span class="leader-membership-label">Level 2:</span>
-                changes to account | password resets | new units in my favorite topics | changes to the Twennie platform
-              </span>
-            </label>
+            <div class="leader-membership-line" style="display:flex; gap:.5rem; align-items:flex-start;">
+              <input id="email_pref_2" type="radio" name="email_preference_level" value="2" {{#if (eq emailPreferenceLevel 2)}}checked{{/if}}>
+              <label for="email_pref_2">
+                <span class="leader-membership-label">Level 2</span>
+              </label>
+            </div>
+            <ul class="leader-preference-list">
+              <li>changes to account</li>
+              <li>password resets</li>
+              <li>new units in my favorite topics</li>
+              <li>changes to the Twennie platform</li>
+            </ul>
           </li>
 
+          <!-- Level 3 -->
           <li>
-            <label class="leader-membership-line" style="display:flex; gap:.5rem; align-items:flex-start;">
-              <input type="radio" name="email_preference_level" value="3" {{#if (eq emailPreferenceLevel 3)}}checked{{/if}}>
-              <span>
-                <span class="leader-membership-label">Level 3:</span>
-                changes to account | password resets | new units in my favorite topics | changes to the Twennie platform | upcoming learning events on Twennie | promotional offers from Twennie
-              </span>
-            </label>
+            <div class="leader-membership-line" style="display:flex; gap:.5rem; align-items:flex-start;">
+              <input id="email_pref_3" type="radio" name="email_preference_level" value="3" {{#if (eq emailPreferenceLevel 3)}}checked{{/if}}>
+              <label for="email_pref_3">
+                <span class="leader-membership-label">Level 3</span>
+              </label>
+            </div>
+            <ul class="leader-preference-list">
+              <li>changes to account</li>
+              <li>password resets</li>
+              <li>new units in my favorite topics</li>
+              <li>changes to the Twennie platform</li>
+              <li>upcoming learning events on Twennie</li>
+              <li>promotional offers from Twennie</li>
+            </ul>
           </li>
         </ul>
 
@@ -121,6 +140,7 @@
     </div>
   </div>
 </section>
+
 
 
 
