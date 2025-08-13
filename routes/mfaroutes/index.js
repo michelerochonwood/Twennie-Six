@@ -26,29 +26,51 @@ const byRole = {
   group_member: GroupMember,
 };
 
-// basic auth gate
+// Auth gate: allow Passport (req.isAuthenticated/req.user) OR legacy req.session.user
 function isAuthenticated(req, res, next) {
-  if (req.session?.user) return next();
+  if (typeof req.isAuthenticated === 'function' && req.isAuthenticated() && req.user) {
+    return next();
+  }
+  if (req.session?.user) {
+    // normalize so downstream can use req.user consistently
+    req.user = req.session.user;
+    return next();
+  }
   return res.redirect('/auth/login');
 }
 
-// Resolve the current user doc + model by role in session
+// Resolve the current user doc + model by role in session or Passport
 async function getCurrentUserDoc(req) {
-  const role = req.session?.user?.accessLevel || req.session?.user?.role;
-  const userId = req.session?.user?.id;
+  const u = req.user || req.session?.user;
+  if (!u) return null;
 
-  let key = role;
-  if (role === 'free_individual' || role === 'contributor_individual' || role === 'paid_individual') key = 'member';
-  else if (role === 'leader') key = 'leader';
-  else if (role === 'group_member') key = 'group_member';
+  // If Passport deserialized a Mongoose doc, use its model name directly
+  const modelName = u?.constructor?.modelName;
+  let Model, roleKey;
 
-  const Model = byRole[key];
-  if (!Model || !userId) return null;
-  const doc = await Model.findById(userId);
-  return { doc, Model, role: key };
+  if (modelName === 'Leader') {
+    Model = Leader; roleKey = 'leader';
+  } else if (modelName === 'GroupMember') {
+    Model = GroupMember; roleKey = 'group_member';
+  } else if (modelName === 'Member') {
+    Model = Member; roleKey = 'member';
+  } else {
+    // Legacy plain object path
+    const role = u.accessLevel || u.role;
+    if (role === 'leader')            { Model = Leader;      roleKey = 'leader'; }
+    else if (role === 'group_member') { Model = GroupMember; roleKey = 'group_member'; }
+    else                              { Model = Member;      roleKey = 'member'; } // default
+  }
+
+  const id = u._id?.toString?.() || u.id;
+  if (!Model || !id) return null;
+
+  // If already a doc (Passport), reuse it; otherwise load fresh
+  const doc = modelName && u._id ? u : await Model.findById(id);
+  return { doc, Model, role: roleKey };
 }
 
-// IMPORTANT: default to '/mfa' since we're mounted at /mfa
+// IMPORTANT: default to '/mfa' since we’re mounted there
 function ctxBaseUrl(req) {
   return req.baseUrl || '/mfa';
 }
@@ -91,9 +113,17 @@ router.post('/setup', isAuthenticated, async (req, res) => {
   if (!ctx || !ctx.doc) return res.redirect('/auth/login');
 
   const labelName = `Twennie (${ctx.doc.username || ctx.doc.groupLeaderName || ctx.doc.name || 'user'})`;
-  const secret = speakeasy.generateSecret({ name: labelName, issuer: 'Twennie', length: 20 });
+  const secret = speakeasy.generateSecret({
+    name: labelName,
+    issuer: 'Twennie',
+    length: 20,
+  });
 
-  req.session.mfaSetup = { base32: secret.base32, otpauth_url: secret.otpauth_url };
+  req.session.mfaSetup = {
+    base32: secret.base32,
+    otpauth_url: secret.otpauth_url,
+  };
+
   const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url);
 
   return res.render('auth_views/mfa_setup', {
@@ -124,7 +154,12 @@ router.post('/verify-setup', isAuthenticated, async (req, res) => {
     });
   }
 
-  const ok = speakeasy.totp.verify({ secret: setup.base32, encoding: 'base32', token: userToken, window: 1 });
+  const ok = speakeasy.totp.verify({
+    secret: setup.base32,
+    encoding: 'base32',
+    token: userToken,
+    window: 1,
+  });
 
   if (!ok) {
     return res.render('auth_views/mfa_setup', {
@@ -155,11 +190,12 @@ router.post('/verify-setup', isAuthenticated, async (req, res) => {
 
   delete req.session.mfaSetup;
 
+  // Show success + recovery codes (only once)
   return res.render('auth_views/mfa_setup_success', {
     layout: 'dashboardlayout',
     title: 'MFA Enabled',
-    recoveryCodes: rawCodes, // show once
-    dashboard: '/dashboard/leader',
+    recoveryCodes: rawCodes,
+    dashboard: '/dashboard/leader', // adjust per-role if desired
     baseUrl: ctxBaseUrl(req),
   });
 });
@@ -180,7 +216,12 @@ router.post('/disable', isAuthenticated, async (req, res) => {
     secretTag: ctx.doc.mfa.secretTag,
   });
 
-  const ok = speakeasy.totp.verify({ secret, encoding: 'base32', token, window: 1 });
+  const ok = speakeasy.totp.verify({
+    secret,
+    encoding: 'base32',
+    token,
+    window: 1,
+  });
 
   if (!ok) {
     return res.render('auth_views/mfa_settings', {
@@ -216,9 +257,15 @@ router.post('/disable', isAuthenticated, async (req, res) => {
    GET/POST /mfa/challenge
    ====================================================== */
 router.get('/challenge', async (req, res) => {
-  if (!req.session?.pendingMfa?.userId || !req.session?.pendingMfa?.role) {
+  if (
+    (typeof req.isAuthenticated === 'function' && req.isAuthenticated() && req.user) ||
+    req.session?.pendingMfa?.userId
+  ) {
+    // ok to show challenge
+  } else {
     return res.redirect('/auth/login');
   }
+
   return res.render('auth_views/mfa_challenge', {
     layout: 'mainlayout',
     title: 'Verify MFA',
@@ -233,6 +280,7 @@ router.post('/challenge', async (req, res) => {
   const Model = byRole[pending.role];
   const userDoc = await Model.findById(pending.userId);
   if (!userDoc || !userDoc.mfa?.enabled) {
+    // No MFA anymore? Just log them in.
     req.session.user = pending.user;
     delete req.session.pendingMfa;
     return res.redirect(pending.redirectTo || '/');
@@ -247,6 +295,7 @@ router.post('/challenge', async (req, res) => {
 
   let ok = false;
   if (token.includes('-')) {
+    // treat as recovery code
     const idx = await verifyRecoveryCode(token.toUpperCase(), userDoc.mfa.recoveryCodes);
     if (idx >= 0) {
       ok = true;
@@ -254,7 +303,12 @@ router.post('/challenge', async (req, res) => {
       await userDoc.save();
     }
   } else {
-    ok = speakeasy.totp.verify({ secret, encoding: 'base32', token, window: 1 });
+    ok = speakeasy.totp.verify({
+      secret,
+      encoding: 'base32',
+      token,
+      window: 1,
+    });
   }
 
   if (!ok) {
@@ -267,11 +321,12 @@ router.post('/challenge', async (req, res) => {
   }
 
   // Promote pending to fully logged in
-  req.session.user = pending.user;
+  req.session.user = pending.user;   // keep compatibility with legacy checks
   delete req.session.pendingMfa;
 
   return res.redirect(pending.redirectTo || '/');
 });
 
 module.exports = router;
+
 
