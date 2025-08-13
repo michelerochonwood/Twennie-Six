@@ -3986,3 +3986,105 @@ box-shadow: none !important;
 
 }
 
+
+
+/* ===== MFA inline card for dashboards ===== */
+.mfa-inline {
+  background: #fff;
+  border: 1px solid #e6e8ef;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+}
+
+.mfa-inline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mfa-inline-title {
+  margin: 0;
+  color: #262262;
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: lowercase;
+  letter-spacing: 0.2px;
+}
+
+.mfa-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: "Figtree";
+  line-height: 1;
+  color: #fff;
+}
+.mfa-chip--on { background: #2e7d32; }    /* green */
+.mfa-chip--off { background: #b00020; }   /* red */
+
+.mfa-inline-desc {
+  margin: 8px 0 12px;
+  font-size: 14px;
+  color: #333;
+  font-family: "Figtree";
+}
+
+.mfa-inline-meta {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin: 0 0 12px 0;
+}
+
+.mfa-inline-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 10px;
+  align-items: baseline;
+}
+.mfa-inline-row dt {
+  text-transform: lowercase;
+  color: #5a5f66;
+  font-weight: 700;
+  font-size: 12px;
+  font-family: "Figtree";
+  margin: 0;
+}
+.mfa-inline-row dd {
+  margin: 0;
+  font-size: 14px;
+  color: #111;
+  font-family: "Figtree";
+}
+
+.mfa-inline-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.mfa-inline .mfa-button {
+  display: inline-block;
+  font-size: 11pt;
+  padding: 10px 20px;
+  border-radius: 99px;
+  background-color: #262262;
+  color: #fff;
+  font-family: "Figtree";
+  font-weight: 800;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+.mfa-inline .mfa-button:hover { background: #4a4ab2; }
+
+@media (max-width: 520px) {
+  .mfa-inline-row { grid-template-columns: 1fr; }
+}
+
+

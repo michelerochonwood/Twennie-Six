@@ -75,17 +75,50 @@
         </div>
       </form>
 
-      <!-- MFA settings link + explanation -->
-      <div class="leader-membership-mfa" style="margin-top:1.25rem;">
-        <p class="leader-membership-access-title" style="margin-bottom:.25rem;">multi-factor authentication</p>
-        <p class="leader-membership-line" style="font-size:.9rem; margin-bottom:.75rem;">
-          Add an extra layer of security to your account. This link takes you to your MFA settings page where you can:
-          set up an authenticator app, view or regenerate backup codes, or disable MFA if needed.
-        </p>
-        <a href="/mfa" class="group-membership-btn" style="text-decoration:none;">manage my MFA settings</a>
-      </div>
-      <!-- /MFA settings -->
+<!-- MFA (inline status card in dashboard) -->
+<div class="mfa-inline">
+  <div class="mfa-inline-header">
+    <h3 class="mfa-inline-title">multi-factor authentication</h3>
+    {{#if mfaStatus.enabled}}
+      <span class="mfa-chip mfa-chip--on">enabled</span>
+    {{else}}
+      <span class="mfa-chip mfa-chip--off">not enabled</span>
+    {{/if}}
+  </div>
+
+  <p class="mfa-inline-desc">
+    Add an extra layer of security to your account. Manage your authenticator app and backup codes.
+  </p>
+
+  <dl class="mfa-inline-meta">
+    <div class="mfa-inline-row">
+      <dt>method</dt>
+      <dd>
+        {{#if mfaStatus.enabled}}
+          Authenticator app (TOTP)
+        {{else}}
+          —
+        {{/if}}
+      </dd>
     </div>
+
+    <div class="mfa-inline-row">
+      <dt>backup codes remaining</dt>
+      <dd>{{mfaStatus.recoveryCodesRemaining}}</dd>
+    </div>
+
+    <div class="mfa-inline-row">
+      <dt>last updated</dt>
+      <dd>{{#if mfaStatus.updatedAtFormatted}}{{mfaStatus.updatedAtFormatted}}{{else}}—{{/if}}</dd>
+    </div>
+  </dl>
+
+  <div class="mfa-inline-actions">
+    <a href="/mfa" class="mfa-button">manage my mfa settings</a>
+  </div>
+</div>
+<!-- /MFA (inline) -->
+
 
     <!-- Column 2: Email preferences -->
     <div class="leader-membership-column">

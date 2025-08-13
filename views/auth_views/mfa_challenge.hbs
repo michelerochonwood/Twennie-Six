@@ -1,20 +1,35 @@
 {{#*inline "title"}}Verify MFA | Twennie{{/inline}}
-<section class="leader-membership-tab">
-  <h2 class="leader-membership-title">verify your login</h2>
-  <div class="leader-membership-grid" style="gap:1.5rem;">
-    <div class="leader-membership-column">
-      {{#if error}}<p style="color:#b00020;">{{error}}</p>{{/if}}
-      <form action="{{baseUrl}}/challenge" method="POST">
-        {{#if csrfToken}}<input type="hidden" name="_csrf" value="{{csrfToken}}">{{/if}}
-        <p class="leader-membership-line">
-          <label class="leader-membership-label" for="token">Authenticator or recovery code:</label>
-          <input id="token" class="leader-membership-input" type="text" name="token" required>
-        </p>
-        <div class="group-membership-button-container">
-          <button class="group-membership-btn">verify</button>
-        </div>
-      </form>
+
+<div class="mfa-container">
+  <h1 class="mfa-title">verify your login</h1>
+
+  {{#if error}}
+    <div class="mfa-alert" role="alert">{{error}}</div>
+  {{/if}}
+
+  <form action="{{baseUrl}}/challenge" method="POST" class="mfa-form" novalidate>
+    {{#if csrfToken}}<input type="hidden" name="_csrf" value="{{csrfToken}}">{{/if}}
+
+    <div class="mfa-field">
+      <label class="mfa-label" for="token">Authenticator or recovery code</label>
+      <input
+        id="token"
+        class="mfa-input mfa-input--token"
+        type="text"
+        name="token"
+        required
+        autocomplete="one-time-code"
+        aria-describedby="mfa-token-hint"
+      />
+      <small id="mfa-token-hint" class="mfa-hint">
+        Enter the 6-digit code from your authenticator app, or paste a recovery code (e.g., <code>ABCD-EFGH-1234</code>).
+      </small>
     </div>
-  </div>
-</section>
+
+    <div class="mfa-actions">
+      <button class="mfa-button" type="submit">verify</button>
+    </div>
+  </form>
+</div>
+
 

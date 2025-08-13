@@ -1,39 +1,42 @@
 {{#*inline "title"}}MFA Settings | Twennie{{/inline}}
-<section class="leader-membership-tab">
-  <h2 class="leader-membership-title">multi-factor authentication</h2>
-  <div class="leader-membership-grid" style="gap:1.5rem;">
-    <div class="leader-membership-column">
-      {{#if error}}<p style="color:#b00020;">{{error}}</p>{{/if}}
 
-      {{#if mfaEnabled}}
-        <p class="leader-membership-line">
-          MFA is <strong>enabled</strong> on your account.
-        </p>
+<div class="mfa-container">
+  <h1 class="mfa-title">multi-factor authentication</h1>
 
-        <form action="{{baseUrl}}/disable" method="POST">
-          {{#if csrfToken}}<input type="hidden" name="_csrf" value="{{csrfToken}}">{{/if}}
-          <p class="leader-membership-line">
-            <label class="leader-membership-label" for="disable_token">Authenticator code to confirm:</label>
-            <input id="disable_token" class="leader-membership-input" type="text" name="token" required />
-          </p>
-          <div class="group-membership-button-container">
-            <button class="group-membership-btn">disable mfa</button>
-          </div>
-        </form>
+  {{#if error}}
+    <div class="mfa-alert" role="alert">{{error}}</div>
+  {{/if}}
 
-      {{else}}
-        <p class="leader-membership-line">
-          MFA is <strong>not enabled</strong>.
-        </p>
+  {{#if mfaEnabled}}
+    <p class="mfa-message">
+      MFA is <strong>enabled</strong> on your account.
+    </p>
 
-        <form action="{{baseUrl}}/setup" method="POST">
-          {{#if csrfToken}}<input type="hidden" name="_csrf" value="{{csrfToken}}">{{/if}}
-          <div class="group-membership-button-container">
-            <button class="group-membership-btn">enable mfa</button>
-          </div>
-        </form>
-      {{/if}}
-    </div>
-  </div>
-</section>
+    <form action="{{baseUrl}}/disable" method="POST" class="mfa-form" novalidate>
+      {{#if csrfToken}}<input type="hidden" name="_csrf" value="{{csrfToken}}">{{/if}}
+
+      <div class="mfa-field">
+        <label class="mfa-label" for="disable_token">Authenticator code to confirm</label>
+        <input id="disable_token" name="token" type="text" required class="mfa-input" autocomplete="one-time-code" inputmode="numeric" />
+      </div>
+
+      <div class="mfa-actions">
+        <button class="mfa-button mfa-button--danger" type="submit">disable mfa</button>
+      </div>
+    </form>
+
+  {{else}}
+    <p class="mfa-message">
+      MFA is <strong>not enabled</strong>.
+    </p>
+
+    <form action="{{baseUrl}}/setup" method="POST" class="mfa-form">
+      {{#if csrfToken}}<input type="hidden" name="_csrf" value="{{csrfToken}}">{{/if}}
+      <div class="mfa-actions">
+        <button class="mfa-button" type="submit">enable mfa</button>
+      </div>
+    </form>
+  {{/if}}
+</div>
+
 

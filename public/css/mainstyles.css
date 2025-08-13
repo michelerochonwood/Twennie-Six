@@ -5692,3 +5692,265 @@ margin-right: 5px; /* Space between icon and text */
 .success-button:hover {
   background-color: #4a4ab2;
 }
+
+
+/* ===========================
+   MFA isolated styles (mainlayout-safe)
+   =========================== */
+
+.mfa-container {
+  text-align: center;
+  margin: 50px auto;
+  padding: 24px;
+  max-width: 560px;
+  background: #fff;              /* prevent grey bleed from parents */
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.mfa-title {
+  margin: 0 0 12px 0;
+  margin-top: 160px;             /* echo success-title spacing, a bit tighter */
+  color: #262262;
+  font-size: 24px;
+  font-weight: 800;
+  text-transform: lowercase;
+  letter-spacing: 0.2px;
+}
+
+.mfa-message {
+  font-size: 18px;
+  margin: 8px 0 20px 0;
+  font-family: "Figtree", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  color: #222;
+}
+
+/* Alert for form/page errors */
+.mfa-alert {
+  margin: 12px auto 16px;
+  padding: 10px 12px;
+  max-width: 520px;
+  border-radius: 10px;
+  background: #fde8ec;
+  color: #b00020;
+  font-weight: 600;
+  font-family: "Figtree";
+}
+
+/* Form & fields */
+.mfa-form {
+  margin-top: 12px;
+  text-align: left;              /* labels/inputs align nicely */
+}
+
+.mfa-field {
+  margin: 12px auto 16px;
+  max-width: 520px;
+}
+
+.mfa-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+  color: #333;
+  font-family: "Figtree";
+  font-size: 14px;
+}
+
+.mfa-input {
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #cfd3d8;
+  background: #fff;
+  color: #111;
+  outline: none;
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+  font-family: "Figtree";
+}
+
+.mfa-input:focus {
+  border-color: #262262;
+  box-shadow: 0 0 0 4px rgba(38,34,98,0.12);
+}
+
+/* Actions & buttons */
+.mfa-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin: 12px auto 0;
+  max-width: 520px;
+}
+
+.mfa-button {
+  display: inline-block;
+  font-size: 11pt;
+  padding: 10px 20px;
+  border-radius: 99px;
+  background-color: #262262;
+  color: #fff;
+  font-family: "Figtree";
+  font-weight: 800;
+  border: none;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  min-width: 220px;              /* similar presence to success-button (50% width) */
+}
+
+.mfa-button:hover {
+  background-color: #4a4ab2;
+}
+
+.mfa-button--danger {
+  background: #b00020;
+}
+
+.mfa-button--danger:hover {
+  background: #cf2440;
+}
+
+/* ===== MFA Setup extras ===== */
+
+.mfa-qrcode {
+  width: 220px;
+  height: 220px;
+  margin: 8px auto 14px;
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  background: #fff;
+}
+
+.mfa-helper {
+  font-size: 15px;
+  margin: 6px 0 18px;
+  color: #333;
+  font-family: "Figtree", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+
+.mfa-key {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: #f5f6fa;
+  border: 1px dashed #cfd3d8;
+  font-family: "Figtree";
+  font-size: 14px;
+  color: #262262;
+  user-select: all;
+}
+
+.mfa-input--code {
+  letter-spacing: 2px;           /* improves readability for OTPs */
+  text-align: center;
+  font-weight: 700;
+}
+
+.mfa-hint {
+  display: block;
+  margin-top: 6px;
+  color: #5a5f66;
+  font-size: 12px;
+  font-family: "Figtree";
+}
+
+/* Mobile polish */
+@media (max-width: 520px) {
+  .mfa-qrcode {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+
+/* Small-screen polish */
+@media (max-width: 520px) {
+  .mfa-container {
+    margin: 32px 16px;
+    padding: 18px;
+  }
+  .mfa-title {
+    margin-top: 120px;
+    font-size: 22px;
+  }
+  .mfa-button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Token field variant for either OTP or recovery codes */
+.mfa-input--token {
+  text-align: center;
+  letter-spacing: 1px;
+  font-weight: 700;
+  font-family: "Figtree";
+
+}
+
+/* Hint text already used in setup, include if not present */
+.mfa-hint {
+  display: block;
+  margin-top: 6px;
+  color: #5a5f66;
+  font-size: 12px;
+  font-family: "Figtree";
+}
+
+/* Recovery codes list */
+.mfa-codes {
+  list-style: none;
+  margin: 16px auto 20px;
+  padding: 0;
+  max-width: 520px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.mfa-code-item {
+  display: flex;
+  justify-content: center;
+}
+
+.mfa-code {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #f5f6fa;
+  border: 1px dashed #cfd3d8;
+  font-family: "Figtree";
+  font-size: 14px;
+  color: #262262;
+  user-select: all;
+}
+
+/* Secondary button variant (used for "manage mfa settings") */
+.mfa-button--secondary {
+  background: #777;
+}
+.mfa-button--secondary:hover {
+  background: #8a8a8a;
+}
+
+/* Stack codes on small screens */
+@media (max-width: 520px) {
+  .mfa-codes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Secondary button variant */
+.mfa-button--secondary {
+  background: #777;
+}
+.mfa-button--secondary:hover {
+  background: #8a8a8a;
+}
+
+

@@ -309,15 +309,42 @@ module.exports = {
             const { id } = req.session.user;
             console.log("Fetching dashboard for leader:", id);
 
-            const userData = await Leader.findById(id)
-            .select('groupName groupLeaderName groupLeaderEmail username emailPreferenceLevel profileImage professionalTitle organization topics members')
-
-            .populate({
-              path: 'members',
-              model: 'GroupMember',
-              select: 'name profileImage professionalTitle isVerified'
-            })
-            .lean();
+const userData = await Leader.findById(id)
+  .select([
+    'groupName',
+    'groupLeaderName',
+    'groupLeaderEmail',
+    'username',
+    'emailPreferenceLevel',
+    'profileImage',
+    'professionalTitle',
+    'organization',
+    'topics',
+    'members',
+    // 👇 add MFA fields
+    'mfa.enabled',
+    'mfa.method',
+    'mfa.recoveryCodes',
+    'mfa.updatedAt'
+  ].join(' '))
+  .populate({
+    path: 'members',
+    model: 'GroupMember',
+    select: 'name profileImage professionalTitle isVerified'
+  })
+  .lean();
+  
+const mfa = userData?.mfa || {};
+const mfaStatus = {
+  enabled: !!mfa.enabled,
+  recoveryCodesRemaining: Array.isArray(mfa.recoveryCodes) ? mfa.recoveryCodes.length : 0,
+  updatedAtFormatted: mfa.updatedAt
+    ? new Date(mfa.updatedAt).toLocaleString('en-CA', {
+        year: 'numeric', month: 'short', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      })
+    : null
+};
             const leaderProfile = await LeaderProfile.findOne({ leaderId: id }).select('profileImage');
 
             const topicSuggestions = await TopicSuggestion.find({
@@ -585,10 +612,14 @@ return res.render('leader_dashboard', {
   currentPromptSets,
   completedPromptSets: formattedCompletedSets,
   selectedTopics,
-  topicSuggestions, // ✅ included
+  topicSuggestions,
   leaderAccount,
-  emailPreferenceLevel
+  emailPreferenceLevel,
+
+  // 👇 add this line
+  mfaStatus
 });
+
 
     } catch (err) {
       console.error('Error rendering leader dashboard:', err);
