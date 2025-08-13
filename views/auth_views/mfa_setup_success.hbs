@@ -2,8 +2,13 @@
 <div class="success-container">
   <h1 class="success-title">Multi-factor authentication is enabled!</h1>
   <p class="success-message">Save these <strong>recovery codes</strong> in a safe place. Each can be used once if you lose access to your authenticator app.</p>
+
   <ul class="individual-membership-access-list">
     {{#each recoveryCodes}}<li><code>{{this}}</code></li>{{/each}}
   </ul>
-  <a href="{{dashboard}}" class="success-button">return to my dashboard</a>
+
+  <div class="success-actions" style="display:flex; gap:.75rem; flex-wrap:wrap;">
+    <a href="{{dashboard}}" class="success-button">return to my dashboard</a>
+    <a href="{{baseUrl}}" class="success-button" style="background:#777;">manage mfa settings</a>
+  </div>
 </div>

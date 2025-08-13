@@ -4,23 +4,36 @@
   <div class="leader-membership-grid" style="gap:1.5rem;">
     <div class="leader-membership-column">
       {{#if error}}<p style="color:#b00020;">{{error}}</p>{{/if}}
+
       {{#if mfaEnabled}}
-        <p class="leader-membership-line">MFA is <strong>enabled</strong> on your account.</p>
-        <form action="/auth/mfa/disable" method="POST">
-          <input type="hidden" name="_csrf" value="{{csrfToken}}">
+        <p class="leader-membership-line">
+          MFA is <strong>enabled</strong> on your account.
+        </p>
+
+        <form action="{{baseUrl}}/disable" method="POST">
+          {{#if csrfToken}}<input type="hidden" name="_csrf" value="{{csrfToken}}">{{/if}}
           <p class="leader-membership-line">
             <label class="leader-membership-label" for="disable_token">Authenticator code to confirm:</label>
             <input id="disable_token" class="leader-membership-input" type="text" name="token" required />
           </p>
-          <div class="group-membership-button-container"><button class="group-membership-btn">disable mfa</button></div>
+          <div class="group-membership-button-container">
+            <button class="group-membership-btn">disable mfa</button>
+          </div>
         </form>
+
       {{else}}
-        <p class="leader-membership-line">MFA is <strong>not enabled</strong>.</p>
-        <form action="/auth/mfa/setup" method="POST">
-          <input type="hidden" name="_csrf" value="{{csrfToken}}">
-          <div class="group-membership-button-container"><button class="group-membership-btn">enable mfa</button></div>
+        <p class="leader-membership-line">
+          MFA is <strong>not enabled</strong>.
+        </p>
+
+        <form action="{{baseUrl}}/setup" method="POST">
+          {{#if csrfToken}}<input type="hidden" name="_csrf" value="{{csrfToken}}">{{/if}}
+          <div class="group-membership-button-container">
+            <button class="group-membership-btn">enable mfa</button>
+          </div>
         </form>
       {{/if}}
     </div>
   </div>
 </section>
+

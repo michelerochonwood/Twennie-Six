@@ -6,8 +6,9 @@
       {{#if error}}<p style="color:#b00020;">{{error}}</p>{{/if}}
       <img src="{{qrDataUrl}}" alt="Scan this QR code" style="width:220px;height:220px;margin:0 auto 1rem;display:block;">
       <p>Can’t scan? Use this key: <code>{{manualKey}}</code></p>
-      <form action="/auth/mfa/verify-setup" method="POST" style="margin-top:1rem;">
-        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+      <form action="{{baseUrl}}/verify-setup" method="POST" style="margin-top:1rem;">
+        {{#if csrfToken}}<input type="hidden" name="_csrf" value="{{csrfToken}}">{{/if}}
         <label class="leader-membership-label" for="token">Enter the 6-digit code:</label>
         <input id="token" class="leader-membership-input" name="token" required>
         <div class="group-membership-button-container" style="margin-top:1rem;">
@@ -17,3 +18,4 @@
     </div>
   </div>
 </section>
+
