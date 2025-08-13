@@ -610,15 +610,13 @@ updateEmailPreferences: async (req, res) => {
 
     const result = await Leader.findByIdAndUpdate(
       leaderId,
-      { $set: { email_preference_level: level } },
+      { $set: { emailPreferenceLevel: level, emailPreferencesUpdatedAt: new Date() } },
       { new: false }
     );
 
     console.log('Email preferences updated for leader:', leaderId, '→ level:', level, 'ok:', !!result);
 
-    // Render success page (your file: views/partials/dashboardpartials/emailpreferencessuccess.hbs)
-    // If your view engine is configured with "views" pointing to the root views folder,
-    // you can render nested templates by their relative path:
+    // Render your success page
     return res.render('partials/dashboardpartials/emailpreferencessuccess', {
       layout: 'dashboardlayout',
       title: 'Email Preferences Updated',
