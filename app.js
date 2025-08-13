@@ -319,7 +319,7 @@ app.use('/promptsetassign', require('./routes/promptsetassignroutes'));
 app.use('/promptsetnotes', require('./routes/promptsetnotesroutes'));
 app.use('/promptsetcomplete', require('./routes/promptsetcompleteroutes'));
 app.use('/membertopics', require('./routes/membertopicroutes'));
-app.use('/auth', require('./routes/mfaroutes'));
+app.use('/mfa', require('./routes/mfaroutes'));
 
 app.use('/notes', require('./routes/notesroutes'));
 app.use('/reports', require('./routes/reportingroutes'));

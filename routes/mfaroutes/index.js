@@ -1,3 +1,4 @@
+// routes/mfaroutes.js
 const express = require('express');
 const router = express.Router();
 const speakeasy = require('speakeasy');
@@ -9,14 +10,14 @@ const Leader = require('../../models/member_models/leader');
 const Member = require('../../models/member_models/member');
 const GroupMember = require('../../models/member_models/group_member');
 
-// Utils (single, correct import)
+// Utils
 const {
   encryptSecret,
   decryptSecret,
   generateRecoveryCodes,
   hashRecoveryCodes,
   verifyRecoveryCode,
-} = require('../../utils/cryptoMfa'); // <-- correct path, no duplicate import
+} = require('../../utils/cryptoMfa');
 
 // ---- helpers ----
 const byRole = {
@@ -33,18 +34,13 @@ function isAuthenticated(req, res, next) {
 
 // Resolve the current user doc + model by role in session
 async function getCurrentUserDoc(req) {
-  const role = req.session?.user?.accessLevel || req.session?.user?.role; 
+  const role = req.session?.user?.accessLevel || req.session?.user?.role;
   const userId = req.session?.user?.id;
-  // Normalize roles (your app used strings like: leader, group_member, paid_individual, etc.)
-  // If you keep exact accessLevel strings, map them below:
+
   let key = role;
-  if (role === 'free_individual' || role === 'contributor_individual' || role === 'paid_individual') {
-    key = 'member';
-  } else if (role === 'leader') {
-    key = 'leader';
-  } else if (role === 'group_member') {
-    key = 'group_member';
-  }
+  if (role === 'free_individual' || role === 'contributor_individual' || role === 'paid_individual') key = 'member';
+  else if (role === 'leader') key = 'leader';
+  else if (role === 'group_member') key = 'group_member';
 
   const Model = byRole[key];
   if (!Model || !userId) return null;
@@ -52,20 +48,16 @@ async function getCurrentUserDoc(req) {
   return { doc, Model, role: key };
 }
 
-// settings (alias) → same handler as /mfa
-router.get(['/mfa', '/mfa/settings'], isAuthenticated, async (req, res) => {
-  const ctx = await getCurrentUserDoc(req);
-  if (!ctx || !ctx.doc) return res.redirect('/auth/login');
+// IMPORTANT: default to '/mfa' since we're mounted at /mfa
+function ctxBaseUrl(req) {
+  return req.baseUrl || '/mfa';
+}
 
-  return res.render('auth/mfa_settings', {
-    layout: 'dashboardlayout',
-    title: 'Multi-Factor Authentication',
-    mfaEnabled: !!ctx.doc.mfa?.enabled,
-  });
-});
-
-// -------------- UI: MFA settings page ----------------
-router.get('/mfa', isAuthenticated, async (req, res) => {
+/* =========================
+   UI: MFA settings page
+   ========================= */
+// GET /mfa
+router.get('/', isAuthenticated, async (req, res) => {
   const ctx = await getCurrentUserDoc(req);
   if (!ctx || !ctx.doc) return res.redirect('/auth/login');
 
@@ -73,26 +65,35 @@ router.get('/mfa', isAuthenticated, async (req, res) => {
     layout: 'dashboardlayout',
     title: 'Multi-Factor Authentication',
     mfaEnabled: !!ctx.doc.mfa?.enabled,
+    baseUrl: ctxBaseUrl(req),
   });
 });
 
-// -------------- Step 1: Begin setup (generate secret + QR) ------------
-router.post('/mfa/setup', isAuthenticated, async (req, res) => {
+// Optional alias: GET /mfa/settings
+router.get('/settings', isAuthenticated, async (req, res) => {
+  const ctx = await getCurrentUserDoc(req);
+  if (!ctx || !ctx.doc) return res.redirect('/auth/login');
+
+  return res.render('auth_views/mfa_settings', {
+    layout: 'dashboardlayout',
+    title: 'Multi-Factor Authentication',
+    mfaEnabled: !!ctx.doc.mfa?.enabled,
+    baseUrl: ctxBaseUrl(req),
+  });
+});
+
+/* ======================================================
+   Step 1: Begin setup (generate secret + QR)
+   POST /mfa/setup
+   ====================================================== */
+router.post('/setup', isAuthenticated, async (req, res) => {
   const ctx = await getCurrentUserDoc(req);
   if (!ctx || !ctx.doc) return res.redirect('/auth/login');
 
   const labelName = `Twennie (${ctx.doc.username || ctx.doc.groupLeaderName || ctx.doc.name || 'user'})`;
-  const secret = speakeasy.generateSecret({
-    name: labelName,
-    issuer: 'Twennie',
-    length: 20,
-  });
+  const secret = speakeasy.generateSecret({ name: labelName, issuer: 'Twennie', length: 20 });
 
-  req.session.mfaSetup = {
-    base32: secret.base32,
-    otpauth_url: secret.otpauth_url,
-  };
-
+  req.session.mfaSetup = { base32: secret.base32, otpauth_url: secret.otpauth_url };
   const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url);
 
   return res.render('auth_views/mfa_setup', {
@@ -100,11 +101,15 @@ router.post('/mfa/setup', isAuthenticated, async (req, res) => {
     title: 'Set up MFA',
     qrDataUrl,
     manualKey: secret.base32,
+    baseUrl: ctxBaseUrl(req),
   });
 });
 
-// -------------- Step 2: Verify setup token & save ----------------------
-router.post('/mfa/verify-setup', isAuthenticated, async (req, res) => {
+/* ======================================================
+   Step 2: Verify setup token & save
+   POST /mfa/verify-setup
+   ====================================================== */
+router.post('/verify-setup', isAuthenticated, async (req, res) => {
   const ctx = await getCurrentUserDoc(req);
   if (!ctx || !ctx.doc) return res.redirect('/auth/login');
 
@@ -119,21 +124,17 @@ router.post('/mfa/verify-setup', isAuthenticated, async (req, res) => {
     });
   }
 
-  const ok = speakeasy.totp.verify({
-    secret: setup.base32,
-    encoding: 'base32',
-    token: userToken,
-    window: 1,
-  });
+  const ok = speakeasy.totp.verify({ secret: setup.base32, encoding: 'base32', token: userToken, window: 1 });
 
   if (!ok) {
     return res.render('auth_views/mfa_setup', {
-    layout: 'dashboardlayout',
-    title: 'Set up MFA',
-    qrDataUrl: await qrcode.toDataURL(setup.otpauth_url),
-    manualKey: setup.base32,
-    error: 'Code did not match. Try again.',
-  });
+      layout: 'dashboardlayout',
+      title: 'Set up MFA',
+      qrDataUrl: await qrcode.toDataURL(setup.otpauth_url),
+      manualKey: setup.base32,
+      error: 'Code did not match. Try again.',
+      baseUrl: ctxBaseUrl(req),
+    });
   }
 
   // Persist encrypted secret + recovery codes
@@ -154,17 +155,20 @@ router.post('/mfa/verify-setup', isAuthenticated, async (req, res) => {
 
   delete req.session.mfaSetup;
 
-  // Show success + recovery codes (only once)
   return res.render('auth_views/mfa_setup_success', {
     layout: 'dashboardlayout',
     title: 'MFA Enabled',
-    recoveryCodes: rawCodes,
-    dashboard: req.baseUrl || '/dashboard/leader',
+    recoveryCodes: rawCodes, // show once
+    dashboard: '/dashboard/leader',
+    baseUrl: ctxBaseUrl(req),
   });
 });
 
-// -------------- Disable MFA (require a current code) -------------------
-router.post('/mfa/disable', isAuthenticated, async (req, res) => {
+/* ===============================================
+   Disable MFA (require a current code)
+   POST /mfa/disable
+   =============================================== */
+router.post('/disable', isAuthenticated, async (req, res) => {
   const ctx = await getCurrentUserDoc(req);
   if (!ctx || !ctx.doc || !ctx.doc.mfa?.enabled) return res.redirect('/auth/login');
 
@@ -176,20 +180,16 @@ router.post('/mfa/disable', isAuthenticated, async (req, res) => {
     secretTag: ctx.doc.mfa.secretTag,
   });
 
-  const ok = speakeasy.totp.verify({
-    secret,
-    encoding: 'base32',
-    token,
-    window: 1,
-  });
+  const ok = speakeasy.totp.verify({ secret, encoding: 'base32', token, window: 1 });
 
   if (!ok) {
     return res.render('auth_views/mfa_settings', {
-    layout: 'dashboardlayout',
-    title: 'Multi-Factor Authentication',
-    mfaEnabled: true,
-    error: 'Invalid MFA code. Try again.',
-  });
+      layout: 'dashboardlayout',
+      title: 'Multi-Factor Authentication',
+      mfaEnabled: true,
+      error: 'Invalid MFA code. Try again.',
+      baseUrl: ctxBaseUrl(req),
+    });
   }
 
   ctx.doc.mfa = {
@@ -206,30 +206,33 @@ router.post('/mfa/disable', isAuthenticated, async (req, res) => {
   return res.render('auth_views/mfa_disable_success', {
     layout: 'dashboardlayout',
     title: 'MFA Disabled',
-    dashboard: req.baseUrl || '/dashboard/leader',
+    dashboard: '/dashboard/leader',
+    baseUrl: ctxBaseUrl(req),
   });
 });
 
-// -------------- Login challenge (after password) -----------------------
-router.get('/mfa/challenge', async (req, res) => {
-  // Reached after password success if MFA is enabled
+/* ======================================================
+   Login challenge (after password)
+   GET/POST /mfa/challenge
+   ====================================================== */
+router.get('/challenge', async (req, res) => {
   if (!req.session?.pendingMfa?.userId || !req.session?.pendingMfa?.role) {
     return res.redirect('/auth/login');
   }
   return res.render('auth_views/mfa_challenge', {
     layout: 'mainlayout',
     title: 'Verify MFA',
+    baseUrl: ctxBaseUrl(req),
   });
 });
 
-router.post('/mfa/challenge', async (req, res) => {
+router.post('/challenge', async (req, res) => {
   const pending = req.session?.pendingMfa;
   if (!pending?.userId || !pending?.role) return res.redirect('/auth/login');
 
   const Model = byRole[pending.role];
   const userDoc = await Model.findById(pending.userId);
   if (!userDoc || !userDoc.mfa?.enabled) {
-    // No MFA anymore? Just log them in.
     req.session.user = pending.user;
     delete req.session.pendingMfa;
     return res.redirect(pending.redirectTo || '/');
@@ -244,7 +247,6 @@ router.post('/mfa/challenge', async (req, res) => {
 
   let ok = false;
   if (token.includes('-')) {
-    // treat as recovery code
     const idx = await verifyRecoveryCode(token.toUpperCase(), userDoc.mfa.recoveryCodes);
     if (idx >= 0) {
       ok = true;
@@ -252,27 +254,24 @@ router.post('/mfa/challenge', async (req, res) => {
       await userDoc.save();
     }
   } else {
-    ok = speakeasy.totp.verify({
-      secret,
-      encoding: 'base32',
-      token,
-      window: 1,
-    });
+    ok = speakeasy.totp.verify({ secret, encoding: 'base32', token, window: 1 });
   }
 
   if (!ok) {
     return res.render('auth_views/mfa_challenge', {
-    layout: 'mainlayout',
-    title: 'Verify MFA',
-    error: 'Invalid code. Try again or use a recovery code.',
-  });
+      layout: 'mainlayout',
+      title: 'Verify MFA',
+      error: 'Invalid code. Try again or use a recovery code.',
+      baseUrl: ctxBaseUrl(req),
+    });
   }
 
   // Promote pending to fully logged in
-  req.session.user = pending.user;   // set your usual session payload
+  req.session.user = pending.user;
   delete req.session.pendingMfa;
 
   return res.redirect(pending.redirectTo || '/');
 });
 
 module.exports = router;
+
