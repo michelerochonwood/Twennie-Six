@@ -69,7 +69,7 @@ router.get('/mfa', isAuthenticated, async (req, res) => {
   const ctx = await getCurrentUserDoc(req);
   if (!ctx || !ctx.doc) return res.redirect('/auth/login');
 
-  return res.render('auth/mfa_settings', {
+  return res.render('auth_views/mfa_settings', {
     layout: 'dashboardlayout',
     title: 'Multi-Factor Authentication',
     mfaEnabled: !!ctx.doc.mfa?.enabled,
@@ -95,7 +95,7 @@ router.post('/mfa/setup', isAuthenticated, async (req, res) => {
 
   const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url);
 
-  return res.render('auth/mfa_setup', {
+  return res.render('auth_views/mfa_setup', {
     layout: 'dashboardlayout',
     title: 'Set up MFA',
     qrDataUrl,
@@ -127,13 +127,13 @@ router.post('/mfa/verify-setup', isAuthenticated, async (req, res) => {
   });
 
   if (!ok) {
-    return res.render('auth/mfa_setup', {
-      layout: 'dashboardlayout',
-      title: 'Set up MFA',
-      qrDataUrl: await qrcode.toDataURL(setup.otpauth_url),
-      manualKey: setup.base32,
-      error: 'Code did not match. Try again.',
-    });
+    return res.render('auth_views/mfa_setup', {
+    layout: 'dashboardlayout',
+    title: 'Set up MFA',
+    qrDataUrl: await qrcode.toDataURL(setup.otpauth_url),
+    manualKey: setup.base32,
+    error: 'Code did not match. Try again.',
+  });
   }
 
   // Persist encrypted secret + recovery codes
@@ -155,10 +155,10 @@ router.post('/mfa/verify-setup', isAuthenticated, async (req, res) => {
   delete req.session.mfaSetup;
 
   // Show success + recovery codes (only once)
-  return res.render('auth/mfa_setup_success', {
+  return res.render('auth_views/mfa_setup_success', {
     layout: 'dashboardlayout',
     title: 'MFA Enabled',
-    recoveryCodes: rawCodes, // show once, never store raw
+    recoveryCodes: rawCodes,
     dashboard: req.baseUrl || '/dashboard/leader',
   });
 });
@@ -184,12 +184,12 @@ router.post('/mfa/disable', isAuthenticated, async (req, res) => {
   });
 
   if (!ok) {
-    return res.render('auth/mfa_settings', {
-      layout: 'dashboardlayout',
-      title: 'Multi-Factor Authentication',
-      mfaEnabled: true,
-      error: 'Invalid MFA code. Try again.',
-    });
+    return res.render('auth_views/mfa_settings', {
+    layout: 'dashboardlayout',
+    title: 'Multi-Factor Authentication',
+    mfaEnabled: true,
+    error: 'Invalid MFA code. Try again.',
+  });
   }
 
   ctx.doc.mfa = {
@@ -203,7 +203,7 @@ router.post('/mfa/disable', isAuthenticated, async (req, res) => {
   };
   await ctx.doc.save();
 
-  return res.render('auth/mfa_disable_success', {
+  return res.render('auth_views/mfa_disable_success', {
     layout: 'dashboardlayout',
     title: 'MFA Disabled',
     dashboard: req.baseUrl || '/dashboard/leader',
@@ -216,7 +216,7 @@ router.get('/mfa/challenge', async (req, res) => {
   if (!req.session?.pendingMfa?.userId || !req.session?.pendingMfa?.role) {
     return res.redirect('/auth/login');
   }
-  return res.render('auth/mfa_challenge', {
+  return res.render('auth_views/mfa_challenge', {
     layout: 'mainlayout',
     title: 'Verify MFA',
   });
@@ -261,11 +261,11 @@ router.post('/mfa/challenge', async (req, res) => {
   }
 
   if (!ok) {
-    return res.render('auth/mfa_challenge', {
-      layout: 'mainlayout',
-      title: 'Verify MFA',
-      error: 'Invalid code. Try again or use a recovery code.',
-    });
+    return res.render('auth_views/mfa_challenge', {
+    layout: 'mainlayout',
+    title: 'Verify MFA',
+    error: 'Invalid code. Try again or use a recovery code.',
+  });
   }
 
   // Promote pending to fully logged in
