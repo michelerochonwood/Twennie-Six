@@ -216,21 +216,39 @@ const completedRecords = await PromptSetCompletion.find({ memberId }).populate('
 
 
 module.exports = {
-    renderMemberDashboard: async (req, res) => {
+  renderMemberDashboard: async (req, res) => {
+    try {
+      // Resolve current member id (works with legacy session or Passport)
+      const id = req.session?.user?.id || req.user?._id?.toString();
+      if (!id) return res.redirect('/auth/login');
 
-        try {
-            const { id } = req.session.user;
-            const userData = await Member.findById(id)
-            
-            .select('username email emailPreferenceLevel profileImage professionalTitle organization topics accessLevel')
+      const userData = await Member.findById(id)
+        .select('username email emailPreferenceLevel profileImage professionalTitle organization topics accessLevel mfa.enabled mfa.method mfa.recoveryCodes mfa.updatedAt')
+        .lean();
 
-            .lean();
-            const memberProfile = await MemberProfile.findOne({ memberId: id }).select('profileImage');
+      if (!userData) {
+        throw new Error(`Member with ID ${id} not found.`);
+      }
 
-            const topicSuggestions = await TopicSuggestion.find({
-            suggestedBy: id,
-            memberType: 'Member'
-            }).sort({ submittedAt: -1 }).lean();
+      const memberProfile = await MemberProfile.findOne({ memberId: id }).select('profileImage');
+
+      const topicSuggestions = await TopicSuggestion.find({
+        suggestedBy: id,
+        memberType: 'Member'
+      }).sort({ submittedAt: -1 }).lean();
+
+      // --- Build MFA status for dashboard (member) ---
+      const mfa = userData?.mfa || {};
+      const mfaStatus = {
+        enabled: !!mfa.enabled,
+        recoveryCodesRemaining: Array.isArray(mfa.recoveryCodes) ? mfa.recoveryCodes.length : 0,
+        updatedAtFormatted: mfa.updatedAt
+          ? new Date(mfa.updatedAt).toLocaleString('en-CA', {
+              year: 'numeric', month: 'short', day: '2-digit',
+              hour: '2-digit', minute: '2-digit'
+            })
+          : null
+      };
 
             const accessLevelLabels = {
                 free_individual: 'Free',
@@ -424,6 +442,9 @@ return res.render("member_dashboard", {
     accessLevel: userData.accessLevel,
     accessLevelLabel
   },
+  // 👇 add this line
+  mfaStatus,
+
   memberUnits,
   recentTaggedUnits: await fetchTaggedUnits(id),
   registeredPromptSets,
@@ -432,11 +453,11 @@ return res.render("member_dashboard", {
   promptSchedules,
   currentPromptSets,
   completedPromptSets: formattedCompletedSets,
-  topicSuggestions, // ✅ Add this
-  // 👇 NEW:
+  topicSuggestions,
   memberAccount,
   emailPreferenceLevel
 });
+
 
 
 

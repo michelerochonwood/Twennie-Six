@@ -10,6 +10,14 @@ const Leader = require('../../models/member_models/leader');
 const Member = require('../../models/member_models/member');
 const GroupMember = require('../../models/member_models/group_member');
 
+function roleToDashboard(role) {
+  switch (role) {
+    case 'leader':        return '/dashboard/leader';
+    case 'group_member':  return '/dashboard/groupmember';
+    default:              return '/dashboard/member';
+  }
+}
+
 // CSRF helper
 const setCsrf = (req, res, next) => {
   if (typeof req.csrfToken === 'function') {
@@ -155,13 +163,13 @@ router.post('/verify-setup', isAuthenticated, setCsrf, async (req, res) => {
 
   delete req.session.mfaSetup;
 
-  return res.render('auth_views/mfa_setup_success', {
-    layout: 'dashboardlayout',
-    title: 'MFA Enabled',
-    recoveryCodes: rawCodes,
-    dashboard: '/dashboard/leader',
-    baseUrl: ctxBaseUrl(req),
-  });
+return res.render('auth_views/mfa_setup_success', {
+  layout: 'dashboardlayout',
+  title: 'MFA Enabled',
+  recoveryCodes: rawCodes,
+  dashboard: roleToDashboard(ctx.role),   // ← was '/dashboard/leader'
+  baseUrl: ctxBaseUrl(req),
+});
 });
 
 /* ===============================================
@@ -203,12 +211,12 @@ router.post('/disable', isAuthenticated, setCsrf, async (req, res) => {
   };
   await ctx.doc.save();
 
-  return res.render('auth_views/mfa_disable_success', {
-    layout: 'dashboardlayout',
-    title: 'MFA Disabled',
-    dashboard: '/dashboard/leader',
-    baseUrl: ctxBaseUrl(req),
-  });
+return res.render('auth_views/mfa_disable_success', {
+  layout: 'dashboardlayout',
+  title: 'MFA Disabled',
+  dashboard: roleToDashboard(ctx.role),   // ← was '/dashboard/leader'
+  baseUrl: ctxBaseUrl(req),
+});
 });
 
 /* ======================================================
