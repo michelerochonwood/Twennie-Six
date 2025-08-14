@@ -66,6 +66,51 @@
       </form>
     </div>
 
+    <!-- MFA (inline status card in dashboard) -->
+<div class="mfa-inline">
+  <div class="mfa-inline-header">
+    <h3 class="mfa-inline-title">multi-factor authentication</h3>
+    {{#if mfaStatus.enabled}}
+      <span class="mfa-chip mfa-chip--on">enabled</span>
+    {{else}}
+      <span class="mfa-chip mfa-chip--off">not enabled</span>
+    {{/if}}
+  </div>
+
+  <p class="mfa-inline-desc">
+    Add an extra layer of security to your account. Manage your authenticator app and backup codes.
+  </p>
+
+  <dl class="mfa-inline-meta">
+    <div class="mfa-inline-row">
+      <dt>method</dt>
+      <dd>
+        {{#if mfaStatus.enabled}}
+          Authenticator app (TOTP)
+        {{else}}
+          —
+        {{/if}}
+      </dd>
+    </div>
+
+    <div class="mfa-inline-row">
+      <dt>backup codes remaining</dt>
+      <dd>{{mfaStatus.recoveryCodesRemaining}}</dd>
+    </div>
+
+    <div class="mfa-inline-row">
+      <dt>last updated</dt>
+      <dd>{{#if mfaStatus.updatedAtFormatted}}{{mfaStatus.updatedAtFormatted}}{{else}}—{{/if}}</dd>
+    </div>
+  </dl>
+
+  <div class="mfa-inline-actions">
+    <a href="/mfa" class="mfa-button">manage my mfa settings</a>
+  </div>
+</div>
+<!-- /MFA (inline) -->
+
+
     <!-- Column 2: Email preferences -->
     <div class="group-membership-column">
       <p class="group-membership-access-title">email notifications</p>

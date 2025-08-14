@@ -287,11 +287,23 @@ let completedPromptSets = [];
             //members of a group are meant to show in the group member dashboard as cards - it is important that none of this changed because the group members are located based on the leader of the group - if you are rewriting anything in this renderdashboard, make sure to rewrite it exactly as you see it here. 
     
 const userData = await GroupMember.findById(id)
-  .select('name email username profileImage professionalTitle organization groupId emailPreferenceLevel') // ← add email, username, emailPreferenceLevel
+  .select('name email username profileImage professionalTitle organization groupId emailPreferenceLevel mfa.enabled mfa.method mfa.recoveryCodes mfa.updatedAt')
   .populate({
     path: 'groupId',
     populate: { path: 'members', model: 'GroupMember', select: 'name profileImage professionalTitle' }
   });
+
+  const mfa = userData?.mfa || {};
+const mfaStatus = {
+  enabled: !!mfa.enabled,
+  recoveryCodesRemaining: Array.isArray(mfa.recoveryCodes) ? mfa.recoveryCodes.length : 0,
+  updatedAtFormatted: mfa.updatedAt
+    ? new Date(mfa.updatedAt).toLocaleString('en-CA', {
+        year: 'numeric', month: 'short', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      })
+    : null
+};
 
         
             console.log("🔍 Fetched user data:", JSON.stringify(userData, null, 2));
@@ -568,6 +580,10 @@ return res.render('groupmember_dashboard', {
   layout: 'dashboardlayout',
   title: 'Group Member Dashboard',
   csrfToken: req.csrfToken(),
+
+  // 👇 add this
+  mfaStatus,
+
   groupMember: {
     ...userData.toObject(),
     profileImage: groupMemberProfile?.profileImage || '/images/default-avatar.png'
@@ -586,7 +602,6 @@ return res.render('groupmember_dashboard', {
   leaderAssignedTags,
   completedLeaderAssignedTags,
   topicSuggestions,
-  // ⬇️ make these top-level so the template sees them
   groupMemberAccount,
   emailPreferenceLevel
 });
