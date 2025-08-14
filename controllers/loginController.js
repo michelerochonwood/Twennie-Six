@@ -95,7 +95,7 @@ module.exports = {
         };
 
         console.log(`🔐 Password ok; MFA required for ${username}. Redirecting to challenge.`);
-        return res.redirect('/auth/mfa/challenge');
+        return res.redirect('/mfa/challenge');
       }
 
       // ---- NO MFA: regular login path ----
