@@ -240,6 +240,35 @@ require('./config/passport-config')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
+// AFTER: app.use(passport.initialize()); app.use(passport.session());
+app.use((req, res, next) => {
+  // If Passport didn't set req.user but we have a session login (MFA path), normalize it.
+  if (!req.user && req.session?.user?.id) {
+    const s = req.session.user;
+    // Minimal shape most controllers expect
+    req.user = {
+      id: s.id,                // string OK for Mongoose findById
+      _id: s.id,               // strings have toString(), so calls like _id.toString() won't throw
+      username: s.username,
+      membershipType: s.membershipType,
+      // helpful default: leaders treat their own id as groupId for "team_only" checks
+      groupId: s.membershipType === 'leader' ? s.id : undefined,
+      // organization is optional; if you need org-only visibility, we can enrich this later
+    };
+  }
+
+  // Make req.isAuthenticated() reflect session-only logins too
+  if (typeof req.isAuthenticated === 'function') {
+    const orig = req.isAuthenticated.bind(req);
+    req.isAuthenticated = function () {
+      return orig() || !!req.session?.user;
+    };
+  }
+
+  next();
+});
+
+
 // Stripe webhook (assumes its route sets its own body parser if needed)
 app.use('/stripe', require('./routes/stripe/stripewebhook'));
 
@@ -277,7 +306,7 @@ res.locals.user = passportUser || sessionUser;
 res.locals.isAuthenticated =
   (typeof req.isAuthenticated === 'function' && req.isAuthenticated()) || !!sessionUser;
 
-  
+
   res.locals.userProfileImage = '/images/default-avatar.png'; // fallback
 
   try {
