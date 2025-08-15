@@ -285,7 +285,7 @@ app.use(async (req, res, next) => {
 
       if (member) membershipType = "member";
       else if (leader) membershipType = "leader";
-      else if (groupMember) membershipType = "groupmember";
+      else if (groupMember) membershipType = "group_member";
 
       req.session.user.membershipType = membershipType;
       res.locals.dashboardLink = `/dashboard/${membershipType}`;
