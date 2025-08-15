@@ -269,8 +269,15 @@ app.use(async (req, res, next) => {
     res.locals.dashboardLink = "/dashboard";
   }
 
-  res.locals.user = req.user || null;
-  res.locals.isAuthenticated = typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : false;
+const sessionUser  = req.session?.user || null;
+const passportUser = req.user || null;
+
+res.locals.user = passportUser || sessionUser;
+
+res.locals.isAuthenticated =
+  (typeof req.isAuthenticated === 'function' && req.isAuthenticated()) || !!sessionUser;
+
+  
   res.locals.userProfileImage = '/images/default-avatar.png'; // fallback
 
   try {
