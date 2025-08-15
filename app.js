@@ -329,7 +329,7 @@ app.use('/promptsetnotes', require('./routes/promptsetnotesroutes'));
 app.use('/promptsetcomplete', require('./routes/promptsetcompleteroutes'));
 app.use('/membertopics', require('./routes/membertopicroutes'));
 app.use('/mfa', require('./routes/mfaroutes'));
-app.use('/privacy', require('./routes/privacy'));
+app.use('/privacy', require('./routes/privacyroutes'));
 app.use('/notes', require('./routes/notesroutes'));
 app.use('/reports', require('./routes/reportingroutes'));
 app.use('/latest', require('./routes/latestroutes'));
