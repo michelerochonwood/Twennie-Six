@@ -5981,8 +5981,8 @@ margin-right: 5px; /* Space between icon and text */
 
 .cookie-banner p {
   margin: 0 0 10px 0;
-  color: #1a1a1a;
-  font-size: 14px;
+  color: #262262;
+  font-size: 1.2rem;
 }
 
 .cookie-actions {
