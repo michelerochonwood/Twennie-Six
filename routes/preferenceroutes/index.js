@@ -4,7 +4,7 @@ const {
   updateMemberPreferences,
   updateLeaderPreferences,
   updateGroupMemberPreferences
-} = require('../controllers/cookieController');
+} = require('../../controllers/cookieController');
 
 // Reuse your standard auth guard pattern
 function isAuthenticated(req, res, next) {
