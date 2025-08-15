@@ -1,3 +1,4 @@
+// app.js
 const express = require('express');
 const path = require('path');
 const { create } = require('express-handlebars');
@@ -11,19 +12,28 @@ const passport = require('passport');
 const MongoStore = require('connect-mongo');
 const cors = require('cors');
 const csrf = require('csurf');
+
+// Profiles used in global session middleware
 const MemberProfile = require('./models/profile_models/member_profile');
 const LeaderProfile = require('./models/profile_models/leader_profile');
 const GroupMemberProfile = require('./models/profile_models/groupmember_profile');
 
+// User models for membership detection
+const Member = require("./models/member_models/member");
+const Leader = require("./models/member_models/leader");
+const GroupMember = require("./models/member_models/group_member");
 
 dotenv.config();
 
 const app = express();
 
-// ✅ Trust proxy for secure cookies on Railway
+// ✅ Trust proxy for secure cookies on Railway / reverse proxies
 app.set('trust proxy', 1);
 
 console.log("✅ MONGO_URI in use:", process.env.MONGO_URI);
+
+// (Optional) expose GA ID to layouts if you choose to gate analytics by GA_ID
+app.locals.GA_ID = process.env.NODE_ENV === 'production' ? process.env.GA_MEASUREMENT_ID : null;
 
 // ✅ Handlebars setup
 const hbs = create({
@@ -35,114 +45,101 @@ const hbs = create({
     allowProtoPropertiesByDefault: true,
     allowProtoMethodsByDefault: true,
   },
-helpers: {
-  replace: (string, find, replace) =>
-    typeof string === 'string' ? string.split(find).join(replace) : '',
+  helpers: {
+    replace: (string, find, replace) =>
+      typeof string === 'string' ? string.split(find).join(replace) : '',
 
-  formatContent: (content) =>
-    content ? content.replace(/\n/g, '<br>') : '',
+    formatContent: (content) =>
+      content ? content.replace(/\n/g, '<br>') : '',
 
-ifEquals: function (a, b, options) {
-  return a === b ? options.fn(this) : options.inverse(this);
-},
+    ifEquals: function (a, b, options) {
+      return a === b ? options.fn(this) : options.inverse(this);
+    },
 
-  toLowerCase: (str) =>
-    typeof str === 'string' ? str.toLowerCase() : '',
+    toLowerCase: (str) =>
+      typeof str === 'string' ? str.toLowerCase() : '',
 
-  formatDate: (date) =>
-    date ? moment(date).format('MMMM D, YYYY') : '',
+    formatDate: (date) =>
+      date ? moment(date).format('MMMM D, YYYY') : '',
 
-  eq: (v1, v2) => v1 === v2,
+    eq: (v1, v2) => v1 === v2,
+    ne: (v1, v2) => v1 !== v2,
+    and: (v1, v2) => v1 && v2,
+    or: (v1, v2) => v1 || v2,
 
-  ne: (v1, v2) => v1 !== v2,
+    includes: (array, value) =>
+      Array.isArray(array) && array.includes(value),
 
-  and: (v1, v2) => v1 && v2,
+    ifIncludes: (array, value, options) =>
+      Array.isArray(array) && array.includes(value)
+        ? options.fn(this)
+        : options.inverse(this),
 
-  or: (v1, v2) => v1 || v2,
+    range: (start, end) =>
+      Array.from({ length: end - start }, (_, i) => start + i),
 
-  includes: (array, value) =>
-    Array.isArray(array) && array.includes(value),
+    concat: (str1, str2) => `${str1}${str2}`,
+    lt: (a, b) => a < b,
+    equal: (a, b) => a === b, // redundant alias
 
-  ifIncludes: (array, value, options) =>
-    Array.isArray(array) && array.includes(value)
-      ? options.fn(this)
-      : options.inverse(this),
+    getUnitTypeIcon: (unitType) => {
+      const icons = {
+        article: '/icons/article.svg',
+        video: '/icons/video.svg',
+        interview: '/icons/interview.svg',
+        promptset: '/icons/promptset.svg',
+        exercise: '/icons/exercise.svg',
+        template: '/icons/template.svg',
+      };
+      return icons[unitType] || '/icons/default.svg';
+    },
 
-  range: (start, end) =>
-    Array.from({ length: end - start }, (_, i) => start + i),
+    getDurationImage: (unitType) => {
+      const baseURL = 'https://www.twennie.com/images/';
+      const map = {
+        article: '5mins.svg',
+        video: '10mins.svg',
+        interview: '10mins.svg',
+        promptset: '20mins.svg',
+        exercise: '30mins.svg',
+        template: '30mins.svg',
+      };
+      if (!map[unitType]) {
+        console.warn(`⚠️ Unrecognized unitType for duration image: ${unitType}`);
+      }
+      return baseURL + (map[unitType] || '5mins.svg');
+    },
 
-  concat: (str1, str2) =>
-    `${str1}${str2}`,
+    capitalize: (str) =>
+      typeof str === 'string' ? str.charAt(0).toUpperCase() + str.slice(1) : '',
 
-  lt: (a, b) => a < b,
+    json: (context) => JSON.stringify(context, null, 2),
+    increment: (value) => parseInt(value) + 1,
+    timestamp: () => Date.now(),
 
-  equal: (a, b) => a === b, // ✅ safe redundant alias
+    getYouTubeEmbedUrl: (url) => {
+      if (!url) return '';
+      if (url.includes('watch?v=')) {
+        const videoId = url.split('watch?v=')[1].split('&')[0];
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+      if (url.includes('youtu.be/')) {
+        const videoId = url.split('youtu.be/')[1].split('?')[0];
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+      return url;
+    },
 
-  getUnitTypeIcon: (unitType) => {
-    const icons = {
-      article: '/icons/article.svg',
-      video: '/icons/video.svg',
-      interview: '/icons/interview.svg',
-      promptset: '/icons/promptset.svg',
-      exercise: '/icons/exercise.svg',
-      template: '/icons/template.svg',
-    };
-    return icons[unitType] || '/icons/default.svg';
-  },
+    // NEW: Split a string by delimiter
+    split: (str, delimiter) =>
+      typeof str === 'string' ? str.split(delimiter) : [],
 
-  getDurationImage: (unitType) => {
-    const baseURL = 'https://www.twennie.com/images/';
-    const map = {
-      article: '5mins.svg',
-      video: '10mins.svg',
-      interview: '10mins.svg',
-      promptset: '20mins.svg',
-      exercise: '30mins.svg',
-      template: '30mins.svg',
-    };
-    if (!map[unitType]) {
-      console.warn(`⚠️ Unrecognized unitType for duration image: ${unitType}`);
-    }
-    return baseURL + (map[unitType] || '5mins.svg');
-  },
+    // NEW: Get last item in array
+    last: (array) =>
+      Array.isArray(array) ? array[array.length - 1] : '',
 
-  capitalize: (str) =>
-    typeof str === 'string' ? str.charAt(0).toUpperCase() + str.slice(1) : '',
-
-  json: (context) =>
-    JSON.stringify(context, null, 2),
-
-  increment: (value) =>
-    parseInt(value) + 1,
-
-  timestamp: () => Date.now(),
-
-  getYouTubeEmbedUrl: (url) => {
-    if (!url) return '';
-    if (url.includes('watch?v=')) {
-      const videoId = url.split('watch?v=')[1].split('&')[0];
-      return `https://www.youtube.com/embed/${videoId}`;
-    }
-    if (url.includes('youtu.be/')) {
-      const videoId = url.split('youtu.be/')[1].split('?')[0];
-      return `https://www.youtube.com/embed/${videoId}`;
-    }
-    return url;
-  },
-
-  // ✅ NEW: Split a string by delimiter
-  split: (str, delimiter) =>
-    typeof str === 'string' ? str.split(delimiter) : [],
-
-  // ✅ NEW: Get last item in array
-  last: (array) =>
-    Array.isArray(array) ? array[array.length - 1] : '',
-  
-  decode: (str) => decodeURIComponent(str) // ← add this here
-}
-
-
-  
+    decode: (str) => decodeURIComponent(str),
+  }
 });
 
 hbs.getPartials().then((partials) => {
@@ -153,17 +150,27 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
-// ✅ Middleware
+// ✅ Parsers & core middleware (order matters)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(cors());
 
+// Static files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
-// ✅ Session
+app.use((req, res, next) => {
+  try {
+    res.locals.uiPrefs = req.cookies.tw_ui ? JSON.parse(req.cookies.tw_ui) : {};
+  } catch {
+    res.locals.uiPrefs = {};
+  }
+  next();
+});
+
+// ✅ Session (before CSRF, passport, routes)
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'defaultsecret',
@@ -185,14 +192,23 @@ app.use(
   })
 );
 
-app.use('/badges', require('./routes/badgesroutes'));
+// Optional: help CDNs serve the right variant
+app.use((req, res, next) => { res.set('Vary', 'Cookie'); next(); });
 
-// ✅ CSRF setup (after sessions)
+// ✅ Consent locals (must come before views/routes)
+app.use((req, res, next) => {
+  const defaults = { version: 1, necessary: true, functional: false, analytics: false, marketing: false };
+  try {
+    const fromCookie = req.cookies.twennieConsent ? JSON.parse(req.cookies.twennieConsent) : {};
+    res.locals.consent = { ...defaults, ...fromCookie };
+  } catch {
+    res.locals.consent = defaults;
+  }
+  next();
+});
 
-
+// ✅ CSRF setup (after session)
 const csrfProtection = csrf();
-
-
 
 app.use((req, res, next) => {
   const skipPaths = [
@@ -205,45 +221,38 @@ app.use((req, res, next) => {
 
   const contentType = req.headers['content-type'] || '';
 
+  // Rules: allow multipart (uploads), selected POSTs, and specific DELETEs to bypass CSRF
   if (contentType.startsWith('multipart/form-data')) return next();
   if (req.method === 'POST' && skipPaths.includes(req.path)) return next();
   if (req.method === 'DELETE' && csrfExemptDeletes.some(pattern => pattern.test(req.path))) return next();
 
-  csrfProtection(req, res, next);
+  return csrfProtection(req, res, next);
 });
 
-
-
-
-
-
-
-// ✅ Log requests
+// ✅ Request logging
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - User: ${req.session?.user?.username || 'Guest'}`);
   next();
 });
 
-// ✅ Passport setup
+// ✅ Passport
 require('./config/passport-config')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Stripe webhook (assumes its route sets its own body parser if needed)
 app.use('/stripe', require('./routes/stripe/stripewebhook'));
 
-
-// ✅ Global user session middleware
-const Member = require("./models/member_models/member");
-const Leader = require("./models/member_models/leader");
-const GroupMember = require("./models/member_models/group_member");
-
+// ✅ Global user session middleware (dashboard link + profile avatar)
 app.use(async (req, res, next) => {
   if (req.session?.user?.id) {
     try {
       let membershipType = req.session.user.membershipType;
-      const member = await Member.findById(req.session.user.id);
-      const leader = await Leader.findById(req.session.user.id);
-      const groupMember = await GroupMember.findById(req.session.user.id);
+      const [member, leader, groupMember] = await Promise.all([
+        Member.findById(req.session.user.id),
+        Leader.findById(req.session.user.id),
+        GroupMember.findById(req.session.user.id)
+      ]);
 
       if (member) membershipType = "member";
       else if (leader) membershipType = "leader";
@@ -259,30 +268,31 @@ app.use(async (req, res, next) => {
   } else {
     res.locals.dashboardLink = "/dashboard";
   }
-res.locals.user = req.user || null;
-res.locals.isAuthenticated = req.isAuthenticated();
-res.locals.userProfileImage = '/images/default-avatar.png'; // fallback
 
-try {
-  if (req.session?.user?.id) {
-    const { id, membershipType } = req.session.user;
+  res.locals.user = req.user || null;
+  res.locals.isAuthenticated = typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : false;
+  res.locals.userProfileImage = '/images/default-avatar.png'; // fallback
 
-    if (membershipType === 'member') {
-      const profile = await MemberProfile.findOne({ memberId: id }).lean();
-      if (profile?.profileImage) res.locals.userProfileImage = profile.profileImage;
-    } else if (membershipType === 'leader') {
-      const profile = await LeaderProfile.findOne({ leaderId: id }).lean();
-      if (profile?.profileImage) res.locals.userProfileImage = profile.profileImage;
-    } else if (membershipType === 'groupmember') {
-      const profile = await GroupMemberProfile.findOne({ groupMemberId: id }).lean();
-      if (profile?.profileImage) res.locals.userProfileImage = profile.profileImage;
+  try {
+    if (req.session?.user?.id) {
+      const { id, membershipType } = req.session.user;
+
+      if (membershipType === 'member') {
+        const profile = await MemberProfile.findOne({ memberId: id }).lean();
+        if (profile?.profileImage) res.locals.userProfileImage = profile.profileImage;
+      } else if (membershipType === 'leader') {
+        const profile = await LeaderProfile.findOne({ leaderId: id }).lean();
+        if (profile?.profileImage) res.locals.userProfileImage = profile.profileImage;
+      } else if (membershipType === 'groupmember') {
+        const profile = await GroupMemberProfile.findOne({ groupMemberId: id }).lean();
+        if (profile?.profileImage) res.locals.userProfileImage = profile.profileImage;
+      }
     }
+  } catch (err) {
+    console.error('❌ Error loading profile image:', err);
   }
-} catch (err) {
-  console.error('❌ Error loading profile image:', err);
-}
 
-next();
+  next();
 });
 
 // ✅ MongoDB connection
@@ -297,7 +307,6 @@ mongoose.connect(process.env.MONGO_URI)
 ['public/uploads/profiles', 'public/uploads/groups'].forEach((dir) => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
-
 
 // ✅ Routes
 app.use('/', require('./routes/promoroutes/promoroutes'));
@@ -320,12 +329,16 @@ app.use('/promptsetnotes', require('./routes/promptsetnotesroutes'));
 app.use('/promptsetcomplete', require('./routes/promptsetcompleteroutes'));
 app.use('/membertopics', require('./routes/membertopicroutes'));
 app.use('/mfa', require('./routes/mfaroutes'));
-
+app.use('/privacy', require('./routes/privacy'));
 app.use('/notes', require('./routes/notesroutes'));
 app.use('/reports', require('./routes/reportingroutes'));
 app.use('/latest', require('./routes/latestroutes'));
 app.use('/promptsetstart', require('./routes/promptsetstartroutes'));
 app.use('/change_membership', require('./routes/changemembershiproutes'));
+app.use('/badges', require('./routes/badgesroutes')); // keep badges route
+app.use('/dashboard', require('./routes/preferenceroutes'));
+app.use('/ui', require('./routes/uiroutes'));
+
 
 // ✅ CSRF Error handler
 app.use((err, req, res, next) => {
@@ -341,7 +354,6 @@ app.use((err, req, res, next) => {
   }
   next(err);
 });
-
 
 // ✅ 404 handler
 app.use((req, res) => {
@@ -365,6 +377,7 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+
 
 
 
