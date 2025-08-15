@@ -5954,3 +5954,88 @@ margin-right: 5px; /* Space between icon and text */
 }
 
 
+/* ===== Cookie Banner ===== */
+.cookie-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+
+  display: none;                 /* stays hidden until JS shows it */
+  padding: 14px 18px;
+  background: #ffffff;
+  border-top: 1px solid #e6e8ef;
+  box-shadow: 0 -10px 24px rgba(0,0,0,0.08);
+
+  transform: translateY(110%);   /* start off-screen */
+  opacity: 0;
+  transition: transform 320ms ease, opacity 320ms ease;
+  font-family: "Figtree", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+
+.cookie-banner.is-active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.cookie-banner p {
+  margin: 0 0 10px 0;
+  color: #1a1a1a;
+  font-size: 14px;
+}
+
+.cookie-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.cookie-actions button {
+  appearance: none;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 800;
+  font-size: 12pt;
+  cursor: pointer;
+  transition: transform 120ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+#accept-all {
+  background: #262262;
+  color: #ffffff;
+}
+#accept-all:hover { background: #4a4ab2; }
+
+#reject-nonessential {
+  background: #777;
+  color: #ffffff;
+}
+#reject-nonessential:hover { background: #8a8a8a; }
+
+#open-settings {
+  background: transparent;
+  color: #262262;
+  border: 2px solid #262262;
+}
+#open-settings:hover {
+  background: #262262;
+  color: #ffffff;
+}
+
+/* Mobile polish */
+@media (max-width: 600px) {
+  .cookie-actions { justify-content: stretch; }
+  .cookie-actions button { flex: 1 1 auto; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cookie-banner { transition: none; }
+  .cookie-actions button { transition: none; }
+}
+
+
+
