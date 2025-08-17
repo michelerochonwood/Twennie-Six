@@ -388,7 +388,25 @@
     "creating visibility without overselling",
     "designing fun, generous, brand-aligned ideas"
   ]
+},
+
+{
+  "id": 133,
+  "title": "Leading Change",
+  "shortSummary": "Change sticks when leaders set the pace, create safety, and show visible wins. This topic turns big intentions into small, testable steps your team can adopt fast—without stalling delivery.",
+  "longSummary": "Leading change is the craft of turning intent into outcomes. In technical services, that means writing a clear \"why now,\" sequencing work into small experiments, and proving value early so confidence grows. You’ll learn how to set a cadence that matches team capacity, remove friction, and make it safe to learn in public. We’ll cover coalition-building, decision rights, and the metrics that matter—cycle time, quality, adoption—so progress is visible and debates stay grounded. Through videos, prompts, exercises, and templates, you’ll practice planning pilots, running mini-QBRs, and embedding new behaviors in checklists, status updates, and handoffs. The goal: change that moves from initiative to identity.",
+  "subtopics": [
+    "crafting a persuasive \"why now\" narrative",
+    "setting pace and cadence without burnout",
+    "building a coalition and clarifying decision rights",
+    "designing pilots and showing early wins",
+    "creating psychological safety for learning in public",
+    "measuring adoption and outcomes (cycle time, quality, client impact)",
+    "embedding change in routines, templates, and checklists",
+    "closing the loop: reviews, adjustments, and sustainability"
+  ]
 }
+
 
 
     ]
