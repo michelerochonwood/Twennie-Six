@@ -208,11 +208,13 @@ app.use((req, res, next) => {
 });
 
 // ✅ CSRF setup (after session)
+// ✅ CSRF setup (after session)
 const csrfProtection = csrf();
 
 app.use((req, res, next) => {
   const skipPaths = [
-    '/member/group/verify-registration-code'
+    '/member/group/verify-registration-code',
+    '/badges/pick', // ← allow this POST without CSRF token
   ];
 
   const csrfExemptDeletes = [
@@ -228,6 +230,7 @@ app.use((req, res, next) => {
 
   return csrfProtection(req, res, next);
 });
+
 
 // ✅ Request logging
 app.use((req, res, next) => {
