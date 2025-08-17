@@ -106,9 +106,8 @@ exports.getTopicView = async (req, res) => {
             'Client Feedback Software': 'clientfeedbacksoftware',
             'Mental Health in Consulting Environments': 'mentalhealthinconsultingenvironments',
             'Remote and Hybrid Work': 'remoteandhybridwork',
-            'Four Day Work Week': 'fourdayworkweek',
             'The Power of Play in the Workplace': 'thepowerofplayintheworkplace',
-            'Team Building in Technical Consulting': 'teambuildingintechnicalconsulting',
+            'Team Building in Technical Consulting': 'teambuilding',
         };
 
         const originalTopicTitle = Object.keys(topicMappings).find(
