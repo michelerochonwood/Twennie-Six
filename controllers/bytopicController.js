@@ -228,21 +228,22 @@ const sectionedUnits = [
   {
     sectionTitle: "my library units",
     units: injectAccessData(myLibraryUnits),
-    emptyMessage: "If you'd like to contribute new units to the library, go to your dashboard under the \"contribute to the library\" tab..."
+    emptyMessage: "If you'd like to contribute new units to the library, go to your dashboard under the \"contribute to the library\" tab. Complete the form for your unit, which could be an article, video, interview, prompt set, template or exercise. Choose up to two topics for each unit. Your contributions will show here under \"my library units\."
   },
   {
     sectionTitle: "my group's library units",
     units: injectAccessData(groupLibraryUnits),
-    emptyMessage: "If you'd like to see your group contributing units to the library..."
+    emptyMessage: "If you'd like to see your group contributing units to the library, encourage them to explore Twennie's topics and find ones they feel confident talking about. They can share within your group only, your organization only, or with the whole Twennie community."
   },
   {
     sectionTitle: "my organization's library units",
     units: injectAccessData(orgLibraryUnits),
-    emptyMessage: "If you'd like to see your organization contributing units to the library..."
+    emptyMessage: "Organizations with a culture of learning are stronger and more successful. If you'd like to see your organization contributing units to the library, start by contributing yourself. Write articles and record videos on topics that interest you. If you have templates and exercises that have been useful to you in the past, share those, too. Your organization will follow your lead."
   },
   {
     sectionTitle: "Twennie's library units",
-    units: injectAccessData(twennieLibraryUnits)
+    units: injectAccessData(twennieLibraryUnits),
+    emptyMessage: "Twennie is continually adding new units to the library. This topic will have units added in the near future. Check back with us soon!"
   }
 ];
 
