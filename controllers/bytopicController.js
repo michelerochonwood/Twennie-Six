@@ -89,6 +89,8 @@ exports.getTopicView = async (req, res) => {
             'Un-Commoditizing Your Services by Delivering What Clients Truly Value': 'uncommoditizingyourservicesbydeliveringwhatclientstrulyvalue',
             'Proposal Management': 'proposalmanagement',
             'Proposal Strategy': 'proposalstrategy',
+            'Designing a Proposal Process': 'proposalprocess',
+            'Conducting Color Reviews of Proposals': 'conductingcolorreviews',
             'Storytelling in Technical Marketing': 'storytellingintechnicalmarketing',
             'Client Experience': 'clientexperience',
             'Social Media, Advertising, and Other Mysteries': 'socialmediaadvertisingandothermysteries',
@@ -98,6 +100,7 @@ exports.getTopicView = async (req, res) => {
             'Non-Technical Roles in Technical Environments': 'nontechnicalrolesintechnicalenvironments',
             'Leadership in Technical Services': 'leadershipintechnicalservices',
             'Leading Change': 'leadingchange',
+            'Leading Groups on Twennie': 'leadinggroupsontwennie',
             'The Advantage of Failure': 'theadvantageoffailure',
             'Social Entrepreneurship': 'socialentrepreneurship',
             'Employee Experience': 'employeeexperience',
@@ -228,7 +231,7 @@ const sectionedUnits = [
   {
     sectionTitle: "my library units",
     units: injectAccessData(myLibraryUnits),
-    emptyMessage: "If you'd like to contribute new units to the library, go to your dashboard under the \"contribute to the library\" tab. Complete the form for your unit, which could be an article, video, interview, prompt set, template or exercise. Choose up to two topics for each unit. Your contributions will show here under \"my library units\."
+    emptyMessage: "If you'd like to contribute new units to the library, go to your dashboard under the \"contribute to the library\" tab. Complete the form for your unit, which could be an article, video, interview, prompt set, template or exercise. Choose up to two topics for each unit. Your contributions will show here under \"my library units\"."
   },
   {
     sectionTitle: "my group's library units",

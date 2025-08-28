@@ -395,7 +395,55 @@
     "embedding change in routines, templates, and checklists",
     "closing the loop: reviews, adjustments, and sustainability"
   ]
-}
+},
+{
+    "id": 134,
+    "title": "Leading Groups on Twennie",
+    "shortSummary": "Lead learning like delivery: clear purpose, short cadences, and visible wins. This topic shows leaders how to assign focused units, run light check-ins, and use Twennie dashboards so teams learn fast without stalling project work.",
+    "longSummary": "Leading a group on Twennie means translating intent into steady progress using 20-minute bursts. You’ll set a crisp purpose for the next 30–60 days, choose a simple cadence (weekly or bi-weekly), and curate short units that map to real project needs. We’ll show you how to assign work with tags, set due windows, and use dashboards so everyone can see what’s next—“my tagged units,” “units tagged by my leader,” and “completed leader-assigned units.” You’ll practice running lightweight check-ins, capturing notes where work happens, and closing each sprint with a brief debrief: what changed, what needs help, and what’s next. We’ll cover facilitation posture (guide, don’t lecture), how to keep momentum with prompt sets and badges, and which signals to track—quality, schedule reliability, client feedback—so learning ties back to delivery. The result is a group that improves together, on purpose, without adding administrative drag.",
+    "subtopics": [
+      "defining purpose and 30–60 day outcomes",
+      "creating groups, inviting members, and roles",
+      "setting cadence and planning micro-sprints",
+      "assigning units with tags and due windows",
+      "using dashboards: \"my tagged units\", \"units tagged by my leader\", \"completed leader-assigned units\"",
+      "running check-ins, debriefs, and feedback loops",
+      "tracking KPIs (quality, schedule, client impact)",
+      "recognition and motivation (prompt sets, badges)"
+    ]
+  },
+  {
+    "id": 135,
+    "title": "Designing a Proposal Process",
+    "shortSummary": "Winning reliably is a system. Map a right-sized path from capture to submission, lock story before drafting, and thread compliance, pricing, and reviews to avoid last-minute thrash.",
+    "longSummary": "This topic helps you build a calm, repeatable proposal process that fits your firm. You’ll define go/no-go criteria and decision records, map phases from capture through submit, and assign clear roles (capture lead, writers, reviewers, production). We’ll lock the story with storyboards before heavy drafting, keep a living compliance matrix from day one, and thread pricing, assumptions, and exceptions through the same cadence so value is explicit—not a late surprise. You’ll design review gates (Blue for strategy, Pink for storyboards, Red for final draft; add Gold when fee/scope raises exposure) and add quality loops for proofing, graphics, and citations. We’ll cover timelines with buffers, version control and file hygiene, and a production plan with checklists and a submission rehearsal. The outcome is a right-sized process that reduces risk, preserves voice, and makes your differentiators unmistakable to evaluators.",
+    "subtopics": [
+      "go/no-go criteria and decision records",
+      "phase map and critical path scheduling",
+      "storyboarding before drafting",
+      "living compliance matrix and forms tracking",
+      "pricing, assumptions, and exceptions thread",
+      "color review cadence (Blue, Pink, Red; Gold as needed)",
+      "quality loops: proofing, graphics, citations",
+      "production plan, checklists, and submission rehearsal"
+    ]
+  },
+  {
+    "id": 136,
+    "title": "Conducting Color Reviews of Proposals",
+    "shortSummary": "Run Blue, Pink, and Red reviews—add Gold when risk warrants. Use impartial reviewers, tight agendas, and clear outputs to raise scores, sharpen strategy, and control commercial exposure.",
+    "longSummary": "Color reviews turn expert perspective into disciplined improvement. You’ll learn how Blue validates win themes with impartial reviewers who weren’t in the strategy session, Pink stress-tests storyboards before drafting, and Red scores the complete draft against the client’s evaluation criteria to prioritize high-impact edits. You’ll also learn when to run a Gold review—an executive check for risk, terms, and price when fee or scope elevates exposure. We’ll standardize reviewer packages (RFP, draft, context) sent 24+ hours in advance, pick a collaborative medium (large printouts or an online board), and prime the proposal team to receive critique without defensiveness. You’ll practice 45–60 minute facilitation, action logging with owners and deadlines, and closing the loop so reviewers see their input reflected. We’ll integrate price checks within earlier reviews and keep Gold focused on decision rights. Result: stronger strategy, cleaner narrative, compliant final, controlled risk.",
+    "subtopics": [
+      "reviewer selection and impartiality",
+      "pre-reading and reviewer packages",
+      "Blue Team: validating win themes and differentiators",
+      "Pink Team: testing storyboards, flow, and evidence",
+      "Red Team: scoring against RFP evaluation criteria",
+      "Gold Team: executive risk/terms/price decisions",
+      "facilitation, timeboxing, and action/decision logs",
+      "closing the loop: implementation and reviewer follow-up"
+    ]
+  }
 
 
 
