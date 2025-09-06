@@ -13,6 +13,7 @@ const LeaderProfile = require('../models/profile_models/leader_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const MemberProfile = require('../models/profile_models/member_profile');
 const sanitizeHtml = require('sanitize-html');
+const UpcomingUnit = require('../models/unit_models/upcoming'); // models/unit_models/upcoming.js
 
 // Add this helper at the top of the controller file (outside the viewInterview function)
 function convertYouTubeToEmbed(url) {
@@ -829,7 +830,118 @@ viewTemplate: async (req, res) => {
       errorMessage: 'An error occurred while fetching the template.',
     });
   }
-}
+},
+
+viewUpcoming: async (req, res) => {
+    try {
+      const { id } = req.params;
+      console.log(`🟣 Fetching upcoming unit: ${id}`);
+
+      const upcoming = await UpcomingUnit.findById(id).lean();
+      if (!upcoming) {
+        return res.status(404).render('unit_views/error', {
+          layout: 'unitviewlayout',
+          title: 'Upcoming Unit Not Found',
+          errorMessage: `The upcoming unit with ID ${id} does not exist.`,
+        });
+      }
+
+      // Visibility logic for upcoming:
+      // - 'all_members' => everyone sees it
+      // - 'organization_only' or 'team_only' => require login; we don't have an author link in schema,
+      //   so we'll simply require authentication (consistent + simple for teasers)
+      const isAuthenticated = !!req.user;
+      let isAuthorizedToView = false;
+
+      if (upcoming.visibility === 'all_members') {
+        isAuthorizedToView = true;
+      } else {
+        isAuthorizedToView = isAuthenticated; // lightweight gate for teasers
+      }
+
+      // Sidebar “view released unit” link
+      const hasReleasedLink = !!(upcoming.published_unit_ref?.id) && upcoming.status !== 'cancelled';
+
+      // Render
+      return res.render('unit_views/upcomingunit', {
+        layout: 'unitviewlayout',
+        _id: upcoming._id.toString(),
+        title: upcoming.title,
+        teaser: upcoming.teaser,
+        long_teaser: upcoming.long_teaser,
+        unit_type: upcoming.unit_type,
+        main_topic: upcoming.main_topic,
+        secondary_topics: upcoming.secondary_topics || [],
+        sub_topic: upcoming.sub_topic,
+        status: upcoming.status,
+        projected_release_at: upcoming.projected_release_at,
+        image: upcoming.image || { url: '/images/default-upcoming.png' },
+        published_unit_ref: upcoming.published_unit_ref || null,
+
+        // flags for the HBS you already built
+        isAuthenticated,
+        isAuthorizedToViewFullContent: true, // no gated content body for upcoming—keep UI consistent
+        isGroupMemberOrLeader:
+          req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
+        isGroupMemberOrMember:
+          req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
+        isLeader: req.user?.membershipType === 'leader',
+
+        // interest/follow state for the button label
+        isInterested: isAuthenticated
+          ? (upcoming.interested_members || []).some(m => m.toString() === req.user.id.toString())
+          : false,
+
+        // edit button visibility; without author on schema, default to false
+        isOwner: false,
+
+        csrfToken: req.csrfToken(),
+      });
+    } catch (err) {
+      console.error('💥 Error fetching upcoming unit:', err.stack || err.message);
+      return res.status(500).render('unit_views/error', {
+        layout: 'unitviewlayout',
+        title: 'Error',
+        errorMessage: 'An error occurred while fetching the upcoming unit.',
+      });
+    }
+  },
+
+  // POST /upcoming/:id/interest/toggle   (JSON { following: boolean })
+  toggleUpcomingInterest: async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+      const { id } = req.params;
+      const me = req.user.id;
+
+      const doc = await UpcomingUnit.findById(id);
+      if (!doc) return res.status(404).json({ error: 'Not found' });
+
+      const idx = (doc.interested_members || []).findIndex(m => m.toString() === me.toString());
+      let following = false;
+
+      if (idx >= 0) {
+        // unfollow
+        doc.interested_members.splice(idx, 1);
+        following = false;
+      } else {
+        // follow
+        doc.interested_members = doc.interested_members || [];
+        doc.interested_members.push(new mongoose.Types.ObjectId(me));
+        following = true;
+      }
+      await doc.save();
+
+      // Optional: increment a per-user dashboard badge counter elsewhere on release
+
+      return res.json({ following });
+    } catch (err) {
+      console.error('💥 toggleUpcomingInterest error:', err);
+      return res.status(500).json({ error: 'Internal error' });
+    }
+  }
 
 
 

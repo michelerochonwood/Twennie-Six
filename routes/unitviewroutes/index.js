@@ -3,28 +3,35 @@ const express = require('express');
 const router = express.Router();
 const unitviewController = require('../../controllers/unitviewController');
 
-// Route to view a single article
+// Lightweight auth gate for JSON POSTs (views themselves remain open;
+// controller enforces visibility rules)
+const isAuthenticated = (req, res, next) => {
+  if (req.user) return next();
+  return res.status(401).json({ error: 'Not authenticated' });
+};
+
+// ----- existing routes -----
 router.get('/articles/view/:id', unitviewController.viewArticle);
-
-// Route to view a single video
 router.get('/videos/view/:id', unitviewController.viewVideo);
-
-// Route to view a single interview
 router.get('/interviews/view/:id', unitviewController.viewInterview);
-
-// Route to view a single prompt set
 router.get('/promptsets/view/:id', unitviewController.viewPromptset);
-
-// Route to view a single exercise
 router.get('/exercises/view/:id', unitviewController.viewExercise);
-
 router.get('/templates/view/:id', unitviewController.viewTemplate);
 
 router.get('/unitnotessuccess', (req, res) => {
-    res.render('unit_views/unitnotessuccess', { layout: 'unitviewlayout' });
+  res.render('unit_views/unitnotessuccess', { layout: 'unitviewlayout' });
 });
 
+// ----- NEW: upcoming unit -----
+router.get('/upcoming/view/:id', unitviewController.viewUpcoming);
+
+// follow/unfollow (“notify me”) toggle used by upcomingunit.hbs
+router.post('/upcoming/:id/interest/toggle',
+  isAuthenticated,
+  unitviewController.toggleUpcomingInterest
+);
 
 module.exports = router;
+
 
 

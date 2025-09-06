@@ -1,11 +1,17 @@
+// File: routes/unitformroutes/index.js
 const express = require('express');
 const router = express.Router();
-const Article = require('../../models/unit_models/article'); // Import the Article model
-const Video = require('../../models/unit_models/video'); // Import the Video model
-const Interview = require('../../models/unit_models/interview'); // Import the Interview model
+
+const Article = require('../../models/unit_models/article');
+const Video = require('../../models/unit_models/video');
+const Interview = require('../../models/unit_models/interview');
 const PromptSet = require('../../models/unit_models/promptset');
 const Exercise = require('../../models/unit_models/exercise');
 const Template = require('../../models/unit_models/template');
+
+// ✨ NEW: Upcoming model
+const Upcoming = require('../../models/unit_models/upcoming');
+
 const unitFormController = require('../../controllers/unitformController');
 const ensureAuthenticated = require('../../middleware/ensureAuthenticated');
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -14,14 +20,53 @@ const uploadImg = require('../../middleware/multerImages');
 const csrf = require('csurf');
 const csrfProtection = csrf();
 
-
-// Debugging the ensureAuthenticated function
+// Debugging
 console.log('ensureAuthenticated:', ensureAuthenticated);
-console.log('ensureAuthenticated is a function:', typeof ensureAuthenticated === 'function'); // Should log true
-
+console.log('ensureAuthenticated is a function:', typeof ensureAuthenticated === 'function');
 console.log('unitFormController:', unitFormController);
 
-// Article Form Routes
+// Shared topics list (kept inline here to mirror your file)
+const mainTopics = [
+  'Career Development in Technical Services',
+  'Soft Skills in Technical Environments',
+  'Project Management',
+  'Business Development in Technical Services',
+  'Finding Projects Before they Become RFPs',
+  'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
+  'Proposal Management',
+  'Proposal Strategy',
+  'Designing a Proposal Process',
+  'Conducting Color Reviews of Proposals',
+  'Storytelling in Technical Marketing',
+  'Client Experience',
+  'Social Media, Advertising, and Other Mysteries',
+  'Pull Marketing',
+  'Emotional Intelligence',
+  'The Pareto Principle or 80/20',
+  'People Before Profit',
+  'Non-Technical Roles in Technical Environments',
+  'Leadership in Technical Services',
+  'Leading Change',
+  'Leading Groups on Twennie',
+  'The Advantage of Failure',
+  'Social Entrepreneurship',
+  'Employee Experience',
+  'Project Management Software',
+  'CRM Platforms',
+  'Client Feedback Software',
+  'Workplace Culture',
+  'Mental Health in Consulting Environments',
+  'Remote and Hybrid Work',
+  'The Power of Play in the Workplace',
+  'Team Building in Consulting',
+  'AI in Consulting',
+  'AI in Project Management',
+  'AI in Learning',
+];
+
+// =========================
+// Article Form Routes (existing)
+// =========================
 router.get('/form_article', ensureAuthenticated, unitFormController.getArticleForm);
 
 router.get('/edit_article/:id', ensureAuthenticated, async (req, res) => {
@@ -44,72 +89,29 @@ router.get('/edit_article/:id', ensureAuthenticated, async (req, res) => {
       });
     }
 
-    const mainTopics = [
-      'Career Development in Technical Services',
-      'Soft Skills in Technical Environments',
-      'Project Management',
-      'Business Development in Technical Services',
-      'Finding Projects Before they Become RFPs',
-      'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
-      'Proposal Management',
-      'Proposal Strategy',
-      'Designing a Proposal Process',
-      'Conducting Color Reviews of Proposals',
-      'Storytelling in Technical Marketing',
-      'Client Experience',
-      'Social Media, Advertising, and Other Mysteries',
-      'Pull Marketing',
-      'Emotional Intelligence',
-      'The Pareto Principle or 80/20',
-      'People Before Profit',
-      'Non-Technical Roles in Technical Environments',
-      'Leadership in Technical Services',
-      'Leading Change',
-      'Leading Groups on Twennie',
-      'The Advantage of Failure',
-      'Social Entrepreneurship',
-      'Employee Experience',
-      'Project Management Software',
-      'CRM Platforms',
-      'Client Feedback Software',
-      'Workplace Culture',
-      'Mental Health in Consulting Environments',
-      'Remote and Hybrid Work',
-      'The Power of Play in the Workplace',
-      'Team Building in Consulting',
-      'AI in Consulting',
-      'AI in Project Management',
-      'AI in Learning',
-    ];
-
-
-
     // Word count
     const plainText = article.article_body.replace(/<[^>]*>/g, ' ').trim();
     const wordCount = plainText.split(/\s+/).filter(Boolean).length;
 
-    // Set default image fallback
+    // Image fallback
     const image = article.image?.url
       ? article.image
-      : {
-          public_id: null,
-          url: '/images/default-article.png',
-        };
+      : { public_id: null, url: '/images/default-article.png' };
 
-res.render('unit_form_views/form_article', {
-  layout: 'unitformlayout',
-  data: {
-    ...article.toObject(),
-    image,
-    author: {
-      name: article.author?.id?.name || 'Unknown Author',
-      image: article.author?.id?.profileImage || '/images/default-avatar.png',
-    },
-  },
-  word_count: wordCount,
-  mainTopics,
-  csrfToken: isDevelopment ? null : req.csrfToken(),
-});
+    res.render('unit_form_views/form_article', {
+      layout: 'unitformlayout',
+      data: {
+        ...article.toObject(),
+        image,
+        author: {
+          name: article.author?.id?.name || 'Unknown Author',
+          image: article.author?.id?.profileImage || '/images/default-avatar.png',
+        },
+      },
+      word_count: wordCount,
+      mainTopics,
+      csrfToken: isDevelopment ? null : req.csrfToken(),
+    });
   } catch (error) {
     console.error(`Error loading edit form for article ID ${req.params.id}:`, error);
     res.status(500).render('unit_form_views/error', {
@@ -120,51 +122,12 @@ res.render('unit_form_views/form_article', {
   }
 });
 
-
 router.post(
   '/submit_article',
   ensureAuthenticated,
   (req, res, next) => {
     uploadImg.single('image')(req, res, function (err) {
       if (err && err.code === 'LIMIT_FILE_SIZE') {
-        const mainTopics = [
-          'Career Development in Technical Services',
-          'Soft Skills in Technical Environments',
-          'Project Management',
-          'Business Development in Technical Services',
-          'Finding Projects Before they Become RFPs',
-          'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
-          'Proposal Management',
-          'Proposal Strategy',
-          'Designing a Proposal Process',
-          'Conducting Color Reviews of Proposals',
-          'Storytelling in Technical Marketing',
-          'Client Experience',
-          'Social Media, Advertising, and Other Mysteries',
-          'Pull Marketing',
-          'Emotional Intelligence',
-          'The Pareto Principle or 80/20',
-          'People Before Profit',
-          'Non-Technical Roles in Technical Environments',
-          'Leadership in Technical Services',
-          'Leading Change',
-          'Leading Groups on Twennie',
-          'The Advantage of Failure',
-          'Social Entrepreneurship',
-          'Employee Experience',
-          'Project Management Software',
-          'CRM Platforms',
-          'Client Feedback Software',
-          'Workplace Culture',
-          'Mental Health in Consulting Environments',
-          'Remote and Hybrid Work',
-          'The Power of Play in the Workplace',
-          'Team Building in Consulting',
-          'AI in Consulting',
-          'AI in Project Management',
-          'AI in Learning',
-        ];
-
         return res.status(400).render('unit_form_views/form_article', {
           layout: 'unitformlayout',
           data: req.body,
@@ -172,12 +135,93 @@ router.post(
           mainTopics,
         });
       }
-
-      next(err); // forward other errors, or null
+      next(err);
     });
   },
   unitFormController.submitArticle
 );
+
+// =========================
+// ✨ NEW: Upcoming Unit Form Routes
+// =========================
+
+// GET: create upcoming
+router.get('/form_upcoming', ensureAuthenticated, unitFormController.getUpcomingForm);
+
+// GET: edit upcoming
+router.get('/edit_upcoming/:id', ensureAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(`Edit form requested for upcoming ID: ${id}`);
+
+    const upcoming = await Upcoming.findById(id);
+    if (!upcoming) {
+      console.warn(`Upcoming with ID ${id} not found.`);
+      return res.status(404).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Upcoming Unit Not Found',
+        errorMessage: `The upcoming unit with ID ${id} does not exist.`,
+      });
+    }
+
+    // Image fallback
+    const image = upcoming.image?.url
+      ? upcoming.image
+      : { public_id: null, url: '/images/default-upcoming.png' };
+
+    // Unit types for select
+    const unitTypes = [
+      'article','video','interview','exercise','template',
+      'prompt_set','micro_course','micro_study','peer_coaching'
+    ];
+
+    res.render('unit_form_views/form_upcoming', {
+      layout: 'unitformlayout',
+      data: {
+        ...upcoming.toObject(),
+        image,
+      },
+      mainTopics,
+      unitTypes,
+      csrfToken: isDevelopment ? null : req.csrfToken(),
+    });
+  } catch (error) {
+    console.error(`Error loading edit form for upcoming ID ${req.params.id}:`, error);
+    res.status(500).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Error',
+      errorMessage: 'An error occurred while loading the edit form.',
+    });
+  }
+});
+
+// POST: create/update upcoming (mirror image-size guard)
+router.post(
+  '/submit_upcoming',
+  ensureAuthenticated,
+  (req, res, next) => {
+    uploadImg.single('image')(req, res, function (err) {
+      if (err && err.code === 'LIMIT_FILE_SIZE') {
+        const unitTypes = [
+          'article','video','interview','exercise','template',
+          'prompt_set','micro_course','micro_study','peer_coaching'
+        ];
+        return res.status(400).render('unit_form_views/form_upcoming', {
+          layout: 'unitformlayout',
+          data: req.body,
+          errorMessage: 'Image exceeds the 5MB file size limit.',
+          mainTopics,
+          unitTypes,
+        });
+      }
+      next(err);
+    });
+  },
+  unitFormController.submitUpcoming
+);
+
+module.exports = router;
+
 
 
 

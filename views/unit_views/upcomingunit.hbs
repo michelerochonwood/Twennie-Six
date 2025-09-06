@@ -1,0 +1,211 @@
+{{#*inline "title"}}Upcoming Unit | Twennie{{/inline}}
+
+<div class="single_article-container">
+  <!-- Main Section -->
+  <div class="single_article-main">
+    <h1 class="single_article-main-title">{{title}}</h1>
+
+    <!-- Teasers -->
+    {{#if teaser}}
+      <p class="single_article-short-summary"><strong>{{teaser}}</strong></p>
+    {{/if}}
+    {{#if long_teaser}}
+      <p class="single_article-long-summary">{{long_teaser}}</p>
+    {{/if}}
+
+    <!-- Meta: status + projected date -->
+    <p class="single_article-wordcount">
+      <em>Status: {{status}}</em>
+      {{#if projected_release_at}}
+        &nbsp;|&nbsp;
+        <em>Projected release: {{formatDate projected_release_at "MMMM D, YYYY"}}</em>
+      {{/if}}
+    </p>
+
+    <!-- Toggle (kept for visual consistency; expands details) -->
+    <div class="single_article-toggle" onclick="toggleArticleContent(this)" data-authorized="true">
+      <svg class="single_article-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+      </svg>
+    </div>
+
+    <div class="single_article-content hidden">
+      <!-- Upcoming-specific expanded details -->
+      <div class="white-container" style="margin-bottom: 1rem;">
+        <h3 class="assign-tag-title">about this upcoming unit</h3>
+        <ul class="single_article-details">
+          <li><strong>Unit type:</strong> {{unit_type}}</li>
+          <li><strong>Main topic:</strong> {{main_topic}}</li>
+          {{#if secondary_topics.length}}
+            <li><strong>Secondary topics:</strong>
+              {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+            </li>
+          {{/if}}
+          {{#if sub_topic}}
+            <li><strong>Sub-topic:</strong> {{sub_topic}}</li>
+          {{/if}}
+        </ul>
+        <p class="single_article-notes-instructions">
+          This unit is in production. When it’s released, it will appear in the library and on your dashboard if you tag or follow it now.
+        </p>
+      </div>
+
+      <!-- Follow / Notify -->
+      {{#if isAuthenticated}}
+        <div class="single_article-notes-container">
+          <h3 class="single_article-notes-title">follow for release</h3>
+          <p class="single_article-notes-instructions">
+            Click <em>notify me</em> to get a small badge on your dashboard tab when this unit is released.
+          </p>
+
+          <form id="notifyMeForm" class="single_article-notes-form" onsubmit="toggleInterest(event)">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" id="upcomingId" value="{{_id}}">
+            <button 
+              id="notifyBtn" 
+              type="submit" 
+              class="single_article-notes-submit" 
+              aria-pressed="{{#if isInterested}}true{{else}}false{{/if}}">
+              {{#if isInterested}}✓ following — notify me{{else}}notify me{{/if}}
+            </button>
+          </form>
+        </div>
+      {{else}}
+        <div class="single_article-notes-container">
+          <p class="single_article-notes-instructions">
+            <a href="/auth/login" class="login-link">Log in</a> to follow this unit and get a dashboard badge when it’s released.
+          </p>
+        </div>
+      {{/if}}
+
+      <!-- Tag This Unit (so it can surface on dashboards like other units) -->
+      {{#if isGroupMemberOrMember}}
+        <div class="single_unit-tag-container" style="margin-bottom: 200px;">
+          <form id="tagForm" onsubmit="tagUnit(event)">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" id="unitId" value="{{_id}}">
+            <input type="hidden" id="unitType" value="upcoming">
+            <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
+              tag this unit
+              <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
+                <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
+              </svg>
+            </a>
+          </form>
+        </div>
+      {{/if}}
+
+      {{!-- No notes composer for upcoming items (no content yet) --}}
+    </div>
+  </div> <!-- /single_article-main -->
+
+  <!-- Sidebar -->
+  <aside class="single_article-sidebar">
+    {{!-- Optional duration art removed for upcoming units --}}
+    <div class="single_article-image-container">
+      <img 
+        src="{{image.url}}" 
+        alt="{{#if image.alt}}{{image.alt}}{{else}}Upcoming unit image{{/if}}" 
+        class="single_article-image"
+        style="max-width: 100%; border-radius: 12px;"
+      >
+    </div>
+    <p class="single_article-title-sidebar">{{title}}</p>
+
+    <div class="single_article-sidebar-toggle" onclick="toggleSidebarContent(this)">
+      <svg class="single_article-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
+        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
+        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
+      </svg>
+    </div>
+
+    <div class="single_article-sidebar-content hidden">
+      <div class="single_article-details">
+        <p class="single_article-unit-type">{{unit_type}}</p>
+        <p class="single_article-main-topic">Main Topic: {{main_topic}}</p>
+        {{#if secondary_topics.length}}
+          <p class="single_article-secondary-topics">
+            {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+          </p>
+        {{/if}}
+
+        {{#if (and published_unit_ref.id (ne status "cancelled"))}}
+          <a href="/units/view/{{published_unit_ref.model}}/{{published_unit_ref.id}}" class="single_article-edit-btn">view released unit</a>
+        {{/if}}
+
+        {{#if isOwner}}
+          <a href="/unitform/edit_upcoming/{{_id}}" class="single_article-edit-btn">edit this unit</a>
+        {{/if}}
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+  function toggleArticleContent(element) {
+    const content = element.nextElementSibling;
+    if (content) {
+      content.classList.toggle('hidden');
+      element.classList.toggle('open');
+    }
+  }
+
+  function toggleSidebarContent(element) {
+    const sidebarContent = element.nextElementSibling;
+    if (sidebarContent) {
+      sidebarContent.classList.toggle('hidden');
+      element.classList.toggle('open');
+    }
+  }
+
+  // Notify/interest toggle
+  async function toggleInterest(e) {
+    e.preventDefault();
+    const btn = document.getElementById('notifyBtn');
+    const upcomingId = document.getElementById('upcomingId').value;
+    const csrf = document.querySelector('#notifyMeForm input[name="_csrf"]').value;
+
+    try {
+      const res = await fetch(`/upcoming/${upcomingId}/interest/toggle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrf },
+        body: JSON.stringify({ upcomingId })
+      });
+      if (!res.ok) throw new Error('Failed to update interest');
+      const data = await res.json();
+
+      const following = !!data.following;
+      btn.setAttribute('aria-pressed', following ? 'true' : 'false');
+      btn.textContent = following ? '✓ following — notify me' : 'notify me';
+    } catch (err) {
+      console.error(err);
+      alert('Sorry, we could not update your follow setting right now.');
+    }
+  }
+
+  // Tagging (same pattern you already use)
+  async function tagUnit(event) {
+    event.preventDefault();
+    const unitId = document.getElementById('unitId').value;
+    const unitType = document.getElementById('unitType').value;
+    const csrf = document.querySelector('#tagForm input[name="_csrf"]').value;
+
+    try {
+      const res = await fetch('/tags/create-basic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrf },
+        body: JSON.stringify({
+          itemId: unitId,
+          itemType: unitType,
+          name: 'My Tagged Unit'
+        })
+      });
+      if (!res.ok) throw new Error('Failed to tag unit');
+      alert('Tagged! This upcoming unit will appear on your dashboard.');
+    } catch (err) {
+      console.error(err);
+      alert('Sorry, tagging failed.');
+    }
+  }
+</script>

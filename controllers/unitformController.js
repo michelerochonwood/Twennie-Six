@@ -9,6 +9,7 @@ const MicroCourse = require('../models/unit_models/microcourse');
 const { uploader } = require('../utils/cloudinary');
 const { Readable } = require('stream');
 const sanitizeHtml = require('sanitize-html');
+const Upcoming = require('../models/unit_models/upcoming'); // ← add this
 
 console.log('unitFormController loaded');
 
@@ -178,8 +179,249 @@ const unitFormController = {
     },
 
 
+// ↓ add alongside your explicit "getXForm" handlers
+getUpcomingForm: (req, res) => {
+  console.log('🛡 Rendering upcoming form. CSRF available:', typeof req.csrfToken === 'function');
+
+  try {
+    const mainTopics = [
+      'Career Development in Technical Services',
+      'Soft Skills in Technical Environments',
+      'Project Management',
+      'Business Development in Technical Services',
+      'Finding Projects Before they Become RFPs',
+      'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
+      'Proposal Management',
+      'Proposal Strategy',
+      'Designing a Proposal Process',
+      'Conducting Color Reviews of Proposals',
+      'Storytelling in Technical Marketing',
+      'Client Experience',
+      'Social Media, Advertising, and Other Mysteries',
+      'Pull Marketing',
+      'Emotional Intelligence',
+      'The Pareto Principle or 80/20',
+      'People Before Profit',
+      'Non-Technical Roles in Technical Environments',
+      'Leadership in Technical Services',
+      'Leading Change',
+      'Leading Groups on Twennie',
+      'The Advantage of Failure',
+      'Social Entrepreneurship',
+      'Employee Experience',
+      'Project Management Software',
+      'CRM Platforms',
+      'Client Feedback Software',
+      'Workplace Culture',
+      'Mental Health in Consulting Environments',
+      'Remote and Hybrid Work',
+      'The Power of Play in the Workplace',
+      'Team Building in Consulting',
+      'AI in Consulting',
+      'AI in Project Management',
+      'AI in Learning',
+    ];
+
+    const unitTypes = [
+      'article','video','interview','exercise','template',
+      'prompt_set','micro_course','micro_study','peer_coaching'
+    ];
+
+    return res.render('unit_form_views/form_upcoming', {
+      layout: 'unitformlayout',
+      unitType: 'upcoming',
+      mainTopics,
+      unitTypes,
+      data: {},
+      csrfToken: getCsrfToken(req),
+    });
+  } catch (error) {
+    console.error('Error rendering form for upcoming:', error);
+    return res.status(500).send('Error rendering form for upcoming.');
+  }
+},
 
 
+submitUpcoming: async (req, res) => {
+  try {
+    const mainTopics = [
+      'Career Development in Technical Services',
+      'Soft Skills in Technical Environments',
+      'Project Management',
+      'Business Development in Technical Services',
+      'Finding Projects Before they Become RFPs',
+      'Un-Commoditizing Your Services by Delivering What Clients Truly Value',
+      'Proposal Management',
+      'Proposal Strategy',
+      'Designing a Proposal Process',
+      'Conducting Color Reviews of Proposals',
+      'Storytelling in Technical Marketing',
+      'Client Experience',
+      'Social Media, Advertising, and Other Mysteries',
+      'Pull Marketing',
+      'Emotional Intelligence',
+      'The Pareto Principle or 80/20',
+      'People Before Profit',
+      'Non-Technical Roles in Technical Environments',
+      'Leadership in Technical Services',
+      'Leading Change',
+      'Leading Groups on Twennie',
+      'The Advantage of Failure',
+      'Social Entrepreneurship',
+      'Employee Experience',
+      'Project Management Software',
+      'CRM Platforms',
+      'Client Feedback Software',
+      'Workplace Culture',
+      'Mental Health in Consulting Environments',
+      'Remote and Hybrid Work',
+      'The Power of Play in the Workplace',
+      'Team Building in Consulting',
+      'AI in Consulting',
+      'AI in Project Management',
+      'AI in Learning',
+    ];
+
+    // Pull fields
+    const {
+      _id,
+      title,
+      unit_type,
+      main_topic,
+      secondary_topics,
+      sub_topic,
+      teaser,
+      long_teaser,
+      projected_release_at,
+      status,
+      visibility,
+      is_featured,
+      priority,
+    } = req.body;
+
+    // Basic required validations (keep it light)
+    const errors = [];
+    if (!title?.trim()) errors.push('Title is required.');
+    if (!unit_type) errors.push('Unit type is required.');
+    if (!main_topic) errors.push('Main topic is required.');
+    if (!projected_release_at) errors.push('Projected release date is required.');
+
+    if (errors.length) {
+      return res.status(400).render('unit_form_views/form_upcoming', {
+        layout: 'unitformlayout',
+        unitType: 'upcoming',
+        data: req.body,
+        errors,
+        mainTopics,
+        unitTypes: [
+          'article','video','interview','exercise','template',
+          'prompt_set','micro_course','micro_study','peer_coaching'
+        ],
+        csrfToken: getCsrfToken(req),
+      });
+    }
+
+    // Normalize optional secondary topic into array
+    const parsedSecondaryTopics =
+      Array.isArray(secondary_topics)
+        ? secondary_topics.filter(Boolean)
+        : (secondary_topics && typeof secondary_topics === 'string' && secondary_topics.trim() !== '')
+          ? [secondary_topics]
+          : [];
+
+    // Constrain status to allowed values
+    const ALLOWED_STATUS = ['in production', 'released', 'cancelled'];
+    const safeStatus = ALLOWED_STATUS.includes(status) ? status : 'in production';
+
+    const payload = {
+      title: title.trim(),
+      unit_type,
+      main_topic,
+      secondary_topics: parsedSecondaryTopics,
+      sub_topic: sub_topic?.trim() || undefined,
+      teaser: teaser?.trim() || undefined,
+      long_teaser: long_teaser?.trim() || undefined,
+      projected_release_at: new Date(projected_release_at),
+      status: safeStatus,
+      visibility: visibility || 'all_members',
+      is_featured: !!is_featured,
+      priority: Number.isFinite(Number(priority)) ? Number(priority) : 0,
+    };
+
+    // Handle image upload (optional)
+    if (req.file) {
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = uploader.upload_stream(
+          { folder: 'twennie_upcoming', resource_type: 'image' },
+          (error, result) => (error ? reject(error) : resolve(result))
+        );
+        const readable = new Readable();
+        readable._read = () => {};
+        readable.push(req.file.buffer);
+        readable.push(null);
+        readable.pipe(stream);
+      });
+
+      payload.image = {
+        public_id: uploadResult.public_id,
+        url: uploadResult.secure_url,
+      };
+    }
+
+    // Fallback image if none provided (create mode only or missing existing)
+    if (!payload.image && !_id) {
+      payload.image = { public_id: null, url: '/images/default-upcoming.png' };
+    }
+
+    let upcoming;
+    if (_id) {
+      // Edit
+      upcoming = await Upcoming.findByIdAndUpdate(_id, payload, {
+        new: true,
+        runValidators: true,
+      });
+      if (!upcoming) {
+        return res.status(404).render('unit_form_views/error', {
+          layout: 'unitformlayout',
+          title: 'Not Found',
+          errorMessage: 'Upcoming unit not found for editing.',
+        });
+      }
+      console.log(`Upcoming with ID ${_id} updated successfully.`);
+    } else {
+      // Create
+      upcoming = new Upcoming(payload);
+      await upcoming.save();
+      console.log('New upcoming unit created successfully.');
+    }
+
+    // Success page (matches your existing pattern)
+    return res.render('unit_form_views/unit_success', {
+      layout: 'unitformlayout',
+      unitType: 'upcoming',
+      unit: upcoming,
+      csrfToken: getCsrfToken(req),
+    });
+  } catch (error) {
+    const isCsrfError = error.code === 'EBADCSRFTOKEN';
+    console.error('Error submitting upcoming unit:', error);
+
+    if (isCsrfError) {
+      return res.status(403).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Session Expired',
+        errorMessage:
+          'Your session has expired or the form took too long to submit. Please refresh and try again.',
+      });
+    }
+
+    return res.status(500).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Error',
+      errorMessage: error.message || 'An error occurred while submitting the upcoming unit.',
+    });
+  }
+},
 
 
 submitArticle: async (req, res) => {
