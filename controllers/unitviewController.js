@@ -846,7 +846,7 @@ viewUpcoming: async (req, res) => {
       });
     }
 
-    // Safety redirect: if something left this as "released", bounce to the live unit.
+    // If this doc somehow survived publish, bounce to the live unit.
     if (upcoming.status === 'released' && upcoming.published_unit_ref?.id) {
       const pathMap = {
         article: 'articles', video: 'videos', interview: 'interviews',
@@ -858,10 +858,31 @@ viewUpcoming: async (req, res) => {
     }
 
     const isAuthenticated = !!req.user;
-    const canPublish = req.user?.membershipType === 'leader';
+    const isLeader = req.user?.membershipType === 'leader';
+    const canPublish = isLeader; // leaders see "publish now"
 
-    // Visibility: simple rule for teasers
-    const isAuthorizedToView = (upcoming.visibility === 'all_members') ? true : isAuthenticated;
+    // Lightweight teaser rule
+    const isAuthorizedToViewFullContent =
+      upcoming.visibility === 'all_members' ? true : isAuthenticated;
+
+    // Leader context for assign form
+    let groupMembers = [];
+    let leaderName = null;
+    let leaderId = null;
+
+    if (isLeader) {
+      // Use req.user.id (your session shim sets both id and _id as strings)
+      const leaderDoc = await Leader.findById(req.user.id || req.user._id).select('groupLeaderName username').lean();
+      if (leaderDoc) {
+        const leaderObjectId = leaderDoc._id;
+        groupMembers = await GroupMember.find({ groupId: leaderObjectId })
+          .select('_id name')
+          .lean();
+        leaderName = leaderDoc.groupLeaderName || leaderDoc.username || 'You';
+        leaderId = leaderObjectId.toString();
+        console.log("🧑‍🤝‍🧑 Group members for upcoming:", groupMembers.length);
+      }
+    }
 
     return res.render('unit_views/upcomingunit', {
       layout: 'unitviewlayout',
@@ -878,17 +899,22 @@ viewUpcoming: async (req, res) => {
       image: upcoming.image || { url: '/images/default-upcoming.png' },
       published_unit_ref: upcoming.published_unit_ref || null,
 
-      // flags for the HBS
+      // view flags
       isAuthenticated,
-      isAuthorizedToViewFullContent: true,
+      isAuthorizedToViewFullContent,
+      isLeader,
       isGroupMemberOrLeader:
         req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
       isGroupMemberOrMember:
         req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
-      isLeader: req.user?.membershipType === 'leader',
-      isOwner: false,
+      isOwner: false, // upcoming has no author binding
 
-      // NEW
+      // leader assign context
+      groupMembers,
+      leaderId: leaderId || req.user?._id?.toString(),
+      leaderName: leaderName || req.user?.username || 'You',
+
+      // publish
       canPublish,
 
       csrfToken: req.csrfToken(),
@@ -902,6 +928,7 @@ viewUpcoming: async (req, res) => {
     });
   }
 },
+
 
 
 

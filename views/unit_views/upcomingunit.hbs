@@ -51,7 +51,74 @@
         </p>
       </div>
 
-      <!-- Tag This Unit -->
+      {{!-- Leader assign block (mirrors article view) --}}
+      {{#if isLeader}}
+        <div class="assign-tag-form white-container">
+          <h4 class="assign-tag-title">Assign this unit to yourself or your group</h4>
+
+          <form id="assignTagForm" action="/tags/create" method="POST">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" name="itemId" value="{{_id}}">
+            <input type="hidden" name="itemType" value="upcoming">
+            <input type="hidden" name="name" value="Leader Assigned Unit">
+
+            <div class="form-field">
+              <label for="tagName">Give the tag a name</label>
+              <input type="text" id="tagName" name="tagName" required>
+            </div>
+
+            <fieldset class="assign-tag-members">
+              <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
+
+              <!-- ✅ Leader self-assignment -->
+              <div class="assign-tag-member-block">
+                <label class="assign-tag-member-label">
+                  <input
+                    type="checkbox"
+                    name="assignedTo[{{leaderId}}][member]"
+                    value="{{leaderId}}"
+                    onchange="toggleInstructionField(this)">
+                  {{leaderName}} (you)
+                </label>
+                <textarea
+                  class="assign-tag-instructions"
+                  name="assignedTo[{{leaderId}}][instructions]"
+                  placeholder="Instructions for yourself"
+                  style="display: none;"></textarea>
+              </div>
+
+              <hr class="assign-tag-divider">
+
+              <!-- ✅ Group members (if any) -->
+              {{#if groupMembers.length}}
+                {{#each groupMembers}}
+                  <div class="assign-tag-member-block">
+                    <label class="assign-tag-member-label">
+                      <input
+                        type="checkbox"
+                        name="assignedTo[{{_id}}][member]"
+                        value="{{_id}}"
+                        onchange="toggleInstructionField(this)">
+                      {{name}}
+                    </label>
+                    <textarea
+                      class="assign-tag-instructions"
+                      name="assignedTo[{{_id}}][instructions]"
+                      placeholder="Instructions for {{name}}"
+                      style="display: none;"></textarea>
+                  </div>
+                {{/each}}
+              {{else}}
+                <p style="color:#666;margin-top:.5rem;">No group members found yet. You can still assign this to yourself.</p>
+              {{/if}}
+            </fieldset>
+
+            <button type="submit" class="form-button submit-button">assign upcoming unit</button>
+          </form>
+        </div>
+      {{/if}}
+
+      <!-- Tag This Unit (group members & individual members) -->
       {{#if isGroupMemberOrMember}}
         <div class="single_unit-tag-container" style="margin-bottom: 200px;">
           <form id="tagForm" onsubmit="tagUnit(event)">
@@ -128,6 +195,14 @@
       sidebarContent.classList.toggle('hidden');
       element.classList.toggle('open');
     }
+  }
+
+  // Leader assign textarea show/hide
+  function toggleInstructionField(checkbox) {
+    const memberId = checkbox.value;
+    const selector = `textarea[name="assignedTo[${memberId}][instructions]"]`;
+    const textarea = document.querySelector(selector);
+    if (textarea) textarea.style.display = checkbox.checked ? 'block' : 'none';
   }
 
   // Tagging (standard)
