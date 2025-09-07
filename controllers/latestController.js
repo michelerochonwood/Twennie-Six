@@ -5,10 +5,12 @@ const Interview = require('../models/unit_models/interview');
 const PromptSet = require('../models/unit_models/promptset');
 const Exercise = require('../models/unit_models/exercise');
 const Template = require('../models/unit_models/template');
+const Upcoming = require('../models/unit_models/upcoming');
+
 const MemberProfile = require('../models/profile_models/member_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const LeaderProfile = require('../models/profile_models/leader_profile');
- 
+
 // Helper: get correct icon path based on unit type
 function getUnitTypeIcon(type) {
   const icons = {
@@ -33,26 +35,31 @@ async function resolveAuthorById(authorId) {
 
     profile = await MemberProfile.findOne({ memberId: authorId }).select('profileImage name');
     if (profile) return { name: profile.name || 'Member', image: profile.profileImage || '/images/default-avatar.png' };
-
   } catch (err) {
     console.error('Error resolving author profile:', err);
   }
-
   return { name: 'Unknown Author', image: '/images/default-avatar.png' };
 }
 
 // Controller: Get all Twennie-visible units for the "latest" view
-// Controller: Get all Twennie-visible units for the "latest" view
 exports.getLatestLibraryItems = async (req, res) => {
   console.log("👤 req.user in latestController:", req.user);
   try {
-    const [articles, videos, interviews, promptsets, exercises, templates] = await Promise.all([
+    const [
+      articles, videos, interviews, promptsets, exercises, templates,
+      upcomingDocs
+    ] = await Promise.all([
       Article.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
       Video.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
       Interview.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
       PromptSet.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
       Exercise.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
       Template.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
+      // Upcoming for "coming soon" section
+      Upcoming.find({ status: 'in production', visibility: 'all_members' })
+        .sort({ projected_release_at: 1, created_at: -1 })
+        .limit(20)
+        .lean(),
     ]);
 
     const allLibraryUnits = [
@@ -72,6 +79,7 @@ exports.getLatestLibraryItems = async (req, res) => {
       ...templates.map(u  => ({ title: u.template_title,  ...u, type: 'template' })),
     ];
 
+    // newest first
     allLibraryUnits.sort((a, b) => b.updated_at - a.updated_at);
 
     const startOfThisMonth = moment().startOf('month');
@@ -94,7 +102,8 @@ exports.getLatestLibraryItems = async (req, res) => {
         authorName: author.name,
         authorImage: author.image,
         unitTypeIcon: getUnitTypeIcon(unit.type),
-        isVideoOrArticle: unit.type === 'video' || unit.type === 'article', // ← used by free gate
+        // used by free gate
+        isVideoOrArticle: unit.type === 'video' || unit.type === 'article',
       };
 
       if (updatedDate.isSameOrAfter(startOfThisMonth)) {
@@ -114,7 +123,7 @@ exports.getLatestLibraryItems = async (req, res) => {
     const isPaid = accessLevel === 'paid_individual' || accessLevel === 'contributor_individual';
     const isFree = accessLevel === 'free_individual';
 
-    // 👉 Stamp flags on EACH item so HBS doesn't need @root
+    // Stamp flags on EACH item so HBS doesn't need @root
     for (const arr of [thisMonthItems, lastMonthItems]) {
       for (const u of arr) {
         u.isAuthenticated = isAuthenticated;
@@ -124,8 +133,19 @@ exports.getLatestLibraryItems = async (req, res) => {
       }
     }
 
+    // Map upcoming docs to the shape the view expects
+    const upcomingItems = upcomingDocs.map(u => ({
+      _id: u._id,
+      unit_type: u.unit_type,          // used by getUnitTypeIcon in the view
+      title: u.title,
+      long_teaser: u.long_teaser,
+      image: u.image || { url: '/images/default-upcoming.png' },
+      projected_release_at: u.projected_release_at,
+    }));
+
     return res.render('latest_view/latest_view', {
       layout: 'bytopiclayout',
+      upcomingItems,     // ← for the new section
       thisMonthItems,
       lastMonthItems,
 
@@ -149,6 +169,7 @@ exports.getLatestLibraryItems = async (req, res) => {
     });
   }
 };
+
 
 
 
