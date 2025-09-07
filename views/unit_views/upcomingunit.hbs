@@ -47,39 +47,11 @@
           {{/if}}
         </ul>
         <p class="single_article-notes-instructions">
-          This unit is in production. When it’s released, it will appear in the library and on your dashboard if you tag or follow it now.
+          Tag this now to surface it on your dashboard; once published, your tag will automatically point to the released unit.
         </p>
       </div>
 
-      <!-- Follow / Notify -->
-      {{#if isAuthenticated}}
-        <div class="single_article-notes-container">
-          <h3 class="single_article-notes-title">follow for release</h3>
-          <p class="single_article-notes-instructions">
-            Click <em>notify me</em> to get a small badge on your dashboard tab when this unit is released.
-          </p>
-
-          <form id="notifyMeForm" class="single_article-notes-form" onsubmit="toggleInterest(event)">
-            <input type="hidden" name="_csrf" value="{{csrfToken}}">
-            <input type="hidden" id="upcomingId" value="{{_id}}">
-            <button 
-              id="notifyBtn" 
-              type="submit" 
-              class="single_article-notes-submit" 
-              aria-pressed="{{#if isInterested}}true{{else}}false{{/if}}">
-              {{#if isInterested}}✓ following — notify me{{else}}notify me{{/if}}
-            </button>
-          </form>
-        </div>
-      {{else}}
-        <div class="single_article-notes-container">
-          <p class="single_article-notes-instructions">
-            <a href="/auth/login" class="login-link">Log in</a> to follow this unit and get a dashboard badge when it’s released.
-          </p>
-        </div>
-      {{/if}}
-
-      <!-- Tag This Unit (so it can surface on dashboards like other units) -->
+      <!-- Tag This Unit -->
       {{#if isGroupMemberOrMember}}
         <div class="single_unit-tag-container" style="margin-bottom: 200px;">
           <form id="tagForm" onsubmit="tagUnit(event)">
@@ -95,14 +67,12 @@
           </form>
         </div>
       {{/if}}
-
-      {{!-- No notes composer for upcoming items (no content yet) --}}
+      {{!-- No notes composer for upcoming items --}}
     </div>
   </div> <!-- /single_article-main -->
 
   <!-- Sidebar -->
   <aside class="single_article-sidebar">
-    {{!-- Optional duration art removed for upcoming units --}}
     <div class="single_article-image-container">
       <img 
         src="{{image.url}}" 
@@ -130,12 +100,13 @@
           </p>
         {{/if}}
 
-        {{#if (and published_unit_ref.id (ne status "cancelled"))}}
-          <a href="/units/view/{{published_unit_ref.model}}/{{published_unit_ref.id}}" class="single_article-edit-btn">view released unit</a>
-        {{/if}}
-
-        {{#if isOwner}}
-          <a href="/unitform/edit_upcoming/{{_id}}" class="single_article-edit-btn">edit this unit</a>
+        {{!-- PUBLISH NOW (leaders only) --}}
+        {{#if canPublish}}
+          <a id="publishNowLink"
+             class="single_article-edit-btn"
+             href="/unitform/prefill_from_upcoming/{{unit_type}}/{{_id}}">
+            publish now
+          </a>
         {{/if}}
       </div>
     </div>
@@ -159,32 +130,7 @@
     }
   }
 
-  // Notify/interest toggle
-  async function toggleInterest(e) {
-    e.preventDefault();
-    const btn = document.getElementById('notifyBtn');
-    const upcomingId = document.getElementById('upcomingId').value;
-    const csrf = document.querySelector('#notifyMeForm input[name="_csrf"]').value;
-
-    try {
-      const res = await fetch(`/upcoming/${upcomingId}/interest/toggle`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrf },
-        body: JSON.stringify({ upcomingId })
-      });
-      if (!res.ok) throw new Error('Failed to update interest');
-      const data = await res.json();
-
-      const following = !!data.following;
-      btn.setAttribute('aria-pressed', following ? 'true' : 'false');
-      btn.textContent = following ? '✓ following — notify me' : 'notify me';
-    } catch (err) {
-      console.error(err);
-      alert('Sorry, we could not update your follow setting right now.');
-    }
-  }
-
-  // Tagging (same pattern you already use)
+  // Tagging (standard)
   async function tagUnit(event) {
     event.preventDefault();
     const unitId = document.getElementById('unitId').value;
@@ -208,4 +154,12 @@
       alert('Sorry, tagging failed.');
     }
   }
+
+  // Confirm before publish (since publishing deletes the upcoming card after the real unit is created)
+  document.getElementById('publishNowLink')?.addEventListener('click', (e) => {
+    if (!confirm('Open the prefilled form to publish now? After you submit, this upcoming card will be removed.')) {
+      e.preventDefault();
+    }
+  });
 </script>
+

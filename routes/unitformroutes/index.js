@@ -220,6 +220,18 @@ router.post(
   unitFormController.submitUpcoming
 );
 
+// open correct form prefilled from an upcoming unit
+router.get('/prefill_from_upcoming/:unitType/:id',
+  ensureAuthenticated,
+  unitFormController.prefillFromUpcoming
+);
+
+// link an already-created unit to the upcoming and mark released
+router.post('/upcoming/:id/link_published',
+  ensureAuthenticated,
+  unitFormController.linkPublishedFromUpcoming
+);
+
 module.exports = router;
 
 

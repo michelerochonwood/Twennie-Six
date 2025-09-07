@@ -25,11 +25,7 @@ router.get('/unitnotessuccess', (req, res) => {
 // ----- NEW: upcoming unit -----
 router.get('/upcoming/view/:id', unitviewController.viewUpcoming);
 
-// follow/unfollow (“notify me”) toggle used by upcomingunit.hbs
-router.post('/upcoming/:id/interest/toggle',
-  isAuthenticated,
-  unitviewController.toggleUpcomingInterest
-);
+
 
 module.exports = router;
 

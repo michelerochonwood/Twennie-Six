@@ -10,7 +10,7 @@ const { uploader } = require('../utils/cloudinary');
 const { Readable } = require('stream');
 const sanitizeHtml = require('sanitize-html');
 const Upcoming = require('../models/unit_models/upcoming'); // ← add this
-
+const Tag = require('../models/tag'); 
 console.log('unitFormController loaded');
 
 
@@ -18,10 +18,37 @@ console.log('unitFormController loaded');
 // Environment check for development mode
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
+// Migrate tags from 'upcoming' → new unit, then delete the upcoming doc.
+// Called by each submit handler IFF fromUpcomingId exists.
+async function migrateAndDeleteUpcoming({ fromUpcomingId, toItemId, toUnitType }) {
+  if (!fromUpcomingId || !toItemId || !toUnitType) return;
+
+  try {
+    const { modifiedCount } = await Tag.migrateAssociatedUnits({
+      fromItemId: fromUpcomingId,
+      toItemId,
+      toUnitType, // use exact strings your app already uses: 'article','video','promptset', etc.
+      // fromUnitType defaults to 'upcoming' in the Tag static
+    });
+    console.log(`🔁 migrated ${modifiedCount} tag association(s) from upcoming → ${toUnitType} ${toItemId}`);
+  } catch (e) {
+    console.error('Tag migration failed (non-fatal):', e);
+  }
+
+  try {
+    await Upcoming.findByIdAndDelete(fromUpcomingId);
+    console.log(`🧹 deleted upcoming ${fromUpcomingId}`);
+  } catch (e) {
+    console.error('Failed to delete upcoming (non-fatal):', e);
+  }
+}
+
 // Helper function to safely get CSRF token
 function getCsrfToken(req) {
   return req.csrfToken ? req.csrfToken() : null;
 }
+
+
 
 const createGetFormHandler = (unitType, viewPath) => (req, res) => {
   console.log(`🛡 Rendering ${unitType} form. CSRF available:`, typeof req.csrfToken === 'function');
@@ -423,6 +450,123 @@ submitUpcoming: async (req, res) => {
   }
 },
 
+prefillFromUpcoming: async (req, res) => {
+  try {
+    const { unitType, id } = req.params;
+    const upcoming = await Upcoming.findById(id).lean();
+    if (!upcoming) {
+      return res.status(404).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Not Found',
+        errorMessage: 'Upcoming unit not found.'
+      });
+    }
+
+    const mainTopics = [
+      'Career Development in Technical Services','Soft Skills in Technical Environments','Project Management',
+      'Business Development in Technical Services','Finding Projects Before they Become RFPs',
+      'Un-Commoditizing Your Services by Delivering What Clients Truly Value','Proposal Management','Proposal Strategy',
+      'Designing a Proposal Process','Conducting Color Reviews of Proposals','Storytelling in Technical Marketing',
+      'Client Experience','Social Media, Advertising, and Other Mysteries','Pull Marketing','Emotional Intelligence',
+      'The Pareto Principle or 80/20','People Before Profit','Non-Technical Roles in Technical Environments',
+      'Leadership in Technical Services','Leading Change','Leading Groups on Twennie','The Advantage of Failure',
+      'Social Entrepreneurship','Employee Experience','Project Management Software','CRM Platforms',
+      'Client Feedback Software','Workplace Culture','Mental Health in Consulting Environments','Remote and Hybrid Work',
+      'The Power of Play in the Workplace','Team Building in Consulting','AI in Consulting','AI in Project Management','AI in Learning',
+    ];
+
+    // Image fallback for forms that show it
+    const image = upcoming.image?.url ? upcoming.image : { public_id: null, url: '/images/default-upcoming.png' };
+
+    // ---- Article ----
+    if (unitType === 'article') {
+      return res.render('unit_form_views/form_article', {
+        layout: 'unitformlayout',
+        mainTopics,
+        data: {
+          article_title: upcoming.title,
+          main_topic: upcoming.main_topic,
+          secondary_topics: (upcoming.secondary_topics || [])[0] || '',
+          sub_topic: upcoming.sub_topic,
+          short_summary: upcoming.teaser,
+          full_summary: upcoming.long_teaser,
+          visibility: upcoming.visibility,
+          image
+        },
+        fromUpcomingId: upcoming._id.toString(),
+        csrfToken: req.csrfToken?.()
+      });
+    }
+
+    // ---- Video ----
+    if (unitType === 'video') {
+      return res.render('unit_form_views/form_video', {
+        layout: 'unitformlayout',
+        mainTopics,
+        data: {
+          video_title: upcoming.title,
+          main_topic: upcoming.main_topic,
+          secondary_topics: (upcoming.secondary_topics || [])[0] || '',
+          sub_topic: upcoming.sub_topic,
+          short_summary: upcoming.teaser,
+          full_summary: upcoming.long_teaser,
+          visibility: upcoming.visibility,
+          image
+        },
+        fromUpcomingId: upcoming._id.toString(),
+        csrfToken: req.csrfToken?.()
+      });
+    }
+
+    // ---- Prompt Set ----
+    if (unitType === 'promptset') {
+      const secondaryTopics = mainTopics.slice(); // same list you use in getPromptForm
+      const characteristics = [
+        'educational','motivational','provocative','fun','hilarious','silly','competitive','restorative','energizing',
+        'relationship-building','team building','stress-relieving','insightful','calming','reassuring','encouraging',
+        'creative','imaginative','heart-warming','other'
+      ];
+      const frequencies = ['daily', 'weekly', 'monthly', 'quarterly'];
+
+      // Minimal, safe prefill; authors will complete prompts/headlines on the form
+      return res.render('unit_form_views/form_promptset', {
+        layout: 'unitformlayout',
+        data: {
+          main_topic: upcoming.main_topic,
+          secondary_topics: (upcoming.secondary_topics || [])[0] || '',
+          sub_topic: upcoming.sub_topic,
+          visibility: upcoming.visibility,
+          // keep all prompt fields empty; your form handles them
+        },
+        mainTopics,
+        secondaryTopics,
+        characteristics,
+        frequencies,
+        fromUpcomingId: upcoming._id.toString(),
+        csrfToken: req.csrfToken?.()
+      });
+    }
+
+    // Unsupported type
+    return res.status(400).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Unsupported',
+      errorMessage: `Prefill for unit type "${unitType}" is not configured yet.`
+    });
+  } catch (err) {
+    console.error('prefillFromUpcoming error:', err);
+    return res.status(500).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Error',
+      errorMessage: 'Could not prefill from upcoming.'
+    });
+  }
+},
+
+
+
+
+
 
 submitArticle: async (req, res) => {
   try {
@@ -481,17 +625,19 @@ submitArticle: async (req, res) => {
       include_results,
       permission,
       visibility,
+
+      // 👇 comes from the hidden input in the form when launched via “publish now”
+      fromUpcomingId,
     } = req.body;
 
     if (!req.user || !req.user._id) {
       throw new Error('User is not authenticated or missing user ID.');
     }
 
+    // sanitize + word count
     const cleanHtml = sanitizeHtml(articleBody, {
       allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
-      allowedAttributes: {
-        '*': ['style', 'href', 'target', 'src', 'alt'],
-      },
+      allowedAttributes: { '*': ['style', 'href', 'target', 'src', 'alt'] },
     });
 
     const plainText = cleanHtml.replace(/<[^>]*>/g, ' ').trim();
@@ -500,15 +646,13 @@ submitArticle: async (req, res) => {
     if (wordCount < 800 || wordCount > 1200) {
       return res.status(400).render('unit_form_views/form_article', {
         layout: 'unitformlayout',
-        data: {
-          ...req.body,
-          article_body: cleanHtml,
-        },
+        data: { ...req.body, article_body: cleanHtml },
         errorMessage: `Your article must be between 800 and 1200 words. Current word count: ${wordCount}.`,
         mainTopics,
       });
     }
 
+    // checkboxes
     const booleanFields = [
       'clarify_topic',
       'produce_deliverables',
@@ -517,19 +661,13 @@ submitArticle: async (req, res) => {
       'permission',
     ];
     const normalizedBooleans = {};
-    booleanFields.forEach((field) => {
-      normalizedBooleans[field] = req.body[field] === 'on';
-    });
+    for (const field of booleanFields) normalizedBooleans[field] = req.body[field] === 'on';
 
-    // ✅ Normalize optional secondary topic (single string or empty)
-    let parsedSecondaryTopics = [];
-    if (
-      secondary_topics &&
-      typeof secondary_topics === 'string' &&
-      secondary_topics.trim() !== ''
-    ) {
-      parsedSecondaryTopics = [secondary_topics];
-    }
+    // secondary topic (single optional)
+    const parsedSecondaryTopics =
+      secondary_topics && typeof secondary_topics === 'string' && secondary_topics.trim() !== ''
+        ? [secondary_topics]
+        : [];
 
     const articleData = {
       article_title,
@@ -540,23 +678,17 @@ submitArticle: async (req, res) => {
       short_summary,
       full_summary,
       visibility,
-      author: {
-        id: req.user._id,
-      },
+      author: { id: req.user._id },
       ...normalizedBooleans,
     };
 
-    // ✅ Handle image upload via Cloudinary
+    // image upload (optional)
     if (req.file) {
       const uploadResult = await new Promise((resolve, reject) => {
         const stream = uploader.upload_stream(
           { folder: 'twennie_articles', resource_type: 'image' },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-          }
+          (error, result) => (error ? reject(error) : resolve(result))
         );
-
         const readable = new Readable();
         readable._read = () => {};
         readable.push(req.file.buffer);
@@ -570,14 +702,11 @@ submitArticle: async (req, res) => {
       };
     }
 
-    // ✅ Fallback if no image was uploaded
     if (!articleData.image) {
-      articleData.image = {
-        public_id: null,
-        url: '/images/default-article.png',
-      };
+      articleData.image = { public_id: null, url: '/images/default-article.png' };
     }
 
+    // create/update
     let article;
     if (_id) {
       article = await Article.findByIdAndUpdate(_id, articleData, {
@@ -591,7 +720,17 @@ submitArticle: async (req, res) => {
       console.log('New article created successfully.');
     }
 
-    res.render('unit_form_views/unit_success', {
+    // 🔁 If this came from an upcoming: migrate tags → article, then delete upcoming
+    if (fromUpcomingId) {
+      await migrateAndDeleteUpcoming({
+        fromUpcomingId,
+        toItemId: article._id,
+        toUnitType: 'article',
+      });
+    }
+
+    // ✅ Always show success page
+    return res.render('unit_form_views/unit_success', {
       layout: 'unitformlayout',
       unitType: 'article',
       unit: article,
@@ -599,18 +738,18 @@ submitArticle: async (req, res) => {
     });
   } catch (error) {
     const isCsrfError = error.code === 'EBADCSRFTOKEN';
-
     console.error('Error submitting article:', error);
 
     if (isCsrfError) {
       return res.status(403).render('unit_form_views/error', {
         layout: 'unitformlayout',
         title: 'Session Expired',
-        errorMessage: 'Your session has expired or the form took too long to submit. Please refresh and try again.',
+        errorMessage:
+          'Your session has expired or the form took too long to submit. Please refresh and try again.',
       });
     }
 
-    res.status(500).render('unit_form_views/error', {
+    return res.status(500).render('unit_form_views/error', {
       layout: 'unitformlayout',
       title: 'Error',
       errorMessage: error.message || 'An error occurred while submitting the article.',
@@ -627,117 +766,170 @@ submitArticle: async (req, res) => {
 
 
 
+
     
     
 
-    submitVideo: async (req, res) => {
+submitVideo: async (req, res) => {
+  try {
+    // CSRF (keep your existing guard)
+    if (process.env.NODE_ENV === 'production' && !req.body._csrf) {
+      throw new Error('CSRF token is missing or invalid.');
+    }
 
-        try {
-          if (process.env.NODE_ENV === 'production' && !req.body._csrf) {
-            throw new Error('CSRF token is missing or invalid.');
-        }
-    
-            const { _id, ...videoData } = req.body; // Extract _id and other form data
-    
-            // Convert checkbox values from "on" to true
-            const booleanFields = ['clarify_topic', 'produce_deliverables', 'new_ideas', 'engaging', 'permission'];
-            booleanFields.forEach((field) => {
-                videoData[field] = req.body[field] === 'on';
-            });
-    
-            // Automatically include author information
-            videoData.author = {
-                id: req.user._id, // Automatically populate the logged-in user's ID
-            };
-    
-            let video;
-            if (_id) {
-                // Edit existing video
-                video = await Video.findByIdAndUpdate(
-                    _id,
-                    videoData,
-                    { new: true, runValidators: true } // Ensure validators are run
-                );
-                console.log(`Video with ID ${_id} updated successfully.`);
-            } else {
-                // Create new video
-                video = new Video(videoData);
-                await video.save();
-                console.log('New video created successfully.');
-            }
-    
-            res.render('unit_form_views/unit_success', {
-              layout: 'unitformlayout',
-              unitType: 'video',
-              unit: video,
-              csrfToken: getCsrfToken(req),
-          });
-        } catch (error) {
-            console.error('Error submitting video:', error);
-            res.status(500).render('unit_form_views/error', {
-                layout: 'unitformlayout',
-                title: 'Error',
-                errorMessage: 'An error occurred while submitting the video.',
-            });
-        }
-    },
-    
+    if (!req.user || !req.user._id) {
+      throw new Error('User is not authenticated or missing user ID.');
+    }
+
+    // Pull out id + upcoming context, keep the rest as payload
+    const { _id, fromUpcomingId, ...videoData } = req.body;
+
+    // Convert checkbox "on" -> true
+    const booleanFields = ['clarify_topic', 'produce_deliverables', 'new_ideas', 'engaging', 'permission'];
+    booleanFields.forEach((field) => {
+      videoData[field] = req.body[field] === 'on';
+    });
+
+    // Normalize optional secondary topic (single string -> [string])
+    if (typeof videoData.secondary_topics === 'string' && videoData.secondary_topics.trim() !== '') {
+      videoData.secondary_topics = [videoData.secondary_topics];
+    } else if (!Array.isArray(videoData.secondary_topics)) {
+      videoData.secondary_topics = [];
+    }
+
+    // Attach author
+    videoData.author = { id: req.user._id };
+
+    // Create or update
+    let video;
+    if (_id) {
+      video = await Video.findByIdAndUpdate(_id, videoData, { new: true, runValidators: true });
+      console.log(`Video with ID ${_id} updated successfully.`);
+    } else {
+      video = new Video(videoData);
+      await video.save();
+      console.log('New video created successfully.');
+    }
+
+    // 🔁 If published from an upcoming, migrate tags → video, then delete upcoming
+    if (fromUpcomingId) {
+      await migrateAndDeleteUpcoming({
+        fromUpcomingId,
+        toItemId: video._id,
+        toUnitType: 'video',
+      });
+    }
+
+    // ✅ Always render success page
+    return res.render('unit_form_views/unit_success', {
+      layout: 'unitformlayout',
+      unitType: 'video',
+      unit: video,
+      csrfToken: getCsrfToken(req),
+    });
+  } catch (error) {
+    console.error('Error submitting video:', error);
+
+    const isCsrfError = error.code === 'EBADCSRFTOKEN';
+    if (isCsrfError) {
+      return res.status(403).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Session Expired',
+        errorMessage: 'Your session has expired or the form took too long to submit. Please refresh and try again.',
+      });
+    }
+
+    return res.status(500).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Error',
+      errorMessage: 'An error occurred while submitting the video.',
+    });
+  }
+},
 
     
 
+    
 
 
-    submitInterview: async (req, res) => {
 
-        try {
-            if (!isDevelopment && !req.body._csrf) {
-                throw new Error('CSRF token is missing or invalid.');
-            }
-    
-            const { _id, ...interviewData } = req.body; // Extract _id and other form data
-    
-            // Convert checkbox values from "on" to true
-            const booleanFields = ['clarify_topic', 'produce_deliverables', 'new_ideas', 'engaging', 'permission'];
-            booleanFields.forEach((field) => {
-                interviewData[field] = req.body[field] === 'on';
-            });
-    
-            // Automatically include author information
-            interviewData.author = {
-                id: req.user._id, // Automatically populate the logged-in user's ID
-            };
-    
-            let interview;
-            if (_id) {
-                // Edit existing interview
-                interview = await Interview.findByIdAndUpdate(
-                    _id,
-                    interviewData,
-                    { new: true, runValidators: true } // Ensure validators are run
-                );
-                console.log(`Interview with ID ${_id} updated successfully.`);
-            } else {
-                // Create new interview
-                interview = new Interview(interviewData);
-                await interview.save();
-                console.log('New interview created successfully.');
-            }
-    
-            res.render('unit_form_views/unit_success', {
-                layout: 'unitformlayout',
-                unitType: 'interview',
-                unit: interview,
-                csrfToken: isDevelopment ? null : req.csrfToken(),
-            });
-        } catch (error) {
-            console.error('Error submitting interview:', error);
-            res.status(500).render('unit_form_views/error', {
-                layout: 'unitformlayout',
-                title: 'Error',
-                errorMessage: 'An error occurred while submitting the interview.',
-            });
-        }
-    },
+submitInterview: async (req, res) => {
+  try {
+    // CSRF guard (keep your existing behavior)
+    if (!isDevelopment && !req.body._csrf) {
+      throw new Error('CSRF token is missing or invalid.');
+    }
+
+    if (!req.user || !req.user._id) {
+      throw new Error('User is not authenticated or missing user ID.');
+    }
+
+    // Pull out id + upcoming context; keep the rest as payload
+    const { _id, fromUpcomingId, ...interviewData } = req.body;
+
+    // Convert checkbox "on" -> true
+    const booleanFields = ['clarify_topic', 'produce_deliverables', 'new_ideas', 'engaging', 'permission'];
+    booleanFields.forEach((field) => {
+      interviewData[field] = req.body[field] === 'on';
+    });
+
+    // Normalize optional secondary topic (single string -> [string])
+    if (typeof interviewData.secondary_topics === 'string' && interviewData.secondary_topics.trim() !== '') {
+      interviewData.secondary_topics = [interviewData.secondary_topics];
+    } else if (!Array.isArray(interviewData.secondary_topics)) {
+      interviewData.secondary_topics = [];
+    }
+
+    // Attach author
+    interviewData.author = { id: req.user._id };
+
+    // Create or update
+    let interview;
+    if (_id) {
+      interview = await Interview.findByIdAndUpdate(_id, interviewData, { new: true, runValidators: true });
+      console.log(`Interview with ID ${_id} updated successfully.`);
+    } else {
+      interview = new Interview(interviewData);
+      await interview.save();
+      console.log('New interview created successfully.');
+    }
+
+    // 🔁 If published from an upcoming, migrate tags → interview, then delete upcoming
+    if (fromUpcomingId) {
+      await migrateAndDeleteUpcoming({
+        fromUpcomingId,
+        toItemId: interview._id,
+        toUnitType: 'interview',
+      });
+    }
+
+    // ✅ Always render success page
+    return res.render('unit_form_views/unit_success', {
+      layout: 'unitformlayout',
+      unitType: 'interview',
+      unit: interview,
+      csrfToken: getCsrfToken(req),
+    });
+  } catch (error) {
+    console.error('Error submitting interview:', error);
+
+    const isCsrfError = error.code === 'EBADCSRFTOKEN';
+    if (isCsrfError) {
+      return res.status(403).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Session Expired',
+        errorMessage: 'Your session has expired or the form took too long to submit. Please refresh and try again.',
+      });
+    }
+
+    return res.status(500).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Error',
+      errorMessage: 'An error occurred while submitting the interview.',
+    });
+  }
+},
+
     
     getPromptForm: async (req, res) => {
 
@@ -872,94 +1064,121 @@ submitArticle: async (req, res) => {
     
     
 
-      submitPromptSet: async (req, res) => {
+submitPromptSet: async (req, res) => {
+  try {
+    // CSRF guard (match your existing pattern)
+    if (!isDevelopment && !req.body._csrf) {
+      console.error('CSRF validation failed: CSRF token is missing or invalid.');
+      throw new Error('CSRF token is missing or invalid.');
+    }
 
-        try {
-          if (!isDevelopment && !req.body._csrf) {
-            console.error('CSRF validation failed: CSRF token is missing or invalid.');
-            throw new Error('CSRF token is missing or invalid.');
-          }
-      
-          const { _id, ...promptSetData } = req.body;
-          console.log('Raw request body:', req.body);
-      
-          // Convert checkbox values from "on" to true
-          const booleanFields = ['clarify_topic', 'topics_and_enlightenment', 'challenge', 'instructions', 'time', 'permission'];
-          booleanFields.forEach((field) => {
-            promptSetData[field] = req.body[field] === 'on';
-          });
-          console.log('Converted boolean fields:', booleanFields.reduce((obj, field) => {
-            obj[field] = promptSetData[field];
-            return obj;
-          }, {}));
-      
-          // Transform badge fields into a nested object, if provided
-          if (promptSetData["badge.image"] || promptSetData["badge.name"]) {
-            promptSetData.badge = {
-              image: promptSetData["badge.image"],
-              name: promptSetData["badge.name"]
-            };
-            delete promptSetData["badge.image"];
-            delete promptSetData["badge.name"];
-          }
-      
-          // Automatically include author information
-          if (req.user && req.user._id) {
-            promptSetData.author = { id: req.user._id };
-            console.log('Author ID set to:', req.user._id);
-          } else {
-            console.error('User information is missing or incomplete in the request.');
-            throw new Error('Author ID is required but missing.');
-          }
-      
-          // Extract prompts and headlines from req.body (for indices 1 to 20)
-          for (let i = 1; i <= 20; i++) {
-            promptSetData[`prompt_headline${i}`] = req.body[`prompt_headline${i}`] || "";
-            promptSetData[`Prompt${i}`] = req.body[`Prompt${i}`] || "";
-          }
-      
-          console.log('Processed prompt set data:', promptSetData);
-      
-          let promptSet;
-          if (_id) {
-            console.log(`Updating existing prompt set with ID: ${_id}`);
-            promptSet = await PromptSet.findByIdAndUpdate(
-              _id,
-              promptSetData,
-              { new: true, runValidators: true }
-            );
-            if (!promptSet) {
-              console.error(`No prompt set found with ID: ${_id}`);
-              throw new Error(`Failed to update: No prompt set found with ID ${_id}.`);
-            }
-            console.log(`Prompt set with ID ${_id} updated successfully.`);
-          } else {
-            console.log('Creating new prompt set.');
-            promptSet = new PromptSet(promptSetData);
-            try {
-              await promptSet.save();
-              console.log('New prompt set created successfully.');
-            } catch (saveError) {
-              console.error('Error saving new prompt set:', saveError);
-              throw saveError;
-            }
-          }
-      
-          res.render('unit_form_views/unit_success', {
-            layout: 'unitformlayout',
-            unitType: 'promptset',
-            unit: promptSet,
-            csrfToken: isDevelopment ? null : req.csrfToken(),
-          });
-        } catch (error) {
-          console.error('Error stack:', error.stack);
-          res.status(500).render('unit_form_views/error', {
-            layout: 'unitformlayout',
-            title: 'Error',
-            errorMessage: error.message || 'An error occurred while submitting the prompt set.',
-          });
-        }
-      },
+    if (!req.user || !req.user._id) {
+      throw new Error('User is not authenticated or missing user ID.');
+    }
+
+    // Pull out id + upcoming context; keep the rest as payload
+    const { _id, fromUpcomingId, ...promptSetData } = req.body;
+    console.log('Raw request body:', req.body);
+
+    // Checkbox "on" -> true
+    const booleanFields = [
+      'clarify_topic',
+      'topics_and_enlightenment',
+      'challenge',
+      'instructions',
+      'time',
+      'permission'
+    ];
+    booleanFields.forEach((field) => {
+      promptSetData[field] = req.body[field] === 'on';
+    });
+    console.log(
+      'Converted boolean fields:',
+      booleanFields.reduce((obj, f) => ((obj[f] = promptSetData[f]), obj), {})
+    );
+
+    // Optional: normalize a single secondary topic (string -> [string])
+    if (typeof promptSetData.secondary_topics === 'string' && promptSetData.secondary_topics.trim() !== '') {
+      promptSetData.secondary_topics = [promptSetData.secondary_topics];
+    } else if (!Array.isArray(promptSetData.secondary_topics)) {
+      promptSetData.secondary_topics = [];
+    }
+
+    // Badge flattening -> nested object
+    if (promptSetData['badge.image'] || promptSetData['badge.name']) {
+      promptSetData.badge = {
+        image: promptSetData['badge.image'],
+        name: promptSetData['badge.name'],
+      };
+      delete promptSetData['badge.image'];
+      delete promptSetData['badge.name'];
+    }
+
+    // Attach author
+    promptSetData.author = { id: req.user._id };
+    console.log('Author ID set to:', req.user._id);
+
+    // Extract prompts and headlines 1..20
+    for (let i = 1; i <= 20; i++) {
+      promptSetData[`prompt_headline${i}`] = req.body[`prompt_headline${i}`] || '';
+      promptSetData[`Prompt${i}`] = req.body[`Prompt${i}`] || '';
+    }
+
+    console.log('Processed prompt set data:', promptSetData);
+
+    // Create or update
+    let promptSet;
+    if (_id) {
+      console.log(`Updating existing prompt set with ID: ${_id}`);
+      promptSet = await PromptSet.findByIdAndUpdate(_id, promptSetData, { new: true, runValidators: true });
+      if (!promptSet) {
+        console.error(`No prompt set found with ID: ${_id}`);
+        throw new Error(`Failed to update: No prompt set found with ID ${_id}.`);
+      }
+      console.log(`Prompt set with ID ${_id} updated successfully.`);
+    } else {
+      console.log('Creating new prompt set.');
+      promptSet = new PromptSet(promptSetData);
+      await promptSet.save();
+      console.log('New prompt set created successfully.');
+    }
+
+    // 🔁 If published from an upcoming: migrate tags → promptset, then delete upcoming
+    if (fromUpcomingId) {
+      await migrateAndDeleteUpcoming({
+        fromUpcomingId,
+        toItemId: promptSet._id,
+        toUnitType: 'promptset',
+      });
+    }
+
+    // ✅ Always render success page
+    return res.render('unit_form_views/unit_success', {
+      layout: 'unitformlayout',
+      unitType: 'promptset',
+      unit: promptSet,
+      csrfToken: isDevelopment ? null : req.csrfToken(),
+    });
+  } catch (error) {
+    console.error('Error submitting prompt set:', error);
+
+    const isCsrfError = error.code === 'EBADCSRFTOKEN';
+    if (isCsrfError) {
+      return res.status(403).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Session Expired',
+        errorMessage: 'Your session has expired or the form took too long to submit. Please refresh and try again.',
+      });
+    }
+
+    return res.status(500).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Error',
+      errorMessage: error.message || 'An error occurred while submitting the prompt set.',
+    });
+  }
+},
+
       
       
 submitExercise: async (req, res) => {
@@ -1002,181 +1221,277 @@ submitExercise: async (req, res) => {
   ];
 
   try {
+    // CSRF guard
     if (!isDevelopment && !req.body._csrf) {
       throw new Error('CSRF token is missing or invalid.');
     }
+    if (!req.user || !req.user._id) {
+      throw new Error('User is not authenticated or missing user ID.');
+    }
 
-    const { _id, ...exerciseData } = req.body;
+    // Pull id + upcoming context; keep rest as payload
+    const { _id, fromUpcomingId, ...exerciseData } = req.body;
 
+    // Checkbox "on" -> boolean
     const booleanFields = [
       'clarify_topic',
       'topics_and_enlightenment',
       'challenge',
       'instructions',
       'time',
-      'permission'
+      'permission',
     ];
     booleanFields.forEach((field) => {
       exerciseData[field] = req.body[field] === 'on';
     });
 
-    exerciseData.author = { id: req.user._id };
-
-    if (req.files && req.files.length > 0) {
-      const uploadPromises = req.files.map((file) => {
-        return new Promise((resolve, reject) => {
-          const stream = uploader.upload_stream(
-            {
-              folder: 'twennie_exercises',
-              resource_type: 'raw',
-              public_id: file.originalname.replace(/\.[^/.]+$/, '')
-            },
-            (error, result) => {
-              if (error) return reject(error);
-              resolve(result.secure_url);
-            }
-          );
-
-          if (file && file.buffer) {
-            stream.end(file.buffer);
-          } else {
-            resolve(null);
-          }
-        });
-      });
-
-      const documentUrls = (await Promise.all(uploadPromises)).filter(Boolean);
-      exerciseData.document_uploads = documentUrls;
+    // Optional: normalize a single secondary topic (string -> [string])
+    if (typeof exerciseData.secondary_topics === 'string' && exerciseData.secondary_topics.trim() !== '') {
+      exerciseData.secondary_topics = [exerciseData.secondary_topics];
+    } else if (!Array.isArray(exerciseData.secondary_topics)) {
+      exerciseData.secondary_topics = [];
     }
 
+    // Attach author
+    exerciseData.author = { id: req.user._id };
+
+    // Handle document uploads (multer sets req.files)
+    if (Array.isArray(req.files) && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) => new Promise((resolve, reject) => {
+        const baseName = file.originalname.replace(/\.[^/.]+$/, '');
+        const stream = uploader.upload_stream(
+          {
+            folder: 'twennie_exercises',
+            resource_type: 'raw',
+            public_id: baseName, // keep the original base name
+            overwrite: true,
+          },
+          (error, result) => (error ? reject(error) : resolve(result?.secure_url || null))
+        );
+        if (file?.buffer) stream.end(file.buffer);
+        else resolve(null);
+      }));
+
+      const documentUrls = (await Promise.all(uploadPromises)).filter(Boolean);
+      // append to existing or set new
+      if (Array.isArray(exerciseData.document_uploads) && exerciseData.document_uploads.length) {
+        exerciseData.document_uploads = [...exerciseData.document_uploads, ...documentUrls];
+      } else {
+        exerciseData.document_uploads = documentUrls;
+      }
+    }
+
+    // Create or update
     let exercise;
     if (_id) {
       exercise = await Exercise.findByIdAndUpdate(_id, exerciseData, {
         new: true,
-        runValidators: true
+        runValidators: true,
       });
+      if (!exercise) throw new Error(`Exercise not found for ID ${_id}.`);
+      console.log(`Exercise with ID ${_id} updated successfully.`);
     } else {
       exercise = new Exercise(exerciseData);
       await exercise.save();
+      console.log('New exercise created successfully.');
     }
 
-    res.render('unit_form_views/unit_success', {
+    // 🔁 If publishing from an upcoming: migrate tags → exercise, then delete upcoming
+    if (fromUpcomingId) {
+      await migrateAndDeleteUpcoming({
+        fromUpcomingId,
+        toItemId: exercise._id,
+        toUnitType: 'exercise',
+      });
+    }
+
+    // ✅ Always render success page
+    return res.render('unit_form_views/unit_success', {
       layout: 'unitformlayout',
       unitType: 'exercise',
       unit: exercise,
-      csrfToken: isDevelopment ? null : req.csrfToken()
+      csrfToken: isDevelopment ? null : req.csrfToken(),
     });
 
   } catch (error) {
     console.error('Error submitting exercise:', error);
 
-    // If it's a validation error, re-render the form with data and topics
+    // Validation error → re-render form with data + topics
     if (error.name === 'ValidationError') {
       return res.status(400).render('unit_form_views/form_exercise', {
         layout: 'unitformlayout',
         data: req.body,
         errorMessage: error.message,
-        mainTopics, // ✅ now it's actually used
-        csrfToken: isDevelopment ? null : req.csrfToken()
+        mainTopics,
+        csrfToken: isDevelopment ? null : req.csrfToken(),
       });
     }
 
-    res.status(500).render('unit_form_views/error', {
+    const isCsrfError = error.code === 'EBADCSRFTOKEN';
+    if (isCsrfError) {
+      return res.status(403).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Session Expired',
+        errorMessage: 'Your session has expired or the form took too long to submit. Please refresh and try again.',
+      });
+    }
+
+    return res.status(500).render('unit_form_views/error', {
       layout: 'unitformlayout',
       title: 'Error',
-      errorMessage: 'An error occurred while submitting the exercise.'
+      errorMessage: 'An error occurred while submitting the exercise.',
     });
   }
 },
 
     
-      submitTemplate: async (req, res) => {
-        try {
-          if (!isDevelopment && !req.body._csrf) {
-            throw new Error('CSRF token is missing or invalid.');
-          }
-    
-          const { _id, ...templateData } = req.body;
-    
-          const booleanFields = [
-            'clarify_topic',
-            'produce_deliverables',
-            'new_ideas',
-            'engaging',
-            'file_format',
-            'permission'
-          ];
-          booleanFields.forEach((field) => {
-            templateData[field] = req.body[field] === 'on';
-          });
-    
-          if (!req.files || req.files.length === 0) {
-            return res.status(400).render('unit_form_views/error', {
-              layout: 'unitformlayout',
-              title: 'Missing File',
-              errorMessage: 'Please upload your template document before submitting.'
-            });
-          }
-    
-          const uploadedFiles = [];
-    
-          for (const file of req.files) {
-            const fileUploadPromise = new Promise((resolve, reject) => {
+submitTemplate: async (req, res) => {
+  try {
+    // CSRF guard
+    if (!isDevelopment && !req.body._csrf) {
+      throw new Error('CSRF token is missing or invalid.');
+    }
+    if (!req.user || !req.user._id) {
+      throw new Error('User is not authenticated or missing user ID.');
+    }
+
+    // Pull id + upcoming context; keep rest as payload
+    const { _id, fromUpcomingId, ...templateData } = req.body;
+
+    // Checkbox "on" -> boolean
+    const booleanFields = [
+      'clarify_topic',
+      'produce_deliverables',
+      'new_ideas',
+      'engaging',
+      'permission', // ⬅️ removed 'file_format' (not a boolean)
+    ];
+    booleanFields.forEach((field) => {
+      templateData[field] = req.body[field] === 'on';
+    });
+
+    // Optional: normalize a single secondary topic (string -> [string])
+    if (typeof templateData.secondary_topics === 'string' && templateData.secondary_topics.trim() !== '') {
+      templateData.secondary_topics = [templateData.secondary_topics];
+    } else if (!Array.isArray(templateData.secondary_topics)) {
+      templateData.secondary_topics = [];
+    }
+
+    // Attach author
+    templateData.author = { id: req.user._id };
+
+    // For new templates, at least one file is required
+    if (!_id && (!req.files || req.files.length === 0)) {
+      return res.status(400).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Missing File',
+        errorMessage: 'Please upload your template document before submitting.',
+      });
+    }
+
+    // Upload any provided files (append on edit)
+    let uploadedFiles = [];
+    if (Array.isArray(req.files) && req.files.length > 0) {
+      uploadedFiles = await Promise.all(
+        req.files.map(
+          (file) =>
+            new Promise((resolve, reject) => {
+              const baseName = file.originalname.replace(/\.[^/.]+$/, '');
               const stream = uploader.upload_stream(
                 {
                   resource_type: 'raw',
-                  folder: 'twennie_templates'
+                  folder: 'twennie_templates',
+                  public_id: baseName,
+                  overwrite: true,
                 },
                 (error, result) => {
                   if (error) return reject(new Error('Cloudinary upload failed: ' + error.message));
                   resolve({
                     filename: file.originalname,
                     mimetype: file.mimetype,
-                    url: result.secure_url
+                    url: result.secure_url,
                   });
                 }
               );
-    
-              const readableStream = new Readable();
-              readableStream.push(file.buffer);
-              readableStream.push(null);
-              readableStream.pipe(stream);
-            });
-    
-            const uploaded = await fileUploadPromise;
-            uploadedFiles.push(uploaded);
-          }
-    
-          templateData.documentUploads = uploadedFiles;
-          templateData.author = { id: req.user._id };
-    
-          let template;
-          if (_id) {
-            template = await Template.findByIdAndUpdate(_id, templateData, {
-              new: true,
-              runValidators: true
-            });
-          } else {
-            template = new Template(templateData);
-            await template.save();
-          }
-    
-          res.render('unit_form_views/unit_success', {
-            layout: 'unitformlayout',
-            unitType: 'template',
-            unit: template,
-            csrfToken: isDevelopment ? null : req.csrfToken()
-          });
-    
-        } catch (error) {
-          console.error('Error submitting template:', error);
-          res.status(500).render('unit_form_views/error', {
-            layout: 'unitformlayout',
-            title: 'Error',
-            errorMessage: 'An error occurred while submitting the template.'
-          });
-        }
-      }
+
+              if (file?.buffer) {
+                const readable = new Readable();
+                readable._read = () => {};
+                readable.push(file.buffer);
+                readable.push(null);
+                readable.pipe(stream);
+              } else {
+                resolve(null);
+              }
+            })
+        )
+      );
+      uploadedFiles = uploadedFiles.filter(Boolean);
+    }
+
+    let templateDoc;
+
+    if (_id) {
+      // Edit: fetch current to preserve/append existing uploads
+      const existing = await Template.findById(_id);
+      if (!existing) throw new Error(`Template not found for ID ${_id}.`);
+
+      const mergedUploads =
+        uploadedFiles.length > 0
+          ? [ ...(existing.documentUploads || []), ...uploadedFiles ]
+          : existing.documentUploads || [];
+
+      templateDoc = await Template.findByIdAndUpdate(
+        _id,
+        { ...templateData, documentUploads: mergedUploads },
+        { new: true, runValidators: true }
+      );
+      console.log(`Template with ID ${_id} updated successfully.`);
+    } else {
+      // Create: must have at least one upload (guarded above)
+      templateData.documentUploads = uploadedFiles;
+      templateDoc = new Template(templateData);
+      await templateDoc.save();
+      console.log('New template created successfully.');
+    }
+
+    // 🔁 If publishing from an upcoming: migrate tags → template, then delete upcoming
+    if (fromUpcomingId) {
+      await migrateAndDeleteUpcoming({
+        fromUpcomingId,
+        toItemId: templateDoc._id,
+        toUnitType: 'template',
+      });
+    }
+
+    // ✅ Always render success page
+    return res.render('unit_form_views/unit_success', {
+      layout: 'unitformlayout',
+      unitType: 'template',
+      unit: templateDoc,
+      csrfToken: isDevelopment ? null : req.csrfToken(),
+    });
+  } catch (error) {
+    console.error('Error submitting template:', error);
+
+    const isCsrfError = error.code === 'EBADCSRFTOKEN';
+    if (isCsrfError) {
+      return res.status(403).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Session Expired',
+        errorMessage:
+          'Your session has expired or the form took too long to submit. Please refresh and try again.',
+      });
+    }
+
+    return res.status(500).render('unit_form_views/error', {
+      layout: 'unitformlayout',
+      title: 'Error',
+      errorMessage: 'An error occurred while submitting the template.',
+    });
+  }
+}
+
     };
       
       module.exports = unitFormController;

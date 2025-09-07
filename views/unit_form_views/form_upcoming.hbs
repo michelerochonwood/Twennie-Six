@@ -68,22 +68,7 @@
         </select>
       </div>
 
-      <!-- Secondary Topic (Optional; mirrors your article form pattern) -->
-      <div class="form-field">
-        <label for="secondary-topics">Secondary Topic (Optional)</label>
-        <select id="secondary-topics" name="secondary_topics" class="form-select">
-          <option value="">None</option>
-          {{#each mainTopics}}
-            <option value="{{this}}" {{#ifIncludes ../data.secondary_topics this}}selected{{/ifIncludes}}>{{this}}</option>
-          {{/each}}
-        </select>
-      </div>
 
-      <!-- Sub-topic (Optional) -->
-      <div class="form-field">
-        <label for="sub-topic">Sub-topic (Optional)</label>
-        <input type="text" id="sub-topic" name="sub_topic" value="{{data.sub_topic}}">
-      </div>
 
       <!-- Teasers -->
       <div class="form-field">
@@ -109,19 +94,13 @@
       </div>
 
       <!-- Status (keep simple: in production / cancelled; allow 'released' when editing) -->
-      <div class="form-field">
-        <label for="status">Status</label>
-        <select id="status" name="status" class="form-select" required>
-          <option value="in production" {{#ifEquals data.status "in production"}}selected{{/ifEquals}}>in production</option>
-          {{#if data._id}}
-            <option value="released" {{#ifEquals data.status "released"}}selected{{/ifEquals}}>released</option>
-          {{/if}}
-          <option value="cancelled" {{#ifEquals data.status "cancelled"}}selected{{/ifEquals}}>cancelled</option>
-        </select>
-        {{#unless data._id}}
-          <p class="form-hint">“released” will be available after creation, when linking to the published unit.</p>
-        {{/unless}}
-      </div>
+{{#if canPublish}}
+  <a id="publishNowLink"
+     class="single_article-edit-btn"
+     href="/unitform/prefill_from_upcoming/{{unit_type}}/{{_id}}">
+    publish now
+  </a>
+{{/if}}
 
       <!-- Visibility (same radios as Article) -->
       <div class="form-field">
@@ -142,18 +121,7 @@
         </div>
       </div>
 
-      <!-- Display Controls (optional, mirrors schema) -->
-      <div class="form-toggle">
-        <label>
-          <input type="checkbox" name="is_featured" {{#if data.is_featured}}checked{{/if}}>
-          feature this upcoming unit
-        </label>
-      </div>
 
-      <div class="form-field">
-        <label for="priority">List Priority (higher shows earlier)</label>
-        <input type="number" id="priority" name="priority" value="{{data.priority}}">
-      </div>
 
       <div class="form-buttons">
         {{#if data._id}}
@@ -182,6 +150,13 @@
       input.min = min;
     } catch(e) { /* no-op */ }
   })();
+
+
+    document.getElementById('publishNowLink')?.addEventListener('click', (e) => {
+    if (!confirm('Open the {{unit_type}} form prefilled and publish now? This will delete the upcoming card after publishing.')) {
+      e.preventDefault();
+    }
+  });
 </script>
 
 {{> mainpartials/footer}}
