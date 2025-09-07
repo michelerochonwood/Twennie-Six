@@ -42,8 +42,9 @@ async function resolveAuthorById(authorId) {
 }
 
 // Controller: Get all Twennie-visible units for the "latest" view
+// Controller: Get all Twennie-visible units for the "latest" view
 exports.getLatestLibraryItems = async (req, res) => {
-    console.log("👤 req.user in latestController:", req.user);
+  console.log("👤 req.user in latestController:", req.user);
   try {
     const [articles, videos, interviews, promptsets, exercises, templates] = await Promise.all([
       Article.find({ visibility: 'all_members' }).sort({ updated_at: -1 }).lean(),
@@ -55,73 +56,101 @@ exports.getLatestLibraryItems = async (req, res) => {
     ]);
 
     const allLibraryUnits = [
-      ...articles.map((unit) => ({ title: unit.article_title, ...unit, type: 'article' })),
-      ...videos.map((unit) => ({ title: unit.video_title, ...unit, type: 'video' })),
-      ...interviews.map((unit) => ({ title: unit.interview_title, ...unit, type: 'interview' })),
-      ...promptsets.map((unit) => ({
-        title: unit.promptset_title,
-        ...unit,
+      ...articles.map(u   => ({ title: u.article_title,   ...u, type: 'article' })),
+      ...videos.map(u     => ({ title: u.video_title,     ...u, type: 'video' })),
+      ...interviews.map(u => ({ title: u.interview_title, ...u, type: 'interview' })),
+      ...promptsets.map(u => ({
+        title: u.promptset_title,
+        ...u,
         type: 'promptset',
-        targetAudience: unit.target_audience,
-        characteristics: unit.characteristics,
-        purpose: unit.purpose,
-        suggestedFrequency: unit.suggested_frequency,
+        targetAudience: u.target_audience,
+        characteristics: u.characteristics,
+        purpose: u.purpose,
+        suggestedFrequency: u.suggested_frequency,
       })),
-      ...exercises.map((unit) => ({ title: unit.exercise_title, ...unit, type: 'exercise' })),
-      ...templates.map((unit) => ({ title: unit.template_title, ...unit, type: 'template' })),
+      ...exercises.map(u  => ({ title: u.exercise_title,  ...u, type: 'exercise' })),
+      ...templates.map(u  => ({ title: u.template_title,  ...u, type: 'template' })),
     ];
 
     allLibraryUnits.sort((a, b) => b.updated_at - a.updated_at);
 
-const startOfThisMonth = moment().startOf('month');
-const startOfLastMonth = moment().subtract(1, 'month').startOf('month');
-const endOfLastMonth = moment().subtract(1, 'month').endOf('month');
+    const startOfThisMonth = moment().startOf('month');
+    const startOfLastMonth = moment().subtract(1, 'month').startOf('month');
+    const endOfLastMonth   = moment().subtract(1, 'month').endOf('month');
 
-const thisMonthItems = [];
-const lastMonthItems = [];
+    const thisMonthItems = [];
+    const lastMonthItems = [];
 
-for (const unit of allLibraryUnits) {
-  const updatedDate = moment(unit.updated_at);
-  const authorId = unit.author?.id || unit.author;
+    for (const unit of allLibraryUnits) {
+      const updatedDate = moment(unit.updated_at);
+      const authorId = unit.author?.id || unit.author;
 
-  const author = authorId
-    ? await resolveAuthorById(authorId)
-    : { name: 'Unknown Author', image: '/images/default-avatar.png' };
+      const author = authorId
+        ? await resolveAuthorById(authorId)
+        : { name: 'Unknown Author', image: '/images/default-avatar.png' };
 
-  const enrichedUnit = {
-    ...unit,
-    authorName: author.name,
-    authorImage: author.image,
-    unitTypeIcon: getUnitTypeIcon(unit.type)
-  };
+      const enriched = {
+        ...unit,
+        authorName: author.name,
+        authorImage: author.image,
+        unitTypeIcon: getUnitTypeIcon(unit.type),
+        isVideoOrArticle: unit.type === 'video' || unit.type === 'article', // ← used by free gate
+      };
 
-  if (updatedDate.isSameOrAfter(startOfThisMonth)) {
-    thisMonthItems.push(enrichedUnit);
-  } else if (updatedDate.isBetween(startOfLastMonth, endOfLastMonth, null, '[]')) {
-    lastMonthItems.push(enrichedUnit);
-  }
-}
+      if (updatedDate.isSameOrAfter(startOfThisMonth)) {
+        thisMonthItems.push(enriched);
+      } else if (updatedDate.isBetween(startOfLastMonth, endOfLastMonth, null, '[]')) {
+        lastMonthItems.push(enriched);
+      }
+    }
 
-    const user = req.user;
+    // MFA-safe root flags
+    const sessionUser     = req.user || req.session?.user || null;
+    const isAuthenticated = res.locals.isAuthenticated === true;
+    const membershipType  = sessionUser?.membershipType || null;  // 'leader' | 'group_member' | 'member'
+    const accessLevel     = sessionUser?.accessLevel || null;     // 'free_individual' | 'contributor_individual' | 'paid_individual'
 
-    res.render('latest_view/latest_view', {
+    const isLeaderOrGroupMember = membershipType === 'leader' || membershipType === 'group_member';
+    const isPaid = accessLevel === 'paid_individual' || accessLevel === 'contributor_individual';
+    const isFree = accessLevel === 'free_individual';
+
+    // 👉 Stamp flags on EACH item so HBS doesn't need @root
+    for (const arr of [thisMonthItems, lastMonthItems]) {
+      for (const u of arr) {
+        u.isAuthenticated = isAuthenticated;
+        u.isLeaderOrGroupMember = isLeaderOrGroupMember;
+        u.isPaid = isPaid;
+        u.isFree = isFree;
+      }
+    }
+
+    return res.render('latest_view/latest_view', {
       layout: 'bytopiclayout',
-  thisMonthItems,
+      thisMonthItems,
       lastMonthItems,
-      loggedIn: !!user,
-      membershipType: user?.membershipType || null,
-      accessLevel: user?.accessLevel || null
-    });
 
+      // keep these in case other parts of the template use them
+      isAuthenticated,
+      membershipType,
+      accessLevel,
+      isLeaderOrGroupMember,
+      isPaid,
+      isFree,
+
+      // legacy flag if referenced somewhere else
+      loggedIn: isAuthenticated,
+    });
   } catch (error) {
     console.error('❌ Error in getLatestLibraryItems:', error);
-    res.status(500).render('error', {
+    return res.status(500).render('error', {
       layout: 'mainlayout',
       title: 'Error loading library',
       message: 'There was a problem loading the latest additions to the library. Please try again later.'
     });
   }
 };
+
+
 
 
 

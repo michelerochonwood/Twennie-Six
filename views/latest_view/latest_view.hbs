@@ -46,27 +46,28 @@
                   </div>
                 {{/if}}
 
-                <div class="latest-unit-review-btn-container">
-                  {{#if loggedIn}}
-                    {{#if isLeaderOrGroupMember}}
-                      <a href="/unitviews/{{capitalize this.type}}s/view/{{this._id}}" class="latest-unit-review-btn">review this unit</a>
-                    {{else if isPaid}}
-                      <a href="/unitviews/{{capitalize this.type}}s/view/{{this._id}}" class="latest-unit-review-btn">review this unit</a>
-                    {{else}}
-                      {{#if isFree}}
-                        {{#if isVideoOrArticle}}
-                          <a href="/unitviews/{{capitalize this.type}}s/view/{{this._id}}" class="latest-unit-review-btn">review this unit</a>
-                        {{else}}
-                          <div class="latest-unit-review-btn disabled">membership upgrade required</div>
-                        {{/if}}
-                      {{else}}
-                        <div class="latest-unit-review-btn disabled">membership upgrade required</div>
-                      {{/if}}
-                    {{/if}}
-                  {{else}}
-                    <div class="latest-unit-review-btn disabled">login required</div>
-                  {{/if}}
-                </div>
+<div class="latest-unit-review-btn-container">
+  {{#if isAuthenticated}}
+    {{#if isLeaderOrGroupMember}}
+      <a href="/unitviews/{{capitalize this.type}}s/view/{{this._id}}" class="latest-unit-review-btn">review this unit</a>
+    {{else if isPaid}}
+      <a href="/unitviews/{{capitalize this.type}}s/view/{{this._id}}" class="latest-unit-review-btn">review this unit</a>
+    {{else}}
+      {{#if isFree}}
+        {{#if isVideoOrArticle}}
+          <a href="/unitviews/{{capitalize this.type}}s/view/{{this._id}}" class="latest-unit-review-btn">review this unit</a>
+        {{else}}
+          <div class="latest-unit-review-btn disabled">membership upgrade required</div>
+        {{/if}}
+      {{else}}
+        <div class="latest-unit-review-btn disabled">membership upgrade required</div>
+      {{/if}}
+    {{/if}}
+  {{else}}
+    <a href="/auth/login" class="latest-unit-review-btn">log in to view</a>
+  {{/if}}
+</div>
+
               </div>
             </div>
           </div>
