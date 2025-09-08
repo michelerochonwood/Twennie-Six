@@ -19,13 +19,13 @@
         <div class="single_video-window">
           {{#if embedLink}}
             <div class="single_video-video-wrapper" style="text-align: center;">
-              <iframe 
-                width="100%" 
-                height="450" 
-                src="{{embedLink}}" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen 
+              <iframe
+                width="100%"
+                height="450"
+                src="{{embedLink}}"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
                 class="single_video-frame">
               </iframe>
               <p style="text-align: center; margin-top: 0.5rem;">
@@ -43,19 +43,20 @@
         </div>
       {{/if}}
 
-      <!-- Tag This Unit -->
+      <!-- Quick Tag (Member/Group Member) -->
       {{#if isGroupMemberOrMember}}
         <div class="single_unit-tag-container">
-          <form id="tagForm" onsubmit="tagUnit(event)">
+          <form action="/tags/create" method="POST" class="inline">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
-            <input type="hidden" id="unitId" value="{{_id}}">
-            <input type="hidden" id="unitType" value="video">
-            <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
+            <input type="hidden" name="itemId" value="{{_id}}">
+            <input type="hidden" name="itemType" value="video">
+            <input type="hidden" name="tagName" value="Read Later">
+            <button type="submit" class="tag-this-unit-link" style="background:none;border:none;padding:0;cursor:pointer;">
               tag this unit
               <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
                 <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
               </svg>
-            </a>
+            </button>
           </form>
         </div>
       {{/if}}
@@ -64,7 +65,7 @@
       {{#if isLeader}}
         <div class="assign-tag-form white-container">
           <h4 class="assign-tag-title">Assign this video to yourself or your group</h4>
-          <form id="assignTagForm" action="/tags/create" method="POST">
+          <form action="/tags/create" method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
             <input type="hidden" name="itemId" value="{{_id}}">
             <input type="hidden" name="itemType" value="video">
@@ -80,18 +81,18 @@
               <!-- Leader block -->
               <div class="assign-tag-member-block">
                 <label class="assign-tag-member-label">
-                  <input 
-                    type="checkbox" 
-                    name="assignedTo[{{leaderId}}][member]" 
-                    value="{{leaderId}}" 
+                  <input
+                    type="checkbox"
+                    name="assignedTo[{{leaderId}}][member]"
+                    value="{{leaderId}}"
                     onchange="toggleInstructionField(this)">
                   {{leaderName}} (you)
                 </label>
-                <textarea 
-                  class="assign-tag-instructions" 
-                  name="assignedTo[{{leaderId}}][instructions]" 
-                  placeholder="Instructions for yourself" 
-                  style="display: none;"></textarea>
+                <textarea
+                  class="assign-tag-instructions"
+                  name="assignedTo[{{leaderId}}][instructions]"
+                  placeholder="Instructions for yourself"
+                  style="display:none;"></textarea>
               </div>
 
               <hr class="assign-tag-divider">
@@ -100,18 +101,18 @@
               {{#each groupMembers}}
                 <div class="assign-tag-member-block">
                   <label class="assign-tag-member-label">
-                    <input 
-                      type="checkbox" 
-                      name="assignedTo[{{_id}}][member]" 
-                      value="{{_id}}" 
+                    <input
+                      type="checkbox"
+                      name="assignedTo[{{_id}}][member]"
+                      value="{{_id}}"
                       onchange="toggleInstructionField(this)">
                     {{name}}
                   </label>
-                  <textarea 
-                    class="assign-tag-instructions" 
-                    name="assignedTo[{{_id}}][instructions]" 
-                    placeholder="Instructions for {{name}}" 
-                    style="display: none;"></textarea>
+                  <textarea
+                    class="assign-tag-instructions"
+                    name="assignedTo[{{_id}}][instructions]"
+                    placeholder="Instructions for {{name}}"
+                    style="display:none;"></textarea>
                 </div>
               {{/each}}
             </fieldset>
@@ -131,7 +132,7 @@
           <form action="/notes/submit" method="POST" class="single_video-notes-form">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
             <input type="hidden" name="unitId" value="{{_id}}">
-            <input type="hidden" name="unitType" value="{{unitType}}">
+            <input type="hidden" name="unitType" value="video">
             <input type="hidden" name="main_topic" value="{{main_topic}}">
             <input type="hidden" name="secondary_topic" value="{{sub_topic}}">
             <textarea name="note_content" class="single_video-notes-textarea" rows="5" maxlength="1000" placeholder="Write your notes here..."></textarea>
@@ -145,9 +146,9 @@
   <!-- Sidebar -->
   <aside class="single_video-sidebar">
     <div class="single_video-duration-image-container">
-      <img 
-        src="https://www.twennie.com/images/10mins.svg" 
-        alt="Estimated Time: 10 Minutes" 
+      <img
+        src="https://www.twennie.com/images/10mins.svg"
+        alt="Estimated Time: 10 Minutes"
         class="single_video-duration-image">
     </div>
 
@@ -188,9 +189,11 @@ function toggleVideoContent(element) {
 }
 
 function toggleSidebarContent(element) {
-  let sidebarContent = element.nextElementSibling;
-  sidebarContent.classList.toggle('hidden');
-  element.classList.toggle('open');
+  const sidebarContent = element.nextElementSibling;
+  if (sidebarContent) {
+    sidebarContent.classList.toggle('hidden');
+    element.classList.toggle('open');
+  }
 }
 
 function toggleInstructionField(checkbox) {
@@ -201,6 +204,7 @@ function toggleInstructionField(checkbox) {
   }
 }
 </script>
+
 
 
 

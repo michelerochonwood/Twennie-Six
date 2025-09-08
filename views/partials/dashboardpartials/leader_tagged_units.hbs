@@ -13,6 +13,9 @@
         <div class="tagged-unit-info">
           <h3 class="tagged-unit-title">{{title}}</h3>
           <p class="tagged-unit-topic">{{mainTopic}}</p>
+          {{#if (eq unitType "upcoming")}}
+            <p class="tagged-unit-status">🚧 coming soon</p>
+          {{/if}}
         </div>
 
         <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">view unit</a><br>
@@ -42,12 +45,12 @@
           <h3 class="tagged-unit-title">{{title}}</h3>
           <p class="tagged-unit-topic">{{mainTopic}}</p>
 
-          <p class="leader-assigned-to">
-            assigned to: {{assignedTo.name}}
-          </p>
+          <p class="leader-assigned-to">assigned to: {{assignedTo.name}}</p>
 
-          {{!-- Status based on presence of completedAt --}}
-          {{#if assignedTo.completedAt}}
+          {{!-- 3-state status --}}
+          {{#if (eq unitType "upcoming")}}
+            <p class="leader-assigned-status">🚧 coming soon</p>
+          {{else if assignedTo.completedAt}}
             <p class="leader-assigned-status">✅ completed <span class="muted">({{formatDate assignedTo.completedAt}})</span></p>
           {{else}}
             <p class="leader-assigned-status">⏳ pending</p>
@@ -92,6 +95,7 @@
     }
   }
 </script>
+
 
 
 

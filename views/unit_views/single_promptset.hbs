@@ -31,12 +31,16 @@
   
   {{#if isAuthorizedToViewFullContent}}
     <!-- Tag Form -->
-    <div class="view-promptset-tag-container">
-      <form id="tagForm" onsubmit="tagUnit(event)">
-        <input type="hidden" name="_csrf" value="{{csrfToken}}">
-        <input type="hidden" id="unitId" value="{{_id}}">
-        <input type="hidden" id="unitType" value="promptset">
-        <a href="#" onclick="tagUnit(event)" class="view-tag-this-unit-link">tag this unit <svg class="tag-icon" id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 93.05 86.4">
+<!-- Tag Form (native POST, no AJAX) -->
+<div class="view-promptset-tag-container">
+  <form action="/tags/create" method="POST" class="inline">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <input type="hidden" name="itemId" value="{{_id}}">
+    <input type="hidden" name="itemType" value="promptset">
+    <input type="hidden" name="tagName" value="Read Later">
+    <button type="submit" class="view-tag-this-unit-link" style="background:none;border:none;padding:0;cursor:pointer;">
+      tag this unit
+<svg class="tag-icon" id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 93.05 86.4">
   <defs>
     <style>
       .cls-1 {
@@ -47,9 +51,11 @@
   <g id="Layer_1-2" data-name="Layer 1">
     <path class="cls-1" d="M91.39,49.77L37.84,1.31C36.89.45,35.66-.02,34.38,0L5,.37C2.23.4,0,2.66,0,5.43v26.41c0,1.49.66,2.91,1.8,3.87l58.82,49.5c2.12,1.78,5.27,1.53,7.09-.56l24.11-27.81c1.8-2.08,1.61-5.22-.43-7.07ZM14.81,20.9c-3.7,0-6.7-3-6.7-6.7s3-6.7,6.7-6.7,6.7,3,6.7,6.7-3,6.7-6.7,6.7Z"/>
   </g>
-</svg></a>
-      </form>
-    </div>
+</svg>
+    </button>
+  </form>
+</div>
+
 
     <hr class="promptsetdivider"></hr>
 
@@ -541,23 +547,18 @@ function togglePromptsetMain(element) {
 
 <script>
 function ensureDateBeforeSubmit() {
-    let completionDateInput = document.getElementById('targetCompletionDate');
-    let frequencyInput = document.getElementById('selectedFrequency');
+  const completionDateInput = document.getElementById('targetCompletionDate');
+  const frequencyInput = document.getElementById('selectedFrequency');
 
-    if (!completionDateInput.value) {
-        console.log("🔄 Forcing Completion Date Before Submit.");
-        completionDateInput.value = completionDateInput.getAttribute("value"); // Ensure it persists
-    }
-
-    console.log("📌 Form Submission - Target Completion Date:", completionDateInput.value);
-    console.log("📌 Form Submission - Frequency:", frequencyInput.value);
-
-    if (!completionDateInput.value || !frequencyInput.value) {
-        alert("⚠️ Please select a frequency before assigning the prompt set.");
-        return false; // Prevent submission
-    }
-
-    return true;
+  if (!frequencyInput.value) {
+    alert("⚠️ Please select a frequency before assigning the prompt set.");
+    return false;
+  }
+  if (!completionDateInput.value) {
+    alert("⚠️ Target completion date is missing.");
+    return false;
+  }
+  return true;
 }
 
 function selectFrequency(frequency, daysToAdd) {
@@ -577,24 +578,7 @@ function selectFrequency(frequency, daysToAdd) {
     console.log("✅ Updated Completion Date:", completionDateInput.value);
 }
 
-function selectFrequency(frequency, daysToAdd) {
-    console.log("✅ Frequency clicked:", frequency);
-    let frequencyInput = document.getElementById('selectedFrequency');
-    let completionDateInput = document.getElementById('targetCompletionDate');
-    let recommendedDateDisplay = document.getElementById('recommendedTargetDate');
-    
-    frequencyInput.value = frequency;
-    
-    let currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() + daysToAdd);
-    let formattedDate = currentDate.toISOString().split('T')[0];
-    
-    completionDateInput.value = formattedDate;
-    recommendedDateDisplay.textContent = formattedDate;
-    
-    console.log("✅ Updated Frequency:", frequencyInput.value);
-    console.log("✅ Updated Completion Date:", completionDateInput.value);
-}
+
 
 
 
@@ -647,3 +631,6 @@ function validateAssignForm() {
 
 
 </script>
+
+
+

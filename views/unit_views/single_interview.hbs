@@ -1,215 +1,193 @@
-<div class="single_interview-container">
+<div class="single_exercise-container">
   <!-- Main Section -->
-  <div class="single_interview-main">
-    <h1 class="single_interview-main-title">{{interview_title}}</h1>
-    <p class="single_interview-short-summary" style="color:#4a4ab2"><strong>{{short_summary}}</strong></p>
-    <p class="single_interview-long-summary">{{full_summary}}</p>
+  <div class="single_exercise-main">
+    <h1 class="single_exercise-main-title">{{exercise_title}}</h1>
+    <p class="single_exercise-short-summary" style="color:#4e50a2;"><strong>{{short_summary}}</strong></p>
+    <p class="single_exercise-long-summary" style="margin-bottom: 20px;">{{full_summary}}</p>
 
-    <!-- Toggle -->
-    <div class="single_interview-toggle" onclick="toggleInterviewContent(this)" data-authorized="{{isAuthorizedToViewFullContent}}">
-      <svg class="single_interview-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
-        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
-        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
-      </svg>
-    </div>
-
-    <!-- Interview Content -->
-    <div class="single_interview-content hidden">
-      {{#if isAuthorizedToViewFullContent}}
-        <div class="single_interview-window">
-          {{#if embedLink}}
-            <div class="single_interview-video-wrapper" style="text-align: center;">
-              <iframe 
-                width="100%" 
-                height="315" 
-                src="{{embedLink}}" 
-                frameborder="0" 
-                allowfullscreen 
-                class="single_interview-frame">
-              </iframe>
-              <p style="text-align: center; margin-top: 0.5rem;">
-                Having trouble viewing? <a href="{{embedLink}}" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
-              </p>
-            </div>
-          {{else}}
-            <p style="text-align: center;">This is where the interview video will appear once uploaded.</p>
-          {{/if}}
-        </div>
-
-        <div class="single_interview-transcript">
-          <h2 class="single_interview-transcript-title">Interview Transcript</h2>
-          <div class="single_interview-transcript-content">
-            {{{interview_content}}}
-          </div>
-        </div>
-      {{else}}
-        <div class="unauthorized-message">
-          <p style="text-align: center; font-weight: 600; color: #4e50a2;">
-            You don’t have access to view this interview. Please check your membership type.
-          </p>
-          <a href="/auth/login" class="login-link">Log in to access</a>
-        </div>
-      {{/if}}
-
-      {{#if isGroupMemberOrMember}}
-        <div class="single_unit-tag-container">
-          <form id="tagForm" onsubmit="tagUnit(event)">
-            <input type="hidden" name="_csrf" value="{{csrfToken}}">
-            <input type="hidden" id="unitId" value="{{_id}}">
-            <input type="hidden" id="unitType" value="interview">
-            <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
-              tag this unit
-              <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
-                <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
-              </svg>
-            </a>
-          </form>
-        </div>
-      {{/if}}
-
-      {{#if isLeader}}
-        <div class="assign-tag-form white-container">
-          <h4 class="assign-tag-title">Assign this interview to yourself or your group</h4>
-          <form id="assignTagForm" action="/tags/create" method="POST">
-            <input type="hidden" name="_csrf" value="{{csrfToken}}">
-            <input type="hidden" name="itemId" value="{{_id}}">
-            <input type="hidden" name="itemType" value="interview">
-
-            <div class="form-field">
-              <label for="tagName">Give the tag a name</label>
-              <input type="text" id="tagName" name="tagName" required>
-            </div>
-
-            <fieldset class="assign-tag-members">
-              <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
-
-              <div class="assign-tag-member-block">
-                <label class="assign-tag-member-label">
-                  <input 
-                    type="checkbox" 
-                    name="assignedTo[{{leaderId}}][member]" 
-                    value="{{leaderId}}" 
-                    onchange="toggleInstructionField(this)">
-                  {{leaderName}} (you)
-                </label>
-                <textarea 
-                  class="assign-tag-instructions" 
-                  name="assignedTo[{{leaderId}}][instructions]" 
-                  placeholder="Instructions for yourself" 
-                  style="display: none;"></textarea>
-              </div>
-
-              <hr class="assign-tag-divider">
-
-              {{#each groupMembers}}
-                <div class="assign-tag-member-block">
-                  <label class="assign-tag-member-label">
-                    <input 
-                      type="checkbox" 
-                      name="assignedTo[{{_id}}][member]" 
-                      value="{{_id}}" 
-                      onchange="toggleInstructionField(this)">
-                    {{name}}
-                  </label>
-                  <textarea 
-                    class="assign-tag-instructions" 
-                    name="assignedTo[{{_id}}][instructions]" 
-                    placeholder="Instructions for {{name}}" 
-                    style="display: none;"></textarea>
-                </div>
-              {{/each}}
-            </fieldset>
-
-            <button type="submit" class="form-button submit-button">assign interview</button>
-          </form>
-        </div>
-      {{/if}}
-
-      {{#if isGroupMemberOrLeader}}
-        <div class="single_interview-notes-container">
-          <h3 class="single_interview-notes-title">record notes</h3>
-          <p class="single_interview-notes-instructions">
-            Record notes on this interview. Consider how it relates to your work and how it might change your approach. These notes will be part of your Twennie learning record.
-          </p>
-          <form action="/notes/submit" method="POST" class="single_interview-notes-form">
-            <input type="hidden" name="_csrf" value="{{csrfToken}}">
-            <input type="hidden" name="unitId" value="{{_id}}">
-            <input type="hidden" name="unitType" value="{{unitType}}">
-            <input type="hidden" name="main_topic" value="{{main_topic}}">
-            <input type="hidden" name="secondary_topic" value="{{sub_topic}}">
-            <textarea name="note_content" class="single_interview-notes-textarea" rows="5" maxlength="1000" placeholder="Write your notes here..."></textarea>
-            <button type="submit" class="single_interview-notes-submit">submit notes</button>
-          </form>
-        </div>
-      {{/if}}
-    </div>
-  </div>
-
-  <!-- Sidebar -->
-  <aside class="single_interview-sidebar">
-    <div style="text-align: center; margin-bottom: 1rem;">
-      <img 
-        src="/images/20mins.svg" 
-        alt="20 minute interview icon" 
-        width="100" 
-        height="100"
-        style="display: inline-block;">
-    </div>
-
-    <div class="single_interview-sidebar-toggle" onclick="toggleSidebarContent(this)">
-      <svg class="single_interview-sidebar-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
-        <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
-        <g><polygon class="cls-1" points="0 0 161.57 100.99 331.65 0 0 0"/></g>
-      </svg>
-    </div>
-
-    <div class="single_interview-sidebar-content hidden">
-      <p class="single_interview-title-sidebar">{{interview_title}}</p>
-      <div class="single_interview-author">
-        <img src="{{author.image}}" alt="Author Image" class="single_interview-author-image">
-        <p class="single_interview-author-name">Author: {{author.name}}</p>
-      </div>
-      <div class="single_interview-details">
-        <p class="single_interview-unit-type">Interview</p>
-        <p class="single_interview-main-topic">Main Topic: {{main_topic}}</p>
-        <p class="single_interview-secondary-topics">
-          {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+    <!-- Estimated Time Display -->
+    {{#if time_required}}
+      <div class="single_exercise-time-display">
+        <p class="single_exercise-short-summary">
+          <strong>Estimated Time:</strong> {{time_required}}
         </p>
-        {{#if isOwner}}
-          <a href="/unitform/edit_interview/{{_id}}" class="single_interview-edit-btn">edit this unit</a>
+      </div>
+    {{/if}}
+
+    <!-- Download Section (gated) -->
+    {{#if isAuthorizedToViewFullContent}}
+      <div class="single_exercise-download">
+        <div class="single_exercise-download-icon">
+          <!-- SVG icon omitted for brevity -->
+        </div>
+
+        {{#if document_uploads}}
+          <div class="single_exercise-documents">
+            {{#each document_uploads}}
+              {{#with (split this "/") as |parts|}}
+                <a href="{{../this}}" target="_blank" rel="noopener" class="single_exercise-download-btn" download>
+                  Download {{decode (last parts)}}
+                </a>
+              {{/with}}
+            {{/each}}
+          </div>
         {{/if}}
       </div>
+    {{/if}}
+
+    <!-- Leader Assignment Form -->
+    {{#if isLeader}}
+      <div class="assign-tag-form white-container">
+        <h4 class="assign-tag-title">Assign this exercise to yourself or your group</h4>
+
+        <form action="/tags/create" method="POST">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}">
+          <input type="hidden" name="itemId" value="{{_id}}">
+          <input type="hidden" name="itemType" value="exercise">
+
+          <div class="form-field">
+            <label for="tagName">Give the tag a name</label>
+            <input type="text" id="tagName" name="tagName" required>
+          </div>
+
+          <fieldset class="assign-tag-members">
+            <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
+
+            <!-- Leader self-assignment -->
+            <div class="assign-tag-member-block">
+              <label class="assign-tag-member-label">
+                <input
+                  type="checkbox"
+                  name="assignedTo[{{leaderId}}][member]"
+                  value="{{leaderId}}"
+                  onchange="toggleInstructionField(this)">
+                {{leaderName}} (you)
+              </label>
+              <textarea
+                class="assign-tag-instructions"
+                name="assignedTo[{{leaderId}}][instructions]"
+                placeholder="Instructions for yourself"
+                style="display:none;"></textarea>
+            </div>
+
+            <hr class="assign-tag-divider">
+
+            <!-- Group members -->
+            {{#each groupMembers}}
+              <div class="assign-tag-member-block">
+                <label class="assign-tag-member-label">
+                  <input
+                    type="checkbox"
+                    name="assignedTo[{{_id}}][member]"
+                    value="{{_id}}"
+                    onchange="toggleInstructionField(this)">
+                  {{name}}
+                </label>
+                <textarea
+                  class="assign-tag-instructions"
+                  name="assignedTo[{{_id}}][instructions]"
+                  placeholder="Instructions for {{name}}"
+                  style="display:none;"></textarea>
+              </div>
+            {{/each}}
+          </fieldset>
+
+          <button type="submit" class="form-button submit-button">assign exercise</button>
+        </form>
+      </div>
+    {{/if}}
+
+    <!-- Quick Tag (Member/Group Member) -->
+    {{#if isGroupMemberOrMember}}
+      <div class="single_unit-tag-container" style="margin-top:12px;">
+        <form action="/tags/create" method="POST" class="inline">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}">
+          <input type="hidden" name="itemId" value="{{_id}}">
+          <input type="hidden" name="itemType" value="exercise">
+          <input type="hidden" name="tagName" value="Read Later">
+          <button type="submit" class="tag-this-unit-link" style="background:none;border:none;padding:0;cursor:pointer;">
+            tag this unit
+            <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
+              <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+    {{/if}}
+
+    <!-- Notes Section -->
+    {{#if isGroupMemberOrLeader}}
+      <div class="single_exercise-notes-container">
+        <h3 class="single_exercise-notes-title">record notes</h3>
+        <p class="single_exercise-notes-instructions">
+          Record notes on this exercise. Consider how it relates to your work and how it might change your approach. These notes will be part of your Twennie learning record.
+        </p>
+
+        <form action="/notes/submit" method="POST" class="single_exercise-notes-form">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}">
+          <input type="hidden" name="unitId" value="{{_id}}">
+          <input type="hidden" name="unitType" value="exercise">
+          <input type="hidden" name="main_topic" value="{{main_topic}}">
+          <input type="hidden" name="secondary_topic" value="{{sub_topic}}">
+
+          <textarea name="note_content" class="single_exercise-notes-textarea" rows="5" maxlength="1000" placeholder="Write your notes here..."></textarea>
+
+          <button type="submit" class="single_exercise-notes-submit">submit notes</button>
+        </form>
+      </div>
+    {{/if}}
+
+    <!-- Access notice (when gated) -->
+    {{#unless isAuthorizedToViewFullContent}}
+      <div class="exercise-access-denied-message">
+        <p style="text-align:center; color:#4e50a2; font-weight:600;">
+          You do not have access to the full content of this exercise.
+        </p>
+        <p style="text-align:center;">
+          Please upgrade your membership or join a Twennie group to view it.
+        </p>
+      </div>
+    {{/unless}}
+  </div> <!-- Closing .single_exercise-main -->
+
+  <!-- Sidebar -->
+  <aside class="single_exercise-sidebar">
+    <div class="single_exercise-duration-image-container" style="text-align:center; margin-bottom:10px; width:100px; height:auto; display:inline-block">
+      <img src="https://www.twennie.com/images/30mins.svg" alt="Estimated Time: 30 Minutes" class="single_exercise-duration-image">
+    </div>
+
+    <p class="single_exercise-title-sidebar">{{exercise_title}}</p>
+
+    <div class="single_exercise-author">
+      <img src="{{creator.image}}" alt="Creator Image" class="single_exercise-author-image">
+      <p class="single_exercise-author-name">Created by: {{creator.name}}</p>
+    </div>
+
+    <div class="single_exercise-details">
+      <p class="single_exercise-unit-type">Exercise</p>
+      <p class="single_exercise-main-topic">Main Topic: {{main_topic}}</p>
+      <p class="single_exercise-subtitle">Sub Topic(s): {{sub_topic}}</p>
+      <p class="single_exercise-secondary-topics">
+        {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+      </p>
+
+      {{#if isOwner}}
+        <a href="/unitform/edit_exercise/{{_id}}" class="single_exercise-edit-btn">edit this unit</a>
+      {{/if}}
     </div>
   </aside>
 </div>
 
-<!-- JS Toggles -->
 <script>
-function toggleInterviewContent(element) {
-  const isAuthorized = element.dataset.authorized === "true";
-  const content = element.nextElementSibling;
-  if (isAuthorized) {
-    content.classList.toggle('hidden');
-    element.classList.toggle('open');
-  } else {
-    alert("You don’t have access to view this interview.");
+  function toggleInstructionField(checkbox) {
+    const memberId = checkbox.value;
+    const textarea = document.querySelector(`textarea[name="assignedTo[${memberId}][instructions]"]`);
+    if (textarea) {
+      textarea.style.display = checkbox.checked ? 'block' : 'none';
+    }
   }
-}
-
-function toggleSidebarContent(element) {
-  let sidebarContent = element.nextElementSibling;
-  sidebarContent.classList.toggle('hidden');
-  element.classList.toggle('open');
-}
-
-function toggleInstructionField(checkbox) {
-  const memberId = checkbox.value;
-  const textarea = document.querySelector(`textarea[name="assignedTo[${memberId}][instructions]"]`);
-  if (textarea) {
-    textarea.style.display = checkbox.checked ? 'block' : 'none';
-  }
-}
 </script>
+
 
 
 

@@ -8,16 +8,19 @@
     <!-- Estimated Time Display -->
     {{#if time_required}}
       <div class="single_exercise-time-display">
-        <p class="single_exercise-short-summary"><strong>Estimated Time:</strong> {{time_required}}</p>
+        <p class="single_exercise-short-summary">
+          <strong>Estimated Time:</strong> {{time_required}}
+        </p>
       </div>
     {{/if}}
 
-    <!-- Download Section -->
+    <!-- Download Section (gated) -->
     {{#if isAuthorizedToViewFullContent}}
       <div class="single_exercise-download">
         <div class="single_exercise-download-icon">
           <!-- SVG icon omitted for brevity -->
         </div>
+
         {{#if document_uploads}}
           <div class="single_exercise-documents">
             {{#each document_uploads}}
@@ -36,7 +39,8 @@
     {{#if isLeader}}
       <div class="assign-tag-form white-container">
         <h4 class="assign-tag-title">Assign this exercise to yourself or your group</h4>
-        <form id="assignTagForm" action="/tags/create" method="POST">
+
+        <form action="/tags/create" method="POST">
           <input type="hidden" name="_csrf" value="{{csrfToken}}">
           <input type="hidden" name="itemId" value="{{_id}}">
           <input type="hidden" name="itemType" value="exercise">
@@ -49,23 +53,41 @@
           <fieldset class="assign-tag-members">
             <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
 
+            <!-- Leader self-assignment -->
             <div class="assign-tag-member-block">
               <label class="assign-tag-member-label">
-                <input type="checkbox" name="assignedTo[{{leaderId}}][member]" value="{{leaderId}}" onchange="toggleInstructionField(this)">
+                <input
+                  type="checkbox"
+                  name="assignedTo[{{leaderId}}][member]"
+                  value="{{leaderId}}"
+                  onchange="toggleInstructionField(this)">
                 {{leaderName}} (you)
               </label>
-              <textarea class="assign-tag-instructions" name="assignedTo[{{leaderId}}][instructions]" placeholder="Instructions for yourself" style="display: none;"></textarea>
+              <textarea
+                class="assign-tag-instructions"
+                name="assignedTo[{{leaderId}}][instructions]"
+                placeholder="Instructions for yourself"
+                style="display:none;"></textarea>
             </div>
 
             <hr class="assign-tag-divider">
 
+            <!-- Group members -->
             {{#each groupMembers}}
               <div class="assign-tag-member-block">
                 <label class="assign-tag-member-label">
-                  <input type="checkbox" name="assignedTo[{{_id}}][member]" value="{{_id}}" onchange="toggleInstructionField(this)">
+                  <input
+                    type="checkbox"
+                    name="assignedTo[{{_id}}][member]"
+                    value="{{_id}}"
+                    onchange="toggleInstructionField(this)">
                   {{name}}
                 </label>
-                <textarea class="assign-tag-instructions" name="assignedTo[{{_id}}][instructions]" placeholder="Instructions for {{name}}" style="display: none;"></textarea>
+                <textarea
+                  class="assign-tag-instructions"
+                  name="assignedTo[{{_id}}][instructions]"
+                  placeholder="Instructions for {{name}}"
+                  style="display:none;"></textarea>
               </div>
             {{/each}}
           </fieldset>
@@ -75,19 +97,20 @@
       </div>
     {{/if}}
 
-    <!-- Tag Unit Button for Group Member/Member -->
+    <!-- Quick Tag (Member/Group Member) -->
     {{#if isGroupMemberOrMember}}
-      <div class="single_unit-tag-container">
-        <form id="tagForm" onsubmit="tagUnit(event)">
+      <div class="single_unit-tag-container" style="margin-top:12px;">
+        <form action="/tags/create" method="POST" class="inline">
           <input type="hidden" name="_csrf" value="{{csrfToken}}">
-          <input type="hidden" id="unitId" value="{{_id}}">
-          <input type="hidden" id="unitType" value="exercise">
-          <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
+          <input type="hidden" name="itemId" value="{{_id}}">
+          <input type="hidden" name="itemType" value="exercise">
+          <input type="hidden" name="tagName" value="Read Later">
+          <button type="submit" class="tag-this-unit-link" style="background:none;border:none;padding:0;cursor:pointer;">
             tag this unit
             <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
               <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
             </svg>
-          </a>
+          </button>
         </form>
       </div>
     {{/if}}
@@ -103,7 +126,7 @@
         <form action="/notes/submit" method="POST" class="single_exercise-notes-form">
           <input type="hidden" name="_csrf" value="{{csrfToken}}">
           <input type="hidden" name="unitId" value="{{_id}}">
-          <input type="hidden" name="unitType" value="{{unitType}}">
+          <input type="hidden" name="unitType" value="exercise">
           <input type="hidden" name="main_topic" value="{{main_topic}}">
           <input type="hidden" name="secondary_topic" value="{{sub_topic}}">
 
@@ -114,12 +137,13 @@
       </div>
     {{/if}}
 
+    <!-- Access notice (when gated) -->
     {{#unless isAuthorizedToViewFullContent}}
       <div class="exercise-access-denied-message">
-        <p style="text-align: center; color: #4e50a2; font-weight: 600;">
+        <p style="text-align:center; color:#4e50a2; font-weight:600;">
           You do not have access to the full content of this exercise.
         </p>
-        <p style="text-align: center;">
+        <p style="text-align:center;">
           Please upgrade your membership or join a Twennie group to view it.
         </p>
       </div>
@@ -128,9 +152,10 @@
 
   <!-- Sidebar -->
   <aside class="single_exercise-sidebar">
-    <div class="single_exercise-duration-image-container" style="text-align: center; margin-bottom: 10px; width: 100px; height: auto; display: inline-block">
+    <div class="single_exercise-duration-image-container" style="text-align:center; margin-bottom:10px; width:100px; height:auto; display:inline-block">
       <img src="https://www.twennie.com/images/30mins.svg" alt="Estimated Time: 30 Minutes" class="single_exercise-duration-image">
     </div>
+
     <p class="single_exercise-title-sidebar">{{exercise_title}}</p>
 
     <div class="single_exercise-author">
@@ -142,7 +167,9 @@
       <p class="single_exercise-unit-type">Exercise</p>
       <p class="single_exercise-main-topic">Main Topic: {{main_topic}}</p>
       <p class="single_exercise-subtitle">Sub Topic(s): {{sub_topic}}</p>
-      <p class="single_exercise-secondary-topics">{{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</p>
+      <p class="single_exercise-secondary-topics">
+        {{#each secondary_topics}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+      </p>
 
       {{#if isOwner}}
         <a href="/unitform/edit_exercise/{{_id}}" class="single_exercise-edit-btn">edit this unit</a>
@@ -152,13 +179,13 @@
 </div>
 
 <script>
-function toggleInstructionField(checkbox) {
-  const memberId = checkbox.value;
-  const textarea = document.querySelector(`textarea[name="assignedTo[${memberId}][instructions]"]`);
-  if (textarea) {
-    textarea.style.display = checkbox.checked ? 'block' : 'none';
+  function toggleInstructionField(checkbox) {
+    const memberId = checkbox.value;
+    const textarea = document.querySelector(`textarea[name="assignedTo[${memberId}][instructions]"]`);
+    if (textarea) {
+      textarea.style.display = checkbox.checked ? 'block' : 'none';
+    }
   }
-}
 </script>
 
 

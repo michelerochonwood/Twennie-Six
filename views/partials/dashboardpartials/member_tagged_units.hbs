@@ -13,15 +13,16 @@
         <div class="tagged-unit-info">
           <h3 class="tagged-unit-title">{{title}}</h3>
           <p class="tagged-unit-topic">{{mainTopic}}</p>
+          {{#if (eq unitType "upcoming")}}
+            <p class="tagged-unit-status">🚧 coming soon</p>
+          {{/if}}
         </div>
 
-        <!-- ✅ Corrected link path to match your routing -->
         <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">
           view unit
         </a>
 
-        <!-- 🗑️ Remove tag button -->
-        <button 
+        <button
           class="tag-remove-btn"
           onclick="removeTag('{{tagId}}', '{{_id}}', '{{unitType}}')">
           remove tag
@@ -44,14 +45,11 @@
     try {
       const response = await fetch(`/tags/remove/${tagId}/${unitId}/${unitType}`, {
         method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': getCsrfToken()
-        }
+        headers: { 'x-csrf-token': getCsrfToken() }
       });
 
-      const result = await response.json();
+      const result = await response.json().catch(() => ({}));
       if (response.ok) {
-        alert('Tag removed.');
         location.reload();
       } else {
         alert(result.message || 'Failed to remove tag.');
@@ -62,6 +60,7 @@
     }
   }
 </script>
+
 
 
 
