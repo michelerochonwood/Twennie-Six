@@ -1,4 +1,4 @@
-<!-- CSRF token required for AJAX -->
+<!-- CSRF token for AJAX deletes -->
 <meta name="csrf-token" content="{{csrfToken}}">
 
 <section class="tagged-units-section">
@@ -15,12 +15,10 @@
           <p class="tagged-unit-topic">{{mainTopic}}</p>
         </div>
 
-        <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">
-          view unit
-        </a><br>
+        <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">view unit</a><br>
 
-        <button 
-          class="tag-remove-btn" 
+        <button
+          class="tag-remove-btn"
           onclick="removeTag('{{tagId}}', '{{_id}}', '{{unitType}}')">
           remove tag
         </button>
@@ -31,7 +29,7 @@
   </div>
 </section>
 
-<section class="leader-assigned-units-section" style="margin-top: 20px">
+<section class="leader-assigned-units-section" style="margin-top:20px">
   <h2 class="tagged-units-title">assigned units</h2>
   <div class="tagged-units-grid">
     {{#each leaderAssignedUnits}}
@@ -43,15 +41,24 @@
         <div class="tagged-unit-info">
           <h3 class="tagged-unit-title">{{title}}</h3>
           <p class="tagged-unit-topic">{{mainTopic}}</p>
-          <p class="leader-assigned-to">assigned to: {{assignedTo.name}}</p>
-          <p class="leader-assigned-status">
-            {{#if completed}}✅ completed{{else}}⏳ pending{{/if}}
+
+          <p class="leader-assigned-to">
+            assigned to: {{assignedTo.name}}
           </p>
+
+          {{!-- Status based on presence of completedAt --}}
+          {{#if assignedTo.completedAt}}
+            <p class="leader-assigned-status">✅ completed <span class="muted">({{formatDate assignedTo.completedAt}})</span></p>
+          {{else}}
+            <p class="leader-assigned-status">⏳ pending</p>
+          {{/if}}
+
+          {{#if assignedTo.instructions}}
+            <p class="leader-assigned-instructions"><em>{{assignedTo.instructions}}</em></p>
+          {{/if}}
         </div>
 
-        <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">
-          view unit
-        </a>
+        <a href="/unitviews/{{capitalize unitType}}s/view/{{_id}}" class="tagged-unit-link">view unit</a>
       </div>
     {{else}}
       <p class="tagged-no-units">You have no assigned units.</p>
@@ -70,14 +77,11 @@
     try {
       const response = await fetch(`/tags/remove/${tagId}/${unitId}/${unitType}`, {
         method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': getCsrfToken(),
-        }
+        headers: { 'x-csrf-token': getCsrfToken() }
       });
 
-      const result = await response.json();
+      const result = await response.json().catch(() => ({}));
       if (response.ok) {
-        alert('Tag removed.');
         location.reload();
       } else {
         alert(result.message || 'Failed to remove tag.');
@@ -88,6 +92,7 @@
     }
   }
 </script>
+
 
 
 
