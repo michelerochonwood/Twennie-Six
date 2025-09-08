@@ -269,6 +269,7 @@ getUpcomingForm: (req, res) => {
 },
 
 
+// ---- submitUpcoming (drop-in) ----
 submitUpcoming: async (req, res) => {
   try {
     const mainTopics = [
@@ -309,6 +310,14 @@ submitUpcoming: async (req, res) => {
       'AI in Learning',
     ];
 
+    if (!req.user && !req.session?.user) {
+      return res.status(401).render('unit_form_views/error', {
+        layout: 'unitformlayout',
+        title: 'Unauthorized',
+        errorMessage: 'Please log in to submit an upcoming unit.',
+      });
+    }
+
     // Pull fields
     const {
       _id,
@@ -326,7 +335,7 @@ submitUpcoming: async (req, res) => {
       priority,
     } = req.body;
 
-    // Basic required validations (keep it light)
+    // Basic required validations
     const errors = [];
     if (!title?.trim()) errors.push('Title is required.');
     if (!unit_type) errors.push('Unit type is required.');
@@ -359,6 +368,10 @@ submitUpcoming: async (req, res) => {
     // Constrain status to allowed values
     const ALLOWED_STATUS = ['in production', 'released', 'cancelled'];
     const safeStatus = ALLOWED_STATUS.includes(status) ? status : 'in production';
+
+    // Creator (for ownership)
+    const creatorId = (req.user?._id || req.session?.user?.id) || null;
+    const creatorModel = (req.user?.membershipType || req.session?.user?.membershipType) || null;
 
     const payload = {
       title: title.trim(),
@@ -401,8 +414,9 @@ submitUpcoming: async (req, res) => {
     }
 
     let upcoming;
+
     if (_id) {
-      // Edit
+      // Edit (do not overwrite an existing creator; backfill if missing)
       upcoming = await Upcoming.findByIdAndUpdate(_id, payload, {
         new: true,
         runValidators: true,
@@ -414,15 +428,26 @@ submitUpcoming: async (req, res) => {
           errorMessage: 'Upcoming unit not found for editing.',
         });
       }
+
+      if (!upcoming.createdBy && creatorId) {
+        upcoming.createdBy = creatorId;
+        if (creatorModel) upcoming.createdByModel = creatorModel;
+        await upcoming.save();
+      }
+
       console.log(`Upcoming with ID ${_id} updated successfully.`);
     } else {
-      // Create
+      // Create — stamp creator for "my library units"
+      if (creatorId) {
+        payload.createdBy = creatorId;
+        if (creatorModel) payload.createdByModel = creatorModel;
+      }
       upcoming = new Upcoming(payload);
       await upcoming.save();
       console.log('New upcoming unit created successfully.');
     }
 
-    // Success page (matches your existing pattern)
+    // Success page
     return res.render('unit_form_views/unit_success', {
       layout: 'unitformlayout',
       unitType: 'upcoming',
@@ -450,6 +475,7 @@ submitUpcoming: async (req, res) => {
   }
 },
 
+// ---- prefillFromUpcoming (drop-in) ----
 prefillFromUpcoming: async (req, res) => {
   try {
     const { unitType, id } = req.params;
@@ -475,10 +501,9 @@ prefillFromUpcoming: async (req, res) => {
       'The Power of Play in the Workplace','Team Building in Consulting','AI in Consulting','AI in Project Management','AI in Learning',
     ];
 
-    // Image fallback for forms that show it
+    // Image fallback
     const image = upcoming.image?.url ? upcoming.image : { public_id: null, url: '/images/default-upcoming.png' };
 
-    // ---- Article ----
     if (unitType === 'article') {
       return res.render('unit_form_views/form_article', {
         layout: 'unitformlayout',
@@ -498,7 +523,6 @@ prefillFromUpcoming: async (req, res) => {
       });
     }
 
-    // ---- Video ----
     if (unitType === 'video') {
       return res.render('unit_form_views/form_video', {
         layout: 'unitformlayout',
@@ -518,9 +542,8 @@ prefillFromUpcoming: async (req, res) => {
       });
     }
 
-    // ---- Prompt Set ----
     if (unitType === 'promptset') {
-      const secondaryTopics = mainTopics.slice(); // same list you use in getPromptForm
+      const secondaryTopics = mainTopics.slice();
       const characteristics = [
         'educational','motivational','provocative','fun','hilarious','silly','competitive','restorative','energizing',
         'relationship-building','team building','stress-relieving','insightful','calming','reassuring','encouraging',
@@ -528,7 +551,6 @@ prefillFromUpcoming: async (req, res) => {
       ];
       const frequencies = ['daily', 'weekly', 'monthly', 'quarterly'];
 
-      // Minimal, safe prefill; authors will complete prompts/headlines on the form
       return res.render('unit_form_views/form_promptset', {
         layout: 'unitformlayout',
         data: {
@@ -536,7 +558,6 @@ prefillFromUpcoming: async (req, res) => {
           secondary_topics: (upcoming.secondary_topics || [])[0] || '',
           sub_topic: upcoming.sub_topic,
           visibility: upcoming.visibility,
-          // keep all prompt fields empty; your form handles them
         },
         mainTopics,
         secondaryTopics,
@@ -547,7 +568,6 @@ prefillFromUpcoming: async (req, res) => {
       });
     }
 
-    // Unsupported type
     return res.status(400).render('unit_form_views/error', {
       layout: 'unitformlayout',
       title: 'Unsupported',
@@ -562,6 +582,7 @@ prefillFromUpcoming: async (req, res) => {
     });
   }
 },
+
 
 
 
