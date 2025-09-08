@@ -1918,7 +1918,7 @@ html, body {
 .tab-dot {
   position: absolute;
   top: -8px; right: -8px;
-  width: 10px; height: 15px;
+  width: 15px; height: 15px;
   border-radius: 9999px;
   background: #22c55e; /* green-500 */
 }
