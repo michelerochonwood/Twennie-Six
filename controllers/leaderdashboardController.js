@@ -111,7 +111,6 @@ async function fetchTaggedUnits(userId) {
     return [];
   }
 }
-}
 
 
 
