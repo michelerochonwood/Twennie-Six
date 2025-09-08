@@ -140,15 +140,15 @@ exports.getTopicView = async (req, res) => {
         };
         console.log(`Query Condition:`, JSON.stringify(queryCondition, null, 2));
 
-        const [articles, videos, interviews, promptsets, exercises, templates] = await Promise.all([
-            Article.find(queryCondition).lean(),
-            Video.find(queryCondition).lean(),
-            Interview.find(queryCondition).lean(),
-            Promptset.find(queryCondition).lean(),
-            Exercise.find(queryCondition).lean(),
-            Template.find(queryCondition).lean(),
-            Upcoming.find(queryCondition).lean(), // ← NEW
-        ]);
+const [articles, videos, interviews, promptsets, exercises, templates, upcomings] = await Promise.all([
+  Article.find(queryCondition).lean(),
+  Video.find(queryCondition).lean(),
+  Interview.find(queryCondition).lean(),
+  Promptset.find(queryCondition).lean(),
+  Exercise.find(queryCondition).lean(),
+  Template.find(queryCondition).lean(),
+  Upcoming.find(queryCondition).lean(),
+]);
 
         console.log(`Found Articles: ${articles.length}`);
         console.log(`Found Videos: ${videos.length}`);
