@@ -88,7 +88,7 @@ viewArticle: async (req, res) => {
     const { id } = req.params;
     console.log(`📄 Fetching article with ID: ${id}`);
 
-    // 1. Fetch the article
+    // 1) Fetch the article
     const article = await Article.findById(id);
     if (!article) {
       console.warn(`❌ Article with ID ${id} not found.`);
@@ -99,10 +99,8 @@ viewArticle: async (req, res) => {
       });
     }
 
-    console.log("✅ Article found:", article);
-
-    // 2. Resolve author
-    const authorId = article.author?.id || article.author;
+    // 2) Resolve author
+    const authorId = (article.author?.id || article.author)?.toString();
     const author = await resolveAuthorById(authorId);
     if (!author) {
       console.error(`❌ Author with ID ${authorId} not found.`);
@@ -113,11 +111,15 @@ viewArticle: async (req, res) => {
       });
     }
 
-    // 3. Check if the current user is the owner
-    const isOwner = req.user && req.user.id.toString() === authorId.toString();
+    // Current user helpers
+    const currentUserId = (req.user?._id || req.user?.id)?.toString();
+    const currentMembership = req.user?.membershipType;
+
+    // 3) Owner check
+    const isOwner = !!(currentUserId && authorId && currentUserId === authorId);
     console.log(`👑 Is owner: ${isOwner}`);
 
-    // 4. Determine access based on visibility
+    // 4) Visibility → access
     let isAuthorizedToViewFullContent = false;
     let isOrgMatch = false;
     let isTeamMatch = false;
@@ -145,58 +147,74 @@ viewArticle: async (req, res) => {
     console.log("• Team match:", isTeamMatch);
     console.log("🔓 Authorized to view full content:", isAuthorizedToViewFullContent);
 
-    // 5. Get group members if leader
+    // 5) If leader, load group members for assignment UI
     let groupMembers = [];
-    let leaderName = null;
+    let leaderId = undefined;
+    let leaderName = undefined;
 
-    if (req.user?.membershipType === 'leader') {
-      const leader = await Leader.findById(req.user.id);
-      if (leader) {
-        groupMembers = await GroupMember.find({ groupId: leader._id })
+    if (currentMembership === 'leader' && currentUserId) {
+      const leaderDoc = await Leader.findById(currentUserId);
+      if (leaderDoc) {
+        groupMembers = await GroupMember.find({ groupId: leaderDoc._id })
           .select('_id name')
           .lean();
-        leaderName = leader.groupLeaderName || leader.username || 'You';
+        leaderId = leaderDoc._id.toString();
+        leaderName = leaderDoc.groupLeaderName || leaderDoc.username || 'You';
         console.log("🧑‍🤝‍🧑 Group members found:", groupMembers);
       }
     }
 
-    // 6. Word count
-    const plainText = article.article_body.replace(/<[^>]*>/g, ' ').trim();
-    const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+    // 6) Word count
+    const plainText = (article.article_body || '').replace(/<[^>]*>/g, ' ').trim();
+    const wordCount = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0;
 
-    // 7. Determine article image URL
+    // 7) Image URL
     const articleImage = article.image?.url || '/images/default-article.png';
 
-    // 8. Render view
+    // 8) Render
     return res.render('unit_views/single_article', {
       layout: 'unitviewlayout',
+
+      // Unit identity & content
       _id: article._id.toString(),
+      unitType: 'article',
       article_title: article.article_title,
       short_summary: article.short_summary,
       full_summary: article.full_summary,
       article_body: article.article_body,
       article_image: articleImage,
+
+      // Author card
       author: {
         name: author.name || 'Unknown Author',
         image: author.image || '/images/default-avatar.png',
       },
+
+      // Topics
       main_topic: article.main_topic,
       secondary_topics: article.secondary_topics,
       sub_topic: article.sub_topic,
+
+      // UX flags
       word_count: wordCount,
       isOwner,
       isAuthorizedToViewFullContent,
       isAuthenticated: !!req.user,
+      isLeader: currentMembership === 'leader',
       isGroupMemberOrLeader:
-        req.user?.membershipType === 'leader' || req.user?.membershipType === 'group_member',
+        currentMembership === 'leader' || currentMembership === 'group_member',
       isGroupMemberOrMember:
-        req.user?.membershipType === 'group_member' || req.user?.membershipType === 'member',
-      isLeader: req.user?.membershipType === 'leader',
+        currentMembership === 'group_member' || currentMembership === 'member',
+
+      // Leader-only assignment data (undefined if not leader → harmless in template)
       groupMembers,
-      leaderId: req.user?._id.toString(),
-      leaderName: leaderName || req.user.username || 'You',
+      leaderId,
+      leaderName: leaderName || req.user?.username || 'You',
+
+      // CSRF for native form posts
       csrfToken: req.csrfToken(),
     });
+
   } catch (err) {
     console.error('💥 Error fetching article:', err.stack || err.message);
     return res.status(500).render('unit_views/error', {
@@ -206,6 +224,7 @@ viewArticle: async (req, res) => {
     });
   }
 },
+
 
 
 

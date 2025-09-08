@@ -11,8 +11,8 @@
 
     <!-- Toggle + Content -->
     {{#if isAuthenticated}}
-      <div class="single_article-toggle" 
-           onclick="toggleArticleContent(this)" 
+      <div class="single_article-toggle"
+           onclick="toggleArticleContent(this)"
            data-authorized="{{isAuthorizedToViewFullContent}}">
         <svg class="single_article-arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 331.65 100.99">
           <defs><style>.cls-1 { fill: #4e50a2; }</style></defs>
@@ -23,85 +23,87 @@
       <div class="single_article-content hidden">
         {{{article_body}}}
 
-{{#if isLeader}}
-  <div class="assign-tag-form white-container">
-    <h4 class="assign-tag-title">Assign this unit to yourself or your group</h4>
-<form id="assignTagForm" action="/tags/create" method="POST">
-  <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-  <input type="hidden" name="itemId" value="{{_id}}">
-  <input type="hidden" name="itemType" value="article">
-  <input type="hidden" name="name" value="Leader Assigned Unit">
+        {{!-- Leader: assign to self or group --}}
+        {{#if isLeader}}
+          <div class="assign-tag-form white-container">
+            <h4 class="assign-tag-title">Assign this unit to yourself or your group</h4>
 
-  <div class="form-field">
-    <label for="tagName">Give the tag a name</label>
-    <input type="text" id="tagName" name="tagName" required>
-  </div>
-
-  <fieldset class="assign-tag-members">
-    <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
-
-    <!-- ✅ Leader self-assignment -->
-    <div class="assign-tag-member-block">
-      <label class="assign-tag-member-label">
-        <input 
-          type="checkbox" 
-          name="assignedTo[{{leaderId}}][member]" 
-          value="{{leaderId}}" 
-          onchange="toggleInstructionField(this)">
-        {{leaderName}} (you)
-      </label>
-      <textarea 
-        class="assign-tag-instructions" 
-        name="assignedTo[{{leaderId}}][instructions]" 
-        placeholder="Instructions for yourself" 
-        style="display: none;"></textarea>
-    </div>
-
-    <hr class="assign-tag-divider">
-
-    <!-- ✅ Group members -->
-    {{#each groupMembers}}
-      <div class="assign-tag-member-block">
-        <label class="assign-tag-member-label">
-          <input 
-            type="checkbox" 
-            name="assignedTo[{{_id}}][member]" 
-            value="{{_id}}" 
-            onchange="toggleInstructionField(this)">
-          {{name}}
-        </label>
-        <textarea 
-          class="assign-tag-instructions" 
-          name="assignedTo[{{_id}}][instructions]" 
-          placeholder="Instructions for {{name}}" 
-          style="display: none;"></textarea>
-      </div>
-    {{/each}}
-  </fieldset>
-
-  <button type="submit" class="form-button submit-button">assign article</button>
-</form>
-
-  </div>
-{{/if}}
-
-
-        {{#if isGroupMemberOrMember}}
-          <div class="single_unit-tag-container" style="margin-bottom: 200px;">
-            <form id="tagForm" onsubmit="tagUnit(event)">
+            <form id="assignTagForm" action="/tags/create" method="POST">
               <input type="hidden" name="_csrf" value="{{csrfToken}}">
-              <input type="hidden" id="unitId" value="{{_id}}">
-              <input type="hidden" id="unitType" value="article">
-              <a href="#" onclick="tagUnit(event)" class="tag-this-unit-link">
-                tag this unit
-                <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
-                  <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
-                </svg>
-              </a>
+              <input type="hidden" name="itemId" value="{{_id}}">
+              <input type="hidden" name="itemType" value="article">
+
+              <div class="form-field">
+                <label for="tagName">Give the tag a name</label>
+                <input type="text" id="tagName" name="tagName" required>
+              </div>
+
+              <fieldset class="assign-tag-members">
+                <legend class="assign-tag-legend">Select recipients and enter instructions:</legend>
+
+                <!-- Leader self-assignment -->
+                <div class="assign-tag-member-block">
+                  <label class="assign-tag-member-label">
+                    <input
+                      type="checkbox"
+                      name="assignedTo[{{leaderId}}][member]"
+                      value="{{leaderId}}"
+                      onchange="toggleInstructionField(this)">
+                    {{leaderName}} (you)
+                  </label>
+                  <textarea
+                    class="assign-tag-instructions"
+                    name="assignedTo[{{leaderId}}][instructions]"
+                    placeholder="Instructions for yourself"
+                    style="display:none;"></textarea>
+                </div>
+
+                <hr class="assign-tag-divider">
+
+                <!-- Group members -->
+                {{#each groupMembers}}
+                  <div class="assign-tag-member-block">
+                    <label class="assign-tag-member-label">
+                      <input
+                        type="checkbox"
+                        name="assignedTo[{{_id}}][member]"
+                        value="{{_id}}"
+                        onchange="toggleInstructionField(this)">
+                      {{name}}
+                    </label>
+                    <textarea
+                      class="assign-tag-instructions"
+                      name="assignedTo[{{_id}}][instructions]"
+                      placeholder="Instructions for {{name}}"
+                      style="display:none;"></textarea>
+                  </div>
+                {{/each}}
+              </fieldset>
+
+              <button type="submit" class="form-button submit-button">assign article</button>
             </form>
           </div>
         {{/if}}
 
+        {{!-- Member/Group member: quick "tag this unit" (native POST) --}}
+        {{#if isGroupMemberOrMember}}
+          <div class="single_unit-tag-container" style="margin-bottom:200px;">
+            <form action="/tags/create" method="POST" class="inline">
+              <input type="hidden" name="_csrf" value="{{csrfToken}}">
+              <input type="hidden" name="itemId" value="{{_id}}">
+              <input type="hidden" name="itemType" value="article">
+              <input type="hidden" name="tagName" value="Read Later">
+              <button type="submit" class="tag-this-unit-link" style="background:none;border:none;padding:0;cursor:pointer;">
+                tag this unit
+                <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
+                  <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
+                </svg>
+              </button>
+            </form>
+          </div>
+        {{/if}}
+
+        {{!-- Notes --}}
         {{#if isGroupMemberOrLeader}}
           <div class="single_article-notes-container">
             <h3 class="single_article-notes-title">record notes</h3>
@@ -112,11 +114,11 @@
             <form action="/notes/submit" method="POST" class="single_article-notes-form">
               <input type="hidden" name="_csrf" value="{{csrfToken}}">
               <input type="hidden" name="unitId" value="{{_id}}">
-              <input type="hidden" name="unitType" value="{{unitType}}">
+              <input type="hidden" name="unitType" value="article">
               <input type="hidden" name="main_topic" value="{{main_topic}}">
               <input type="hidden" name="secondary_topic" value="{{sub_topic}}">
 
-              <textarea name="note_content" class="single_article-notes-textarea" rows="5" maxlength="1000" 
+              <textarea name="note_content" class="single_article-notes-textarea" rows="5" maxlength="1000"
                         placeholder="Write your notes here..."></textarea>
 
               <button type="submit" class="single_article-notes-submit">submit notes</button>
@@ -143,18 +145,18 @@
 
   <!-- Sidebar -->
   <aside class="single_article-sidebar">
-    <div class="single_article-duration-image-container" style="text-align: center; margin-bottom: 10px; width: 100px; height: auto; display: inline-block">
+    <div class="single_article-duration-image-container" style="text-align:center; margin-bottom:10px; width:100px; height:auto; display:inline-block">
       <img src="https://www.twennie.com/images/5mins.svg" alt="Estimated Time: 5 Minutes" class="single_article-duration-image">
     </div>
 
-  <div class="single_article-image-container">
-    <img 
-      src="{{article_image}}" 
-      alt="Article Image" 
-      class="single_article-image"
-      style="max-width: 100%; border-radius: 12px;"
-    >
-  </div>
+    <div class="single_article-image-container">
+      <img
+        src="{{article_image}}"
+        alt="Article Image"
+        class="single_article-image"
+        style="max-width:100%; border-radius:12px;">
+    </div>
+
     <p class="single_article-title-sidebar">{{article_title}}</p>
 
     <div class="single_article-sidebar-toggle" onclick="toggleSidebarContent(this)">
@@ -204,13 +206,13 @@
     }
   }
 
-function toggleInstructionField(checkbox) {
-  const memberId = checkbox.value;
-  const selector = `textarea[name="assignedTo[${memberId}][instructions]"]`;
-  const textarea = document.querySelector(selector);
-  if (textarea) {
-    textarea.style.display = checkbox.checked ? 'block' : 'none';
+  function toggleInstructionField(checkbox) {
+    const memberId = checkbox.value;
+    const selector = `textarea[name="assignedTo[${memberId}][instructions]"]`;
+    const textarea = document.querySelector(selector);
+    if (textarea) {
+      textarea.style.display = checkbox.checked ? 'block' : 'none';
+    }
   }
-}
 </script>
 
