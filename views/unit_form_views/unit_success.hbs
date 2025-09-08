@@ -5,7 +5,8 @@
     <div class="submission-details">
         <h2 class="success-subtitle">{{unitType}} details:</h2>
         {{#if unit}}
-            <p class="success-text"><strong>Title:</strong> 
+            <p class="success-text"><strong>Title:</strong>
+                {{unit.title}}
                 {{unit.video_title}}
                 {{unit.article_title}}
                 {{unit.promptset_title}}
@@ -28,7 +29,6 @@
     <div class="success-unit-navigation-buttons">
         <a href="{{dashboardLink}}" class="btn-primary">return to dashboard</a>
 
-
         {{#if unit}}
             {{#if unit.video_title}}
                 <a href="/unitviews/videos/view/{{unit._id}}" class="btn-secondary">see my video</a>
@@ -48,6 +48,10 @@
             {{else if unit.interview_title}}
                 <a href="/unitviews/interviews/view/{{unit._id}}" class="btn-secondary">see my interview</a>
                 <a href="/unitform/form_interview" class="btn-secondary">submit another interview</a>
+            {{else if unit.title}}
+                {{!-- Upcoming --}}
+                <a href="/unitviews/upcomings/view/{{unit._id}}" class="btn-secondary">see my upcoming unit</a>
+                <a href="/unitform/form_upcoming" class="btn-secondary">submit another upcoming</a>
             {{/if}}
         {{/if}}
     </div>

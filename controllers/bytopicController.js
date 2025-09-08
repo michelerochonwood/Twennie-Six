@@ -13,6 +13,7 @@ const TopicSuggestion = require('../models/topic/topic_suggestion'); // Adjust t
 const MemberProfile = require('../models/profile_models/member_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const LeaderProfile = require('../models/profile_models/leader_profile');
+const Upcoming = require('../models/unit_models/upcoming');
 
 
 
@@ -146,6 +147,7 @@ exports.getTopicView = async (req, res) => {
             Promptset.find(queryCondition).lean(),
             Exercise.find(queryCondition).lean(),
             Template.find(queryCondition).lean(),
+            Upcoming.find(queryCondition).lean(), // ← NEW
         ]);
 
         console.log(`Found Articles: ${articles.length}`);
@@ -154,6 +156,7 @@ exports.getTopicView = async (req, res) => {
         console.log(`Found Promptsets: ${promptsets.length}`);
         console.log(`Found Exercises: ${exercises.length}`);
         console.log(`Found Templates: ${templates.length}`);
+        console.log(`Found Upcoming: ${upcomings.length}`);
 
 const allUnits = [
   ...articles.map((unit) => ({ title: unit.article_title, ...unit, type: 'article', authorId: unit.author?.id || unit.author })),
@@ -171,6 +174,15 @@ const allUnits = [
   })),
   ...exercises.map((unit) => ({ title: unit.exercise_title, ...unit, type: 'exercise', authorId: unit.author?.id || unit.author })),
   ...templates.map((unit) => ({ title: unit.template_title, ...unit, type: 'template', authorId: unit.author?.id || unit.author })),
+  // ← NEW: UPCOMING
+  ...upcomings.map((u) => ({
+    title: u.title,
+    ...u,
+    type: 'upcoming',
+    unit_type: u.unit_type,                 // article | video | interview | exercise | template (planned)
+    authorId: u.author?.id || u.author || null,
+    visibility: u.visibility || 'all_members' // fallback so it appears in a section
+  })),
 ];
 
         console.log(`Total Processed Units: ${allUnits.length}`);
