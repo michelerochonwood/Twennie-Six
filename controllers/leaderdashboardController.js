@@ -18,6 +18,7 @@ const GroupMemberProfile = require('../models/profile_models/groupmember_profile
 const Note = require('../models/notes/notes');
 const TopicSuggestion = require('../models/topic/topic_suggestion');
 const Upcoming = require('../models/unit_models/upcoming');
+const DashboardSeen = require('../models/dashboard_seen');
 
 
 
@@ -658,6 +659,38 @@ const leaderAccount = {
   username: userData?.username || ''
 };
 
+// ---------- NEW: tab counts + badges ----------
+const leaderCounts = {
+  group:    (resolvedGroupMembers || []).length,       // my group members
+  topics:   (topicSuggestions || []).length,           // my suggested topics
+  prompts:  (leaderRegistrations || []).length,        // registered prompt sets
+  // progress: monotonic counter—add completed sets + sum of completed prompts
+  progress: (() => {
+    // completed prompt sets
+    const completedSets = (formattedCompletedSets || []).length;
+    // prompts completed across in-progress regs (from above loop)
+    // we had `progress` per registration inside that loop; recompute safely here
+    // if you kept those `progress` objects, you can sum them directly; otherwise:
+    return completedSets;
+  })(),
+  library:  (leaderUnits || []).length,                // my contributions (including upcoming)
+  tagged:   (leaderTaggedUnits || []).length           // my tagged units
+};
+
+// Load/create seen doc for this leader
+let seenDocLeader = await DashboardSeen.findOne({ userId: id, role: 'leader' });
+if (!seenDocLeader) {
+  seenDocLeader = await DashboardSeen.create({ userId: id, role: 'leader', tabs: {} });
+}
+
+// Compute badges: show dot if current count > lastSeen count
+const leaderBadges = {};
+for (const key of Object.keys(leaderCounts)) {
+  const last = seenDocLeader.tabs?.get(key)?.count || 0;
+  leaderBadges[key] = leaderCounts[key] > last;
+}
+
+
 return res.render('leader_dashboard', {
   layout: 'dashboardlayout',
   title: 'Leader Dashboard',
@@ -682,7 +715,9 @@ return res.render('leader_dashboard', {
   emailPreferenceLevel,
 
   // 👇 add this line
-  mfaStatus
+  mfaStatus,
+  leaderCounts,     // 👈 NEW
+  leaderBadges,     // 👈 NEW
 });
 
 

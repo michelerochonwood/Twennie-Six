@@ -1133,6 +1133,8 @@ html, body {
 }
 
 
+
+
 /*------------------------------------------------------------------------------*/
 
 /*GROUP MEMBER DASHBOARD STYLES*/
@@ -1911,6 +1913,15 @@ html, body {
 /* .leader-sidebar {
   margin-left: 20%;
 } */
+
+.dashboard-tab { position: relative; }
+.tab-dot {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 10px; height: 10px;
+  border-radius: 9999px;
+  background: #22c55e; /* green-500 */
+}
 
 
 .leader-sidebar .leader-profile-section {

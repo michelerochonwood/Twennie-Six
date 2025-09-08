@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const leaderDashboardController = require('../../controllers/leaderdashboardController');
 
+
 // Middleware to check if user is authenticated
 const isAuthenticated = (req, res, next) => {
     if (req.session?.user) {
@@ -51,5 +52,7 @@ router.post('/account/email-preferences', isAuthenticated, async (req, res, next
     next(err);
   }
 });
+
+router.post('/mark-seen', /* handler from my snippet */);
 
 module.exports = router;
