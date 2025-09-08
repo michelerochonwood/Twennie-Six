@@ -13,7 +13,7 @@ const fs = require('fs'); // ✅ Ensure file system functions work
 const MemberProfile = require('../models/profile_models/member_profile');
 const PromptSetCompletion = require('../models/prompt_models/promptsetcompletion');
 const TopicSuggestion = require('../models/topic/topic_suggestion');
-
+const Upcoming = require('../models/unit_models/upcoming');
 
  
 
@@ -369,29 +369,62 @@ const formattedCompletedSets = completedRecords.map(record => ({
             console.log("Final session before rendering:", req.session);
 
             // ✅ Fetch tagged and contributed units
-            const memberTaggedUnits = await fetchTaggedUnits(id);
-            const [memberArticles, memberVideos, memberPromptSets, memberInterviews, memberExercises, memberTemplates] = await Promise.all([
-                Article.find({ 'author.id': id }),
-                Video.find({ 'author.id': id }),
-                PromptSet.find({ 'author.id': id }),
-                Interview.find({ 'author.id': id }),
-                Exercise.find({ 'author.id': id }),
-                Template.find({ 'author.id': id }),
-            ]);
+// ✅ Fetch tagged and contributed units
+const memberTaggedUnits = await fetchTaggedUnits(id);
 
-            const memberUnits = await Promise.all(
-                [...memberArticles, ...memberVideos, ...memberPromptSets, ...memberInterviews, ...memberExercises, ...memberTemplates].map(async (unit) => {
-                    const author = await resolveAuthorById(unit.author?.id || unit.author);
-                    return {
-                        unitType: unit.unitType || unit.constructor?.modelName || 'Unknown',
-                        title: unit.article_title || unit.video_title || unit.promptset_title || unit.interview_title || unit.exercise_title || unit.template_title,
-                        status: unit.status,
-                        mainTopic: unit.main_topic,
-                        _id: unit._id,
-                        author: author.name
-                    };
-                })
-            );
+const [
+  memberArticles,
+  memberVideos,
+  memberPromptSets,
+  memberInterviews,
+  memberExercises,
+  memberTemplates
+] = await Promise.all([
+  Article.find({ 'author.id': id }),
+  Video.find({ 'author.id': id }),
+  PromptSet.find({ 'author.id': id }),
+  Interview.find({ 'author.id': id }),
+  Exercise.find({ 'author.id': id }),
+  Template.find({ 'author.id': id })
+]);
+
+// 👇 my upcoming units (ownership via createdBy on Upcoming)
+const memberUpcomings = await Upcoming.find({ createdBy: id });
+
+let memberUnits = await Promise.all(
+  [...memberArticles, ...memberVideos, ...memberPromptSets, ...memberInterviews, ...memberExercises, ...memberTemplates].map(async (unit) => {
+    const author = await resolveAuthorById(unit.author?.id || unit.author);
+    return {
+      unitType: unit.unitType || unit.constructor?.modelName || 'Unknown',
+      title:
+        unit.article_title ||
+        unit.video_title ||
+        unit.promptset_title ||
+        unit.interview_title ||
+        unit.exercise_title ||
+        unit.template_title ||
+        'Untitled Unit',
+      status: unit.status || 'Unknown',
+      mainTopic: unit.main_topic || 'No topic',
+      _id: unit._id,
+      author: author.name
+    };
+  })
+);
+
+// 👇 append upcoming rows (for the member’s own upcoming contributions)
+const myUpcomingRows = (memberUpcomings || []).map((u) => ({
+  unitType: 'upcoming',
+  plannedType: u.unit_type,                 // e.g., 'video'
+  title: u.title,
+  status: u.status || 'in production',
+  mainTopic: u.main_topic || 'No topic',
+  _id: u._id,
+  projectedRelease: u.projected_release_at
+}));
+
+memberUnits = [...memberUnits, ...myUpcomingRows];
+
 
             // Attach subtopics and slugs for the member's topics
 // Attach subtopics and slugs for the member's topics (Fix for missing topics)

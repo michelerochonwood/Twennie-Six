@@ -17,7 +17,7 @@ const MemberProfile = require('../models/profile_models/member_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const LeaderProfile = require('../models/profile_models/leader_profile');
 const TopicSuggestion = require('../models/topic/topic_suggestion');
-
+const Upcoming = require('../models/unit_models/upcoming');
 
 
 
@@ -447,29 +447,53 @@ const topicSuggestions = await TopicSuggestion.find({
 
 
     
-            const [memberArticles, memberVideos, memberPromptSets, memberInterviews, memberExercises, memberTemplates] = await Promise.all([
-                Article.find({ 'author.id': id }),//don't delete any of these - we need author ids for the library table
-                Video.find({ 'author.id': id }),
-                PromptSet.find({ 'author.id': id }),
-                Interview.find({ 'author.id': id }),
-                Exercise.find({ 'author.id': id }),
-                Template.find({ 'author.id': id })
-            ]);
-    
-const groupMemberUnits = await Promise.all(
+const [memberArticles, memberVideos, memberPromptSets, memberInterviews, memberExercises, memberTemplates] = await Promise.all([
+  Article.find({ 'author.id': id }),
+  Video.find({ 'author.id': id }),
+  PromptSet.find({ 'author.id': id }),
+  Interview.find({ 'author.id': id }),
+  Exercise.find({ 'author.id': id }),
+  Template.find({ 'author.id': id })
+]);
+
+// 👇 my upcoming units (ownership via createdBy)
+const memberUpcomings = await Upcoming.find({ createdBy: id });
+
+let groupMemberUnits = await Promise.all(
   [...memberArticles, ...memberVideos, ...memberPromptSets, ...memberInterviews, ...memberExercises, ...memberTemplates].map(async (unit) => {
     const author = await resolveAuthorById(unit.author?.id || unit.author);
     return {
       unitType: unit.unitType || unit.constructor?.modelName || 'Unknown',
-      title: unit.article_title || unit.video_title || unit.promptset_title || unit.interview_title || unit.exercise_title || unit.template_title,
-      status: unit.status,
-      mainTopic: unit.main_topic,
+      title:
+        unit.article_title ||
+        unit.video_title ||
+        unit.promptset_title ||
+        unit.interview_title ||
+        unit.exercise_title ||
+        unit.template_title ||
+        'Untitled Unit',
+      status: unit.status || 'Unknown',
+      mainTopic: unit.main_topic || 'No topic',
       _id: unit._id,
       author: author.name,
-      authorImage: author.image // ✅ Add this line
+      authorImage: author.image
     };
   })
 );
+
+// 👇 append my upcoming rows
+const myUpcomingRows = (memberUpcomings || []).map((u) => ({
+  unitType: 'upcoming',
+  plannedType: u.unit_type,                 // e.g., 'video'
+  title: u.title,
+  status: u.status || 'in production',
+  mainTopic: u.main_topic || 'No topic',
+  _id: u._id,
+  projectedRelease: u.projected_release_at
+}));
+
+groupMemberUnits = [...groupMemberUnits, ...myUpcomingRows];
+
 
 
 
@@ -581,6 +605,70 @@ const groupMemberAccount = {
   email: userData?.email || '',
   username: userData?.username || ''
 };
+
+// 👇 build "my group's library units" (other members in my group)
+const otherMemberIds = (userData.groupId?.members || [])
+  .map(m => m._id)
+  .filter(mid => String(mid) !== String(id));
+
+const [
+  groupArticles2,
+  groupVideos2,
+  groupPromptSets2,
+  groupInterviews2,
+  groupExercises2,
+  groupTemplates2,
+  groupUpcomings2
+] = await Promise.all([
+  Article.find({ 'author.id': { $in: otherMemberIds } }),
+  Video.find({ 'author.id': { $in: otherMemberIds } }),
+  PromptSet.find({ 'author.id': { $in: otherMemberIds } }),
+  Interview.find({ 'author.id': { $in: otherMemberIds } }),
+  Exercise.find({ 'author.id': { $in: otherMemberIds } }),
+  Template.find({ 'author.id': { $in: otherMemberIds } }),
+  Upcoming.find({ createdBy: { $in: otherMemberIds } })
+]);
+
+let groupLibraryUnits = await Promise.all(
+  [...groupArticles2, ...groupVideos2, ...groupPromptSets2, ...groupInterviews2, ...groupExercises2, ...groupTemplates2].map(async (unit) => {
+    const author = await resolveAuthorById(unit.author?.id || unit.author);
+    return {
+      author: author.name,
+      unitType: unit.unitType || unit.constructor?.modelName || 'Unknown',
+      title:
+        unit.article_title ||
+        unit.video_title ||
+        unit.promptset_title ||
+        unit.interview_title ||
+        unit.exercise_title ||
+        unit.template_title ||
+        'Untitled Unit',
+      status: unit.status || 'Unknown',
+      mainTopic: unit.main_topic || 'No topic',
+      _id: unit._id
+    };
+  })
+);
+
+// 👇 append upcoming rows for other members
+const gmUpcomingRows2 = await Promise.all(
+  (groupUpcomings2 || []).map(async (u) => {
+    const author = await resolveAuthorById(u.createdBy);
+    return {
+      author: author?.name || 'Group Member',
+      unitType: 'upcoming',
+      plannedType: u.unit_type,
+      title: u.title,
+      status: u.status || 'in production',
+      mainTopic: u.main_topic || 'No topic',
+      _id: u._id,
+      projectedRelease: u.projected_release_at
+    };
+  })
+);
+
+groupLibraryUnits = [...groupLibraryUnits, ...gmUpcomingRows2];
+
 // ✅ Final render
 return res.render('groupmember_dashboard', {
   layout: 'dashboardlayout',
@@ -609,7 +697,8 @@ return res.render('groupmember_dashboard', {
   completedLeaderAssignedTags,
   topicSuggestions,
   groupMemberAccount,
-  emailPreferenceLevel
+  emailPreferenceLevel,
+  groupLibraryUnits,
 });
 
         

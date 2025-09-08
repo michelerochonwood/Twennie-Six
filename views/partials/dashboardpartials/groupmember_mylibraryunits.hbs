@@ -14,12 +14,31 @@
     <tbody>
       {{#each groupMemberUnits}}
         <tr class="dashboard-library-row">
-          <td class="dashboard-library-cell">{{this.unitType}}</td>
-          <td class="dashboard-library-cell">{{this.title}}</td>
-          <td class="dashboard-library-cell">{{this.status}}</td>
-          <td class="dashboard-library-cell">{{this.mainTopic}}</td>
           <td class="dashboard-library-cell">
-            <a href="/unitviews/{{this.unitType}}s/view/{{this._id}}" class="dashboard-view-link">view and/or edit</a>
+            {{#if (eq this.unitType "upcoming")}}
+              upcoming ({{this.plannedType}})
+            {{else}}
+              {{this.unitType}}
+            {{/if}}
+          </td>
+
+          <td class="dashboard-library-cell">{{this.title}}</td>
+
+          <td class="dashboard-library-cell">
+            {{this.status}}
+            {{#if this.projectedRelease}}
+              <span class="muted">({{formatDate this.projectedRelease}})</span>
+            {{/if}}
+          </td>
+
+          <td class="dashboard-library-cell">{{this.mainTopic}}</td>
+
+          <td class="dashboard-library-cell">
+            {{#if (eq this.unitType "upcoming")}}
+              <a href="/unitviews/upcoming/view/{{this._id}}" class="dashboard-view-link">view upcoming</a>
+            {{else}}
+              <a href="/unitviews/{{this.unitType}}s/view/{{this._id}}" class="dashboard-view-link">view and/or edit</a>
+            {{/if}}
           </td>
         </tr>
       {{else}}
@@ -40,7 +59,6 @@
         <th class="dashboard-library-header">title</th>
         <th class="dashboard-library-header">status</th>
         <th class="dashboard-library-header">main topic</th>
-
         <th class="dashboard-library-header">view unit</th>
       </tr>
     </thead>
@@ -48,13 +66,32 @@
       {{#each groupLibraryUnits}}
         <tr class="dashboard-library-row">
           <td class="dashboard-library-cell">{{this.author}}</td>
-          <td class="dashboard-library-cell">{{this.unitType}}</td>
+
+          <td class="dashboard-library-cell">
+            {{#if (eq this.unitType "upcoming")}}
+              upcoming ({{this.plannedType}})
+            {{else}}
+              {{this.unitType}}
+            {{/if}}
+          </td>
+
           <td class="dashboard-library-cell">{{this.title}}</td>
-          <td class="dashboard-library-cell">{{this.status}}</td>
+
+          <td class="dashboard-library-cell">
+            {{this.status}}
+            {{#if this.projectedRelease}}
+              <span class="muted">({{formatDate this.projectedRelease}})</span>
+            {{/if}}
+          </td>
+
           <td class="dashboard-library-cell">{{this.mainTopic}}</td>
 
           <td class="dashboard-library-cell">
-            <a href="/unitviews/{{this.unitType}}s/view/{{this._id}}" class="dashboard-view-link">view only</a>
+            {{#if (eq this.unitType "upcoming")}}
+              <a href="/unitviews/upcoming/view/{{this._id}}" class="dashboard-view-link">view only</a>
+            {{else}}
+              <a href="/unitviews/{{this.unitType}}s/view/{{this._id}}" class="dashboard-view-link">view only</a>
+            {{/if}}
           </td>
         </tr>
       {{else}}
@@ -65,5 +102,6 @@
     </tbody>
   </table>
 </section>
+
 
 
