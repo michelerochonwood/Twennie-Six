@@ -1917,8 +1917,8 @@ html, body {
 .dashboard-tab { position: relative; }
 .tab-dot {
   position: absolute;
-  top: 6px; right: 6px;
-  width: 10px; height: 10px;
+  top: -8px; right: -8px;
+  width: 10px; height: 15px;
   border-radius: 9999px;
   background: #22c55e; /* green-500 */
 }
