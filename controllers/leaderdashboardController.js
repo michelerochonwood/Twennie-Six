@@ -664,30 +664,39 @@ const leaderCounts = {
   group:    (resolvedGroupMembers || []).length,       // my group members
   topics:   (topicSuggestions || []).length,           // my suggested topics
   prompts:  (leaderRegistrations || []).length,        // registered prompt sets
-  // progress: monotonic counter—add completed sets + sum of completed prompts
-  progress: (() => {
-    // completed prompt sets
-    const completedSets = (formattedCompletedSets || []).length;
-    // prompts completed across in-progress regs (from above loop)
-    // we had `progress` per registration inside that loop; recompute safely here
-    // if you kept those `progress` objects, you can sum them directly; otherwise:
-    return completedSets;
-  })(),
-  library:  (leaderUnits || []).length,                // my contributions (including upcoming)
-  tagged:   (leaderTaggedUnits || []).length           // my tagged units
+  // keep progress simple for now (you can upgrade this later)
+  progress: (formattedCompletedSets || []).length,     // completed sets as a monotonic signal
+  library:  (leaderUnits || []).length,                // my contributions (incl. upcoming)
+  tagged:   (leaderTaggedUnits || []).length           // my self-tagged units
 };
 
 // Load/create seen doc for this leader
 let seenDocLeader = await DashboardSeen.findOne({ userId: id, role: 'leader' });
+
 if (!seenDocLeader) {
-  seenDocLeader = await DashboardSeen.create({ userId: id, role: 'leader', tabs: {} });
+  // First time: baseline all tabs to current counts (no dots on first render)
+  seenDocLeader = new DashboardSeen({ userId: id, role: 'leader', tabs: new Map() });
+  for (const [key, val] of Object.entries(leaderCounts)) {
+    seenDocLeader.tabs.set(key, { count: val, seenAt: new Date() });
+  }
+  await seenDocLeader.save();
+} else {
+  // If new tabs were added later, baseline them once
+  let updated = false;
+  for (const [key, val] of Object.entries(leaderCounts)) {
+    if (!seenDocLeader.tabs?.has(key)) {
+      seenDocLeader.tabs.set(key, { count: val, seenAt: new Date() });
+      updated = true;
+    }
+  }
+  if (updated) await seenDocLeader.save();
 }
 
-// Compute badges: show dot if current count > lastSeen count
+// Compute badges: show dot ONLY if current > lastSeen
 const leaderBadges = {};
-for (const key of Object.keys(leaderCounts)) {
-  const last = seenDocLeader.tabs?.get(key)?.count || 0;
-  leaderBadges[key] = leaderCounts[key] > last;
+for (const [key, val] of Object.entries(leaderCounts)) {
+  const last = seenDocLeader.tabs?.get(key)?.count ?? val; // default to current as baseline
+  leaderBadges[key] = val > last;
 }
 
 
