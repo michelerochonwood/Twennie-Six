@@ -122,6 +122,7 @@ async function buildLeaderAssignedUnits(leaderId) {
 
   for (const tag of assignedTags) {
     for (const { item, unitType } of tag.associatedUnits || []) {
+      // skip types you don't want here
       if (unitType === 'promptset' || unitType === 'prompt') continue;
 
       const Model = getModelByUnitType(unitType);
@@ -134,18 +135,23 @@ async function buildLeaderAssignedUnits(leaderId) {
         const member = await GroupMember.findById(assignee.member).select('name').lean();
         if (!member) continue;
 
-        const note = await Note.findOne({
-          unitID: item,
-          memberID: assignee.member,
-        });
-
         leaderAssignedUnits.push({
           _id: item,
           unitType,
-          title: unit.article_title || unit.video_title || unit.interview_title || unit.exercise_title || unit.template_title || "Untitled",
+          title:
+            unit.article_title ||
+            unit.video_title ||
+            unit.interview_title ||
+            unit.exercise_title ||
+            unit.template_title ||
+            "Untitled",
           mainTopic: unit.main_topic || "No topic",
-          assignedTo: { name: member.name },
-          completed: !!note,
+          assignedTo: {
+            _id: assignee.member?.toString(),
+            name: member.name,
+            instructions: assignee.instructions || '',
+            completedAt: assignee.completedAt || null, // ← KEY: timestamp or null
+          }
         });
       }
     }
@@ -153,6 +159,7 @@ async function buildLeaderAssignedUnits(leaderId) {
 
   return leaderAssignedUnits;
 }
+
 
 const topicMappings = {
     'AI in Consulting': 'aiinconsulting',
