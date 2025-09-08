@@ -45,30 +45,35 @@ async function resolveAuthorById(authorId) {
 
 async function fetchTaggedUnits(userId) {
   try {
+    // Only tags CREATED by this leader
     const tags = await Tag.find({ createdBy: userId }).lean();
     if (!tags.length) return [];
 
+    // Build a fetch list by unit type
     const unitMap = {
-      article: [],
-      video: [],
+      article:   [],
+      video:     [],
       promptset: [],
       interview: [],
-      exercise: [],
-      template: []
+      exercise:  [],
+      template:  [],
+      upcoming: []
     };
 
-    const tagLookup = new Map(); // key: `${itemId}-${unitType}`, value: tagId
+    // Map key → tag (so we can read assignedTo length per unit)
+    const tagByKey = new Map(); // `${itemId}-${unitType}` → tag doc
 
     for (const tag of tags) {
       for (const { item, unitType } of tag.associatedUnits || []) {
         if (unitMap[unitType]) {
           const key = `${item.toString()}-${unitType}`;
           unitMap[unitType].push(item.toString());
-          tagLookup.set(key, tag._id.toString());
+          tagByKey.set(key, tag);
         }
       }
     }
 
+    // Fetch units
     const [articles, videos, promptSets, interviews, exercises, templates] = await Promise.all([
       Article.find({ _id: { $in: unitMap.article } }).lean(),
       Video.find({ _id: { $in: unitMap.video } }).lean(),
@@ -79,26 +84,33 @@ async function fetchTaggedUnits(userId) {
     ]);
 
     const tagResult = (units, type, titleField) =>
-      units.map(unit => ({
-        unitType: type,
-        title: unit[titleField] || `Untitled ${type}`,
-        mainTopic: unit.main_topic || "No topic",
-        _id: unit._id,
-        tagId: tagLookup.get(`${unit._id.toString()}-${type}`)
-      }));
+      units.map(unit => {
+        const key = `${unit._id.toString()}-${type}`;
+        const tag = tagByKey.get(key);
+        const assignedCount = Array.isArray(tag?.assignedTo) ? tag.assignedTo.length : 0;
+        return {
+          unitType: type,
+          title: unit[titleField] || `Untitled ${type}`,
+          mainTopic: unit.main_topic || "No topic",
+          _id: unit._id,
+          tagId: tag?._id?.toString() || null,
+          assignedCount // 👈 0 = self-tag, >0 = assignment tag
+        };
+      });
 
     return [
-      ...tagResult(articles, 'article', 'article_title'),
-      ...tagResult(videos, 'video', 'video_title'),
-      ...tagResult(promptSets, 'promptset', 'promptset_title'),
-      ...tagResult(interviews, 'interview', 'interview_title'),
-      ...tagResult(exercises, 'exercise', 'exercise_title'),
-      ...tagResult(templates, 'template', 'template_title')
+      ...tagResult(articles, 'article',   'article_title'),
+      ...tagResult(videos,   'video',     'video_title'),
+      ...tagResult(promptSets,'promptset','promptset_title'),
+      ...tagResult(interviews,'interview','interview_title'),
+      ...tagResult(exercises,'exercise',  'exercise_title'),
+      ...tagResult(templates,'template',  'template_title')
     ];
   } catch (error) {
     console.error("❌ Error fetching tagged units for leader:", error);
     return [];
   }
+}
 }
 
 
@@ -558,13 +570,10 @@ console.log("Selected Topics for Leader:", selectedTopics);
 
             
 
-            const allLeaderTaggedUnits = await fetchTaggedUnits(id);
+const allLeaderTaggedUnits = await fetchTaggedUnits(id);
 
-// Only show units the leader tagged for themselves, not ones they assigned
-const leaderTaggedUnits = allLeaderTaggedUnits.filter(unit =>
-  unit.tagIdCreator === id.toString() &&
-  !unit.assignedTo
-);
+// Only self-tags (no assignments) count toward "my tagged units"
+const leaderTaggedUnits = allLeaderTaggedUnits.filter(u => u.assignedCount === 0);
 
             const [leaderArticles, leaderVideos, leaderPromptSets, leaderInterviews, leaderExercises, leaderTemplates] = await Promise.all([
                 Article.find({ 'author.id': id }),
