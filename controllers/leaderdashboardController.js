@@ -17,6 +17,7 @@ const LeaderProfile = require('../models/profile_models/leader_profile');
 const GroupMemberProfile = require('../models/profile_models/groupmember_profile');
 const Note = require('../models/notes/notes');
 const TopicSuggestion = require('../models/topic/topic_suggestion');
+const Upcoming = require('../models/unit_models/upcoming');
 
 
 
@@ -103,12 +104,13 @@ async function fetchTaggedUnits(userId) {
 
 const getModelByUnitType = (type) => {
   switch (type) {
-    case 'article': return Article;
-    case 'video': return Video;
+    case 'article':   return Article;
+    case 'video':     return Video;
     case 'interview': return Interview;
-    case 'exercise': return Exercise;
-    case 'template': return Template;
-    default: return null;
+    case 'exercise':  return Exercise;
+    case 'template':  return Template;
+    case 'upcoming':  return Upcoming; // 👈 add upcoming
+    default:          return null;
   }
 };
 
@@ -381,30 +383,62 @@ const mfaStatus = {
             // Fetch all group members under this leader
             const leaderGroupMemberIds = leaderGroupMembers.map(member => member._id);
 
-            const [groupArticles, groupVideos, groupPromptSets, groupInterviews, groupExercises, groupTemplates] = await Promise.all([
-                Article.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
-                Video.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
-                PromptSet.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
-                Interview.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
-                Exercise.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
-                Template.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
-            ]);
+const [
+  groupArticles,
+  groupVideos,
+  groupPromptSets,
+  groupInterviews,
+  groupExercises,
+  groupTemplates,
+  groupUpcomings // 👈 NEW
+] = await Promise.all([
+  Article.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
+  Video.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
+  PromptSet.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
+  Interview.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
+  Exercise.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
+  Template.find({ 'author.id': { $in: leaderGroupMemberIds } }).lean(),
+  Upcoming.find({ createdBy: { $in: leaderGroupMemberIds } }).lean() // 👈 upcoming uses createdBy
+]);
             
-            const groupMemberUnits = await Promise.all(
-                [...groupArticles, ...groupVideos, ...groupPromptSets, ...groupInterviews, ...groupExercises, ...groupTemplates].map(async (unit) => {
-                    const author = await resolveAuthorById(unit.author.id);
-                    return {
-                        unitType: resolveUnitType(unit), // ✅ Now correctly assigns unit type
-                        title: unit.article_title || unit.video_title || unit.promptset_title || unit.interview_title || unit.exercise_title || unit.template_title || "Untitled Unit",
-                        status: unit.status || "Unknown",
-                        mainTopic: unit.main_topic || "No topic",
-                        _id: unit._id,
-                        author: author.name
-                    };
-                })
-            );
-            
+let groupMemberUnits = await Promise.all(
+  [...groupArticles, ...groupVideos, ...groupPromptSets, ...groupInterviews, ...groupExercises, ...groupTemplates].map(async (unit) => {
+    const author = await resolveAuthorById(unit.author.id);
+    return {
+      unitType: resolveUnitType(unit),
+      title:
+        unit.article_title ||
+        unit.video_title ||
+        unit.promptset_title ||
+        unit.interview_title ||
+        unit.exercise_title ||
+        unit.template_title ||
+        "Untitled Unit",
+      status: unit.status || "Unknown",
+      mainTopic: unit.main_topic || "No topic",
+      _id: unit._id,
+      author: author.name
+    };
+  })
+);
 
+const gmUpcomingRows = await Promise.all(
+  (groupUpcomings || []).map(async (u) => {
+    const author = await resolveAuthorById(u.createdBy);
+    return {
+      unitType: 'upcoming',
+      plannedType: u.unit_type,                 // e.g., 'video'
+      title: u.title,
+      status: u.status || 'in production',
+      mainTopic: u.main_topic || 'No topic',
+      _id: u._id,
+      author: author?.name || 'Group Member',
+      projectedRelease: u.projected_release_at
+    };
+  })
+);
+            
+groupMemberUnits = [...groupMemberUnits, ...gmUpcomingRows];
 
             if (!userData) {
                 throw new Error(`Leader with ID ${id} not found.`);
@@ -540,22 +574,40 @@ const leaderTaggedUnits = allLeaderTaggedUnits.filter(unit =>
                 Template.find({ 'author.id': id }),
             ]);
 
-            const leaderUnits = await Promise.all(
-                [...leaderArticles, ...leaderVideos, ...leaderPromptSets, ...leaderInterviews, ...leaderExercises, ...leaderTemplates].map(async (unit) => {
-                    const author = await resolveAuthorById(unit.author.id);
-                    return {
-                        unitType: unit.unitType || unit.constructor?.modelName || 'Unknown',
-                        title: unit.article_title || unit.video_title || unit.promptset_title || unit.interview_title || unit.exercise_title || unit.template_title,
-                        status: unit.status,
-                        mainTopic: unit.main_topic,
-                        _id: unit._id,
-                        author: author.name
-                    };
-                })
-            );
+            const leaderUpcomings = await Upcoming.find({ createdBy: id }).lean();
+
+const leaderUpcomingRows = (leaderUpcomings || []).map((u) => ({
+  unitType: 'upcoming',
+  plannedType: u.unit_type,                 // e.g., 'video'
+  title: u.title,
+  status: u.status || 'in production',
+  mainTopic: u.main_topic || 'No topic',
+  _id: u._id,
+  projectedRelease: u.projected_release_at
+}));
+
+let leaderUnits = await Promise.all(
+  [...leaderArticles, ...leaderVideos, ...leaderPromptSets, ...leaderInterviews, ...leaderExercises, ...leaderTemplates].map(async (unit) => {
+    const author = await resolveAuthorById(unit.author.id);
+    return {
+      unitType: unit.unitType || unit.constructor?.modelName || 'Unknown',
+      title:
+        unit.article_title ||
+        unit.video_title ||
+        unit.promptset_title ||
+        unit.interview_title ||
+        unit.exercise_title ||
+        unit.template_title,
+      status: unit.status,
+      mainTopic: unit.main_topic,
+      _id: unit._id,
+      author: author.name
+    };
+  })
+);
 
 
-            
+      leaderUnits = [...leaderUnits, ...leaderUpcomingRows];      
             
 
             console.log("All session keys before rendering:", Object.keys(req.session));
