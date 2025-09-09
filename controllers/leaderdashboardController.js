@@ -573,6 +573,7 @@ const allLeaderTaggedUnits = await fetchTaggedUnits(id);
 
 // Only self-tags (no assignments) count toward "my tagged units"
 const leaderTaggedUnits = allLeaderTaggedUnits.filter(u => u.assignedCount === 0);
+const leaderTaggedCountAll = allLeaderTaggedUnits.length;
 
             const [leaderArticles, leaderVideos, leaderPromptSets, leaderInterviews, leaderExercises, leaderTemplates] = await Promise.all([
                 Article.find({ 'author.id': id }),
@@ -672,10 +673,9 @@ const leaderCounts = {
   group:    (resolvedGroupMembers || []).length,       // my group members
   topics:   (topicSuggestions || []).length,           // my suggested topics
   prompts:  (leaderRegistrations || []).length,        // registered prompt sets
-  // keep progress simple for now (you can upgrade this later)
-  progress: (formattedCompletedSets || []).length,     // completed sets as a monotonic signal
+  progress: (formattedCompletedSets || []).length,     // simple monotonic signal
   library:  (leaderUnits || []).length,                // my contributions (incl. upcoming)
-  tagged:   (leaderTaggedUnits || []).length           // my self-tagged units
+  tagged:   leaderTaggedCountAll                       // 👈 all tags I created (self + assignments)
 };
 
 // Load/create seen doc for this leader
