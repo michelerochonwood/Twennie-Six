@@ -290,9 +290,18 @@ app.use(async (req, res, next) => {
       else if (leader) membershipType = "leader";
       else if (groupMember) membershipType = "group_member";
 
-      req.session.user.membershipType = membershipType;
-      res.locals.dashboardLink = `/dashboard/${membershipType}`;
-      console.log(`✅ dashboardLink set: ${res.locals.dashboardLink}`);
+req.session.user.membershipType = membershipType;
+
+// Canonical paths per role (no underscore in URL)
+const roleToPath = {
+  leader: '/dashboard/leader',
+  group_member: '/dashboard/groupmember',
+  member: '/dashboard/member'
+};
+
+res.locals.dashboardLink = roleToPath[membershipType] || '/dashboard';
+console.log(`✅ dashboardLink set: ${res.locals.dashboardLink}`);
+
     } catch (err) {
       console.error("❌ Error retrieving membershipType:", err);
       res.locals.dashboardLink = "/dashboard";
@@ -322,7 +331,7 @@ res.locals.isAuthenticated =
       } else if (membershipType === 'leader') {
         const profile = await LeaderProfile.findOne({ leaderId: id }).lean();
         if (profile?.profileImage) res.locals.userProfileImage = profile.profileImage;
-      } else if (membershipType === 'groupmember') {
+      } else if (membershipType === 'group_member') {
         const profile = await GroupMemberProfile.findOne({ groupMemberId: id }).lean();
         if (profile?.profileImage) res.locals.userProfileImage = profile.profileImage;
       }
@@ -353,6 +362,7 @@ app.use('/member', require('./routes/memberroutes'));
 app.use('/member/group', require('./routes/groupmemberroutes'));
 app.use('/dashboard/leader', require('./routes/leaderdashboardroutes'));
 app.use('/dashboard/groupmember', require('./routes/groupmemberdashboardroutes'));
+app.use('/dashboard/group_member', require('./routes/groupmemberdashboardroutes'));
 app.use('/dashboard/member', require('./routes/memberdashboardroutes'));
 app.use('/leader', require('./routes/leaderroutes'));
 app.use('/auth', require('./routes/loginroutes'));
