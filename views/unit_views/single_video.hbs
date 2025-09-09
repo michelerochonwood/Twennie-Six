@@ -44,22 +44,25 @@
       {{/if}}
 
       <!-- Quick Tag (Member/Group Member) -->
-      {{#if isGroupMemberOrMember}}
-        <div class="single_unit-tag-container">
-          <form action="/tags/create" method="POST" class="inline">
-            <input type="hidden" name="_csrf" value="{{csrfToken}}">
-            <input type="hidden" name="itemId" value="{{_id}}">
-            <input type="hidden" name="itemType" value="video">
-            <input type="hidden" name="tagName" value="Read Later">
-            <button type="submit" class="tag-this-unit-link" style="background:none;border:none;padding:0;cursor:pointer;">
-              tag this unit
-              <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
-                <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
-              </svg>
-            </button>
-          </form>
-        </div>
-      {{/if}}
+{{#if isGroupMemberOrMember}}
+  <div class="single_unit-tag-container">
+    <form action="/tags/create" method="POST" class="inline" id="videoTagForm-{{_id}}">
+      <input type="hidden" name="_csrf" value="{{csrfToken}}">
+      <input type="hidden" name="itemId" value="{{_id}}">
+      <input type="hidden" name="itemType" value="video">
+      <input type="hidden" name="tagName" value="Read Later">  {{!-- default; prompt overwrites --}}
+      <button type="button"
+              class="tag-this-unit-link"
+              onclick="promptAndSubmitTag('videoTagForm-{{_id}}')"
+              style="background:none;border:none;padding:0;cursor:pointer;">
+        tag this unit
+        <svg class="tag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39.48 36.66">
+          <path class="cls-1" d="M38.77,21.12L16.05.56C15.65.19,15.13,0,14.59,0L2.12.16c-1.18.01-2.12.97-2.12,2.15v11.2c0,.63.28,1.24.77,1.64l24.95,21c.9.76,2.24.65,3.01-.24l10.23-11.8c.77-.88.69-2.22-.18-3ZM6.28,8.87c-1.57,0-2.84-1.27-2.84-2.84s1.27-2.84,2.84-2.84,2.84,1.27,2.84,2.84-1.27,2.84-2.84,2.84Z"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+{{/if}}
 
       <!-- Assign Form (Leader Only) -->
       {{#if isLeader}}
@@ -203,6 +206,20 @@ function toggleInstructionField(checkbox) {
     textarea.style.display = checkbox.checked ? 'block' : 'none';
   }
 }
+
+  function promptAndSubmitTag(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    const input = form.querySelector('input[name="tagName"]');
+    const suggested = (input?.value || 'Read Later').trim();
+    const entered = window.prompt('Name this tag', suggested);
+    if (!entered) return;
+    input.value = entered.trim();
+    if (!input.value) return;
+    const btn = form.querySelector('.tag-this-unit-link');
+    if (btn) btn.disabled = true; // optional double-click guard
+    form.submit(); // controller redirects back with ?tag=ok
+  }
 </script>
 
 
