@@ -18,6 +18,7 @@ const GroupMemberProfile = require('../models/profile_models/groupmember_profile
 const LeaderProfile = require('../models/profile_models/leader_profile');
 const TopicSuggestion = require('../models/topic/topic_suggestion');
 const Upcoming = require('../models/unit_models/upcoming');
+const DashboardSeen = require('../models/dashboard_seen');
 
 
 
@@ -669,13 +670,59 @@ const gmUpcomingRows2 = await Promise.all(
 
 groupLibraryUnits = [...groupLibraryUnits, ...gmUpcomingRows2];
 
+// ---------- NEW: tab counts + baseline + badges (group member) ----------
+
+// Build current counts from arrays you already computed above
+const gmCounts = {
+  group:   (userData.groupId?.members || []).length, // my group members
+  topics:  (topicSuggestions || []).length,          // my suggested topics
+  // prompts: both self-registered + assigned to me
+  prompts: (memberRegistrations || []).length + (assignedPromptSets || []).length,
+  // progress: simple monotonic signal (completed sets count)
+  progress: (formattedCompletedSets || []).length,
+  // library: my contributions (incl. upcoming after patches)
+  library: (groupMemberUnits || []).length,
+  // tagged: self-tagged + leader-assigned (pending + completed)
+  tagged:  (groupMemberTaggedUnits || []).length
+         + (leaderAssignedTags || []).length
+         + (completedLeaderAssignedTags || []).length
+};
+
+// Load/create seen doc for this group member
+let seenDocGM = await DashboardSeen.findOne({ userId: id, role: 'group_member' });
+
+if (!seenDocGM) {
+  // First time: baseline all tabs to current counts (no dots on first render)
+  seenDocGM = new DashboardSeen({ userId: id, role: 'group_member', tabs: new Map() });
+  for (const [key, val] of Object.entries(gmCounts)) {
+    seenDocGM.tabs.set(key, { count: val, seenAt: new Date() });
+  }
+  await seenDocGM.save();
+} else {
+  // If new tabs were added later, baseline them once
+  let updated = false;
+  for (const [key, val] of Object.entries(gmCounts)) {
+    if (!seenDocGM.tabs?.has(key)) {
+      seenDocGM.tabs.set(key, { count: val, seenAt: new Date() });
+      updated = true;
+    }
+  }
+  if (updated) await seenDocGM.save();
+}
+
+// Compute badges: show dot ONLY if current > lastSeen
+const gmBadges = {};
+for (const [key, val] of Object.entries(gmCounts)) {
+  const last = seenDocGM.tabs?.get(key)?.count ?? val; // default to current as baseline
+  gmBadges[key] = val > last;
+}
+
 // ✅ Final render
 return res.render('groupmember_dashboard', {
   layout: 'dashboardlayout',
   title: 'Group Member Dashboard',
   csrfToken: req.csrfToken(),
 
-  // 👇 add this
   mfaStatus,
 
   groupMember: {
@@ -699,7 +746,12 @@ return res.render('groupmember_dashboard', {
   groupMemberAccount,
   emailPreferenceLevel,
   groupLibraryUnits,
+
+  // 👇 NEW: pass counts + badges for green dots
+  gmCounts,
+  gmBadges
 });
+
 
         
         
